@@ -6,12 +6,12 @@ applications. It is built around the facilities provided by the java
 `ServiceLoader` and `URLClassLoader` classes.
 
 Features:
-    * Access code from jar files dynamically during runtime of your application
-    * Plugins provide features for other plugins or for the host application 
-      using java service provider interfaces (SPI).
-    * Deploy time extensibility: The whole TinyPlugz implementation can be 
-      exchanged during deploy time of your application to provide additional
-      features.
+* Access code from jar files dynamically during runtime of your application
+* Plugins provide features for other plugins or for the host application 
+  using java service provider interfaces (SPI).
+* Deploy time extensibility: The whole TinyPlugz implementation can be 
+  exchanged during deploy time of your application to provide additional
+  features.
       
 ## Usage
 Before TinyPlugz can be used, it needs to be configured using the 
