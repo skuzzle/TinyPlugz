@@ -24,7 +24,8 @@ public final class GuiceTinyPlugzImpl extends TinyPlugz {
     private ClassLoader pluginClassLoader;
 
     @Override
-    protected void initializeInstance(Set<URL> urls, ClassLoader applicationClassLoader,
+    protected final void initializeInstance(Set<URL> urls,
+            ClassLoader applicationClassLoader,
             Map<String, Object> properties) {
 
         this.pluginClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]),
@@ -34,8 +35,11 @@ public final class GuiceTinyPlugzImpl extends TinyPlugz {
     }
 
     private Iterable<Module> getPluginModules() {
-        final Iterator<Module> moduleIt = ServiceLoader.load(Module.class,
-                this.pluginClassLoader).iterator();
+        // using the plugin class loader allows to access Services from plugins
+        final Iterator<Module> moduleIt = ServiceLoader
+                .load(Module.class, this.pluginClassLoader)
+                .iterator();
+
         return new Iterable<Module>() {
 
             @Override

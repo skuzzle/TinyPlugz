@@ -16,12 +16,17 @@ import java.util.Set;
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
  * providing a high level API around the java {@link ServiceLoader} and
- * {@link URLClassLoader} classes. Before usage, TinyPlugz must deploy the
- * plugins that should be loaded. After deployment, TinyPlugz can be accessed in
- * a singleton typed manner:
+ * {@link URLClassLoader} classes. Before usage, TinyPlugz must be configured to
+ * specify the plugins which should be loaded. After deploying, TinyPlugz can be
+ * accessed in a singleton typed manner:
  *
  * <pre>
- * TinyPlugz.deployPlugins(source -&gt; source.addAll(myPluginFolder));
+ * TinyPlugzConfigurator.setup()
+ *         .withProperty(&quot;key&quot;, value) // some TinyPlugz implementations might
+ *                                     // need additional properties
+ *         .withPlugins(source -&gt; source.addAll(pluginFolder))
+ *         .deploy();
+ *
  * final Iterator&lt;MyService&gt; providers = TinyPlugz.getDefault()
  *         .loadServices(MyService.class);
  * </pre>
@@ -56,7 +61,10 @@ import java.util.Set;
  * <pre>
  * // This is the entry point main method of your application
  * public static void main(String[] args) {
- *     TinyPlugz.deployPlugins(source -&gt; source.addAll(yourPluginFolder))
+ *     TinyPlugzConfigurator.setup()
+ *             .withProperty(&quot;key&quot;, value)
+ *             .withPlugins(source -&gt; source.addAll(pluginFolder))
+ *             .deploy()
  *             .runMain(&quot;com.your.domain.ClassWithRealMainMethod&quot;, args);
  * }
  * </pre>
@@ -88,8 +96,17 @@ public abstract class TinyPlugz {
         return instance != null;
     }
 
+    /**
+     * This method is called right after instantiation of a TinyPlugz instance.
+     *
+     * @param urls The urls pointing to loadable plugins.
+     * @param applicationClassLoader The Classloader to use as parent.
+     * @param properties Additional configuration parameters.
+     * @throws TinyPlugzException When initializing failed.
+     */
     protected abstract void initializeInstance(Set<URL> urls,
-            ClassLoader applicationClassLoader, Map<String, Object> properties);
+            ClassLoader applicationClassLoader, Map<String, Object> properties)
+            throws TinyPlugzException;
 
     public abstract void runMain(String cls, String[] args)
             throws TinyPlugzException;

@@ -109,8 +109,10 @@ public final class TinyPlugzConfigurator {
          * accessible using {@link TinyPlugz#getDefault()}.
          *
          * @return The configured instance.
+         * @throws TinyPlugzException When initializing TinyPlugz with the
+         *             current configuration fails.
          */
-        public TinyPlugz deploy();
+        public TinyPlugz deploy() throws TinyPlugzException;
     }
 
     private final static class Impl implements DefineProperties, DeployTinyPlugz {
@@ -147,7 +149,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public TinyPlugz deploy() {
+        public TinyPlugz deploy() throws TinyPlugzException {
             synchronized (INIT_LOCK) {
                 final Iterator<TinyPlugz> providers = ServiceLoader
                         .load(TinyPlugz.class, this.parentCl)
