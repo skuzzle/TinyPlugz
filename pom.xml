@@ -13,6 +13,10 @@
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
     
+    <properties>
+        <guice.version>4.0-beta5</guice.version>
+    </properties>
+    
     <modules>
         <module>tiny-plugz</module>
         <module>tiny-plugz-guice</module>
@@ -30,7 +34,12 @@
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>4.0-beta5</version>
+                <version>${guice.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-multibindings</artifactId>
+                <version>${guice.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

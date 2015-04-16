@@ -1,16 +1,17 @@
 package de.skuzzle.tinyplugz;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
@@ -68,15 +69,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class TinyPlugz {
 
-    private static final Object INIT_LOCK = new Object();
-    private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
-
-    private static volatile TinyPlugz instance;
+    static volatile TinyPlugz instance;
 
     /**
-     * Gets the single TinyPlugz instance. Please note that before calling this
-     * method, TinyPlugz must be configured using
-     * {@link #deployPlugins(Consumer)}.
+     * Gets the single TinyPlugz instance.
      *
      * @return The TinyPlugz instance.
      */
@@ -88,66 +84,51 @@ public abstract class TinyPlugz {
         return plugz;
     }
 
-    /**
-     * Initializes TinyPlugz by loading plugins from the {@link PluginSource}
-     * which can be configured using the consumer argument. TinyPlugz will be
-     * setup according to the following sequence:
-     * <ol>
-     * <li>The {@link ServiceLoader} is used to find a {@link TinyPlugz}
-     * implementation using the current thread's context Classloader.</li>
-     * <li>The first provider which is found will be used.</li>
-     * <li>If no provider is found, the default implementation is used.</li>
-     * <li>The provider is configured by calling
-     * {@link #initializeInstance(Set, ClassLoader)}, passing a set of URLs
-     * obtained from the PluginSource and the current thread's context
-     * Classloader.</li>
-     * <li>The created provider is made accessible through {@link #getDefault()}
-     * .</li>
-     * </ol>
-     *
-     * @param source Allows to specify the plugins to load.
-     * @return The created TinyPlugz instance.
-     */
-    public static TinyPlugz deployPlugins(Consumer<PluginSource> source) {
-        TinyPlugz plugz = instance;
-        if (plugz != null) {
-            throw new IllegalStateException("TinyPlugz already initialized");
-        }
-        synchronized (INIT_LOCK) {
-            final PluginSourceBuilderImpl b = new PluginSourceBuilderImpl();
-            source.accept(b);
-            final ClassLoader appCl = Thread.currentThread().getContextClassLoader();
-            instance = initialize(b.getPluginUrls(), appCl);
-        }
-        return instance;
-    }
-
-    private static TinyPlugz initialize(Set<URL> pluginUrls,
-            ClassLoader contextClassLoader) {
-        final Iterator<TinyPlugz> providers = ServiceLoader
-                .load(TinyPlugz.class, contextClassLoader)
-                .iterator();
-
-        final TinyPlugz impl = providers.hasNext()
-                ? providers.next()
-                : new TinyPlugzImpl();
-
-        LOG.debug("Using '{}' TinyPlugz implementation", impl.getClass().getName());
-        if (providers.hasNext()) {
-            LOG.warn("Multiple TinyPlugz bindings found on class path");
-            providers.forEachRemaining(provider ->
-                    LOG.debug("Ignoring TinyPlugz provider '{}'",
-                            provider.getClass().getName()));
-        }
-        impl.initializeInstance(pluginUrls, contextClassLoader);
-        return impl;
+    static boolean isDeployed() {
+        return instance != null;
     }
 
     protected abstract void initializeInstance(Set<URL> urls,
-            ClassLoader applicationClassLoader);
+            ClassLoader applicationClassLoader, Map<String, Object> properties);
 
-    protected abstract void runMain(String cls, String[] args)
+    public abstract void runMain(String cls, String[] args)
             throws TinyPlugzException;
+
+    protected final void defaultRunMain(String className, String[] args)
+            throws TinyPlugzException {
+        try {
+            Thread.currentThread().setContextClassLoader(getClassLoader());
+            final Class<?> cls = getClassLoader().loadClass(className);
+            final Method method = cls.getMethod("main", new Class<?>[] { String[].class });
+
+            boolean bValidModifiers = false;
+            boolean bValidVoid = false;
+
+            if (method != null) {
+                method.setAccessible(true); // Disable IllegalAccessException
+                int nModifiers = method.getModifiers(); // main() must be
+                                                        // "public static"
+                bValidModifiers = Modifier.isPublic(nModifiers) &&
+                    Modifier.isStatic(nModifiers);
+                Class<?> clazzRet = method.getReturnType(); // main() must be
+                                                            // "void"
+                bValidVoid = (clazzRet == void.class);
+            }
+            if (method == null || !bValidModifiers || !bValidVoid) {
+                throw new TinyPlugzException(
+                        "The main() method in class \"" + cls.getName() + "\" not found.");
+            }
+
+            // Invoke method.
+            // Crazy cast "(Object)args" because param is: "Object... args"
+            method.invoke(null, (Object) args);
+        } catch (InvocationTargetException e) {
+            throw new TinyPlugzException(e.getTargetException());
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                | IllegalArgumentException | ClassNotFoundException e) {
+            throw new TinyPlugzException(e);
+        }
+    }
 
     /**
      * Returns the ClassLoader which can access classes from loaded plugins.
@@ -165,6 +146,10 @@ public abstract class TinyPlugz {
      */
     public abstract Optional<URL> getResource(String name);
 
+    protected final Optional<URL> defaultGetResource(String name) {
+        return Optional.ofNullable(getClassLoader().getResource(name));
+    }
+
     /**
      * Finds all the resources with the given name within loaded plugins and the
      * host application.
@@ -174,6 +159,22 @@ public abstract class TinyPlugz {
      * @throws IOException If I/O errors occur.
      */
     public abstract Iterator<URL> getResources(String name) throws IOException;
+
+    protected final Iterator<URL> defaultGetResources(String name) throws IOException {
+        final Enumeration<URL> e = getClassLoader().getResources(name);
+        return new Iterator<URL>() {
+
+            @Override
+            public boolean hasNext() {
+                return e.hasMoreElements();
+            }
+
+            @Override
+            public URL next() {
+                return e.nextElement();
+            }
+        };
+    }
 
     /**
      * Executes the given {@link Runnable} in the scope of the plugin
@@ -185,6 +186,17 @@ public abstract class TinyPlugz {
      */
     public abstract void contextClassLoaderScope(Runnable r);
 
+    protected final void defaultContextClassLoaderScope(Runnable r) {
+        final Thread current = Thread.currentThread();
+        final ClassLoader contextCl = current.getContextClassLoader();
+        try {
+            current.setContextClassLoader(getClassLoader());
+            r.run();
+        } finally {
+            current.setContextClassLoader(contextCl);
+        }
+    }
+
     /**
      * Loads all services of the given type which are accessible from loaded
      * plugins and the host application by using java's {@link ServiceLoader}
@@ -194,6 +206,14 @@ public abstract class TinyPlugz {
      * @return An iterator of providers for the requested service.
      */
     public abstract <T> Iterator<T> loadServices(Class<T> type);
+
+    protected final <T> Iterator<T> defaultLoadServices(Class<T> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type is null");
+        }
+
+        return ServiceLoader.load(type, getClassLoader()).iterator();
+    }
 
     /**
      * Loads services of the given type which are accessible from loaded plugins
@@ -206,6 +226,13 @@ public abstract class TinyPlugz {
      */
     public abstract <T> Optional<T> loadFirstService(Class<T> type);
 
+    protected final <T> Optional<T> defaultLoadFirstService(Class<T> type) {
+        final Iterator<T> services = loadServices(type);
+        return services.hasNext()
+                ? Optional.of(services.next())
+                : Optional.empty();
+    }
+
     /**
      * Loads services of the given type which are accessible from loaded plugins
      * and the host application by using java's {@link ServiceLoader}
@@ -217,4 +244,19 @@ public abstract class TinyPlugz {
      * @return The single service.
      */
     public abstract <T> T loadService(Class<T> type);
+
+    protected final <T> T defaultLoadService(Class<T> type) {
+        final Iterator<T> services = loadServices(type);
+        if (!services.hasNext()) {
+            throw new IllegalStateException(String.format(
+                    "no provider for service '%s' found", type));
+        }
+        final T first = services.next();
+        if (services.hasNext()) {
+            throw new IllegalStateException(String.format(
+                    "there are multiple providers for the service '%s'", type));
+        }
+
+        return first;
+    }
 }

@@ -4,8 +4,7 @@ import java.nio.file.Path;
 import java.util.function.Predicate;
 
 /**
- * Builder for configuring the plugins to be deployed by
- * {@link TinyPlugz#deployPlugins(java.util.function.Consumer)}.
+ * Builder for configuring the plugins to be deployed by {@link TinyPlugz}.
  *
  * @author Simon Taddiken
  */
