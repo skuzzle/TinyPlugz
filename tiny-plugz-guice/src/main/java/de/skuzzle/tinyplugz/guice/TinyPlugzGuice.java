@@ -13,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -72,8 +73,23 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
         final Iterable<Module> pluginModules = getPluginModules();
-        final Iterable<Module> both = Iterators.wrap(appModules, pluginModules);
-        this.injector = createInjector(properties, both);
+        final Iterable<Module> internal = getInternalModule();
+        final Iterable<Module> modules = Iterators.wrap(internal, appModules,
+                pluginModules);
+        this.injector = createInjector(properties, modules);
+    }
+
+    private Iterable<Module> getInternalModule() {
+        final Module internal = new AbstractModule() {
+
+            @Override
+            protected void configure() {
+                bind(TinyPlugz.class).toInstance(TinyPlugzGuice.this);
+                bind(ClassLoader.class).annotatedWith(PluginClassLoader.class)
+                        .toInstance(TinyPlugzGuice.this.pluginClassLoader);
+            }
+        };
+        return Iterators.singleIterable(internal);
     }
 
     private Injector createInjector(Map<Object, Object> props, Iterable<Module> modules) {

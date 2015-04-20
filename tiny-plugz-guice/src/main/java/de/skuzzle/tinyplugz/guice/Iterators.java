@@ -11,6 +11,24 @@ final class Iterators {
 
     private Iterators() {}
 
+    public static <T> Iterator<T> singleIterator(T t) {
+        return Collections.singleton(t).iterator();
+    }
+
+    public static <T> Iterable<T> singleIterable(T t) {
+        return iterableOf(singleIterator(t));
+    }
+
+    public static <T> Iterable<T> iterableOf(Iterator<T> it) {
+        return new Iterable<T>() {
+
+            @Override
+            public Iterator<T> iterator() {
+                return it;
+            }
+        };
+    }
+
     @SafeVarargs
     public static <T> Iterator<T> wrap(Iterator<T>... iterators) {
         Require.nonNull(iterators, "iterators");
@@ -37,14 +55,7 @@ final class Iterators {
                     .toArray(size -> new Iterator[size]);
             it = new CompoundIterator<T>(iterators);
         }
-
-        return new Iterable<T>() {
-
-            @Override
-            public Iterator<T> iterator() {
-                return it;
-            }
-        };
+        return iterableOf(it);
     }
 
     /**
