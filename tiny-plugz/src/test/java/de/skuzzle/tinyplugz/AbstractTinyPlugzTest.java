@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
@@ -69,6 +70,22 @@ public abstract class AbstractTinyPlugzTest {
                 .loadServices(SampleService.class);
         assertSame(impl1, it.next());
         assertSame(impl2, it.next());
+    }
+
+    @Test
+    public void testGetServicesEmpty() throws Exception {
+        mockService(SampleService.class);
+        final Iterator<SampleService> it = getSubject()
+                .loadServices(SampleService.class);
+        assertFalse(it.hasNext());
+    }
+
+    @Test
+    public void testGetFirstServiceEmpty() throws Exception {
+        mockService(SampleService.class);
+
+        final Optional<SampleService> it = getSubject().loadFirstService(SampleService.class);
+        assertFalse(it.isPresent());
     }
 
     @Test
