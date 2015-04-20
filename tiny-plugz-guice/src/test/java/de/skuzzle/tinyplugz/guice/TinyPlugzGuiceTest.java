@@ -7,12 +7,15 @@ import static org.mockito.Mockito.mock;
 import java.util.Collections;
 import java.util.Iterator;
 
+import javax.inject.Inject;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 
@@ -83,5 +86,29 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
 
         final Iterator<SampleService> provider = this.subject.getServices(SampleService.class);
         assertSame(impl, provider.next());
+    }
+
+    @Test
+    public void testGetInjector() throws Exception {
+        mockService(Module.class);
+        final Injector injector = this.subject.getService(Injector.class);
+        assertNotNull(injector);
+    }
+
+    @Test
+    public void testGetDefaultBindings() throws Exception {
+        mockService(Module.class);
+        final TestDefaultInjections inst = this.subject.getService(TestDefaultInjections.class);
+        assertSame(this.subject, inst.tinyPlugz);
+        assertSame(this.subject.getClassLoader(), inst.classLoader);
+
+    }
+
+    private static class TestDefaultInjections {
+        @Inject
+        private TinyPlugz tinyPlugz;
+        @Inject
+        @PluginClassLoader
+        private ClassLoader classLoader;
     }
 }
