@@ -15,10 +15,6 @@ final class Iterators {
         return Collections.singleton(t).iterator();
     }
 
-    public static <T> Iterable<T> singleIterable(T t) {
-        return iterableOf(singleIterator(t));
-    }
-
     public static <T> Iterable<T> iterableOf(Iterator<T> it) {
         return new Iterable<T>() {
 

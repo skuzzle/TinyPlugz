@@ -1,9 +1,11 @@
 package de.skuzzle.tinyplugz.guice;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,5 +65,23 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
     public void testInitialized() throws Exception {
         mockService(Module.class);
         assertNotNull(this.subject.getClassLoader());
+    }
+
+    @Test
+    public void loadServiceNoMultiBindings() throws Exception {
+        final SampleService impl = mock(SampleService.class);
+        final Module module = new AbstractModule() {
+
+            @Override
+            protected void configure() {
+                bind(SampleService.class).toInstance(impl);
+            }
+        };
+        MockUtil.mockService(Module.class, module);
+        final ClassLoader mockCL = mock(ClassLoader.class);
+        this.subject.initialize(Collections.emptySet(), mockCL, Collections.emptyMap());
+
+        final Iterator<SampleService> provider = this.subject.loadServices(SampleService.class);
+        assertSame(impl, provider.next());
     }
 }

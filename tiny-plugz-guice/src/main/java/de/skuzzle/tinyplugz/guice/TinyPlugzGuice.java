@@ -89,7 +89,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
                         .toInstance(TinyPlugzGuice.this.pluginClassLoader);
             }
         };
-        return Iterators.singleIterable(internal);
+        return Collections.singleton(internal);
     }
 
     private Injector createInjector(Map<Object, Object> props, Iterable<Module> modules) {
@@ -103,17 +103,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
     @SuppressWarnings("unchecked")
     private Iterable<Module> getAdditionalModules(Map<Object, Object> props) {
-        final Iterable<Module> modules = (Iterable<Module>) props.get(ADDITIONAL_MODULES);
-        if (modules == null) {
-            return new Iterable<Module>() {
-
-                @Override
-                public Iterator<Module> iterator() {
-                    return Collections.emptyIterator();
-                }
-            };
-        }
-        return modules;
+        return (Iterable<Module>) props.getOrDefault(ADDITIONAL_MODULES,
+                Collections.emptyList());
     }
 
     private Iterable<Module> getPluginModules() {
@@ -122,13 +113,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 .load(Module.class, this.pluginClassLoader)
                 .iterator();
 
-        return new Iterable<Module>() {
-
-            @Override
-            public Iterator<Module> iterator() {
-                return moduleIt;
-            }
-        };
+        return Iterators.iterableOf(moduleIt);
     }
 
     @Override
@@ -159,47 +144,39 @@ public final class TinyPlugzGuice extends TinyPlugz {
     @Override
     public final <T> Iterator<T> loadServices(Class<T> type) {
         Require.nonNull(type, "type");
-        final TypeLiteral<Set<T>> lit = setOf(type);
-        final Key<Set<T>> key = Key.get(lit);
-        final Set<T> bindings = this.injector.getInstance(key);
-        return bindings.iterator();
+
+        Iterator<T> result = null;
+        try {
+            final TypeLiteral<Set<T>> lit = setOf(type);
+            final Key<Set<T>> key = Key.get(lit);
+            final Set<T> bindings = this.injector.getInstance(key);
+
+            result = bindings.iterator();
+        } catch (ConfigurationException e) {
+            LOG.warn("Could not get set bindings for '{}'", type.getName(), e);
+            try {
+                final T single = this.injector.getInstance(type);
+                result = Iterators.singleIterator(single);
+            } catch (ConfigurationException e1) {
+                LOG.warn("Could not get instance for '{}'", type.getName(), e1);
+                result = Collections.emptyIterator();
+            }
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> TypeLiteral<Set<T>> setOf(Class<T> type) {
+    private <T> TypeLiteral<Set<T>> setOf(Class<T> type) {
         return (TypeLiteral<Set<T>>) TypeLiteral.get(Types.setOf(type));
     }
 
     @Override
     public final <T> Optional<T> loadFirstService(Class<T> type) {
-        // first, try to resolve multi binding
-        final Iterator<T> providers = loadServices(type);
-        T provider = null;
-        if (!providers.hasNext()) {
-            // no multi binding, try for single binding.
-            try {
-                provider = this.injector.getInstance(type);
-            } catch (ConfigurationException e) {
-                LOG.warn("Could not get instance for '{}'", type.getName(), e);
-                provider = null;
-            }
-        } else {
-            provider = providers.next();
-        }
-        return Optional.ofNullable(provider);
+        return defaultLoadFirstService(type);
     }
 
     @Override
     public final <T> T loadService(Class<T> type) {
-        // first, try to resolve multi binding
-        final Iterator<T> providers = loadServices(type);
-        if (!providers.hasNext()) {
-            // no multi binding, try for single binding.
-            return this.injector.getInstance(type);
-        }
-        final T provider = providers.next();
-        Require.state(!providers.hasNext(),
-                "there are multiple providers for the service '%s'", type.getName());
-        return provider;
+        return defaultLoadService(type);
     }
 }
