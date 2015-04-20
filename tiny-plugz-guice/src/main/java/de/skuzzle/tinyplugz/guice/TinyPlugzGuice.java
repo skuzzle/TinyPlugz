@@ -26,6 +26,19 @@ import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
 
+/**
+ * TinyPlugz implementation building upon google Guice and its Multibinding
+ * extension. When {@link #initialize(Set, ClassLoader, Map) initialize} is
+ * called, this implementation asks the {@link ServiceLoader} for providers
+ * implementing Guice's {@link Module} and then sets up an {@link Injector}
+ * using these modules. The {@link #getService(Class)},
+ * {@link #getFirstService(Class)} and {@link #getServices(Class)} methods are
+ * implemented using this Injector. Thus the services returned by this TinyPlugz
+ * implementation support the full range of Guice's dependency injection
+ * features including scopes, constructor injection and so on.
+ *
+ * @author Simon Taddiken
+ */
 public final class TinyPlugzGuice extends TinyPlugz {
 
     /**
@@ -141,6 +154,19 @@ public final class TinyPlugzGuice extends TinyPlugz {
         defaultContextClassLoaderScope(r);
     }
 
+    /**
+     * Gets all services of the given type which have been bound during
+     * initialization. The concrete behavior of this method is as follows:
+     * <ol>
+     * <li>If there is a multi binding for the given type, an iterator over the
+     * bound services is returned.</li>
+     * <li>If there is no multi binding, we try to resolve a single binding for
+     * the given type. If present, an iterator over the single service is
+     * returned.</li>
+     * <li>If there is neither a multi binding nor a single binding for the
+     * given type, an empty iterator is returned.</li>
+     * </ol>
+     */
     @Override
     public final <T> Iterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
@@ -170,11 +196,24 @@ public final class TinyPlugzGuice extends TinyPlugz {
         return (TypeLiteral<Set<T>>) TypeLiteral.get(Types.setOf(type));
     }
 
+    /**
+     * Returns the first service of given type. This method is implemented in
+     * terms of {@link #getServices(Class)} and thus follows its described
+     * behavior.
+     *
+     * @see #getServices(Class)
+     */
     @Override
     public final <T> Optional<T> getFirstService(Class<T> type) {
         return defaultGetFirstService(type);
     }
 
+    /**
+     * Returns the single service of the given type. This method is implemented
+     * in terms of {@link #getServices(Class)} and thus follows its described
+     * behavior. If there is more than one or no binding for the given type, an
+     * exception will be thrown.
+     */
     @Override
     public final <T> T getService(Class<T> type) {
         return defaultGetService(type);
