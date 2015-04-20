@@ -142,7 +142,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    public final <T> Iterator<T> loadServices(Class<T> type) {
+    public final <T> Iterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
 
         Iterator<T> result = null;
@@ -171,12 +171,12 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    public final <T> Optional<T> loadFirstService(Class<T> type) {
-        return defaultLoadFirstService(type);
+    public final <T> Optional<T> getFirstService(Class<T> type) {
+        return defaultGetFirstService(type);
     }
 
     @Override
-    public final <T> T loadService(Class<T> type) {
-        return defaultLoadService(type);
+    public final <T> T getService(Class<T> type) {
+        return defaultGetService(type);
     }
 }

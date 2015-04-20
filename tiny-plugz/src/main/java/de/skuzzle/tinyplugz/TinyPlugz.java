@@ -258,9 +258,9 @@ public abstract class TinyPlugz {
      * @param type Type of the service to load.
      * @return An iterator of providers for the requested service.
      */
-    public abstract <T> Iterator<T> loadServices(Class<T> type);
+    public abstract <T> Iterator<T> getServices(Class<T> type);
 
-    protected final <T> Iterator<T> defaultLoadServices(Class<T> type) {
+    protected final <T> Iterator<T> defaultGetServices(Class<T> type) {
         Require.nonNull(type, "type");
         return ServiceLoader.load(type, getClassLoader()).iterator();
     }
@@ -274,10 +274,10 @@ public abstract class TinyPlugz {
      * @param type Type of the service to load.
      * @return The first service which was found.
      */
-    public abstract <T> Optional<T> loadFirstService(Class<T> type);
+    public abstract <T> Optional<T> getFirstService(Class<T> type);
 
-    protected final <T> Optional<T> defaultLoadFirstService(Class<T> type) {
-        final Iterator<T> services = loadServices(type);
+    protected final <T> Optional<T> defaultGetFirstService(Class<T> type) {
+        final Iterator<T> services = getServices(type);
         return services.hasNext()
                 ? Optional.of(services.next())
                 : Optional.empty();
@@ -293,10 +293,10 @@ public abstract class TinyPlugz {
      * @param type Type of the service to load.
      * @return The single service.
      */
-    public abstract <T> T loadService(Class<T> type);
+    public abstract <T> T getService(Class<T> type);
 
-    protected final <T> T defaultLoadService(Class<T> type) {
-        final Iterator<T> services = loadServices(type);
+    protected final <T> T defaultGetService(Class<T> type) {
+        final Iterator<T> services = getServices(type);
         Require.state(services.hasNext(), "no provider for service '%s' found",
                 type.getName());
 

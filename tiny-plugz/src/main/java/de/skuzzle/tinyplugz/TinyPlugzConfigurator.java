@@ -267,18 +267,18 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final <T> Iterator<T> loadServices(Class<T> type) {
-            return defaultLoadServices(type);
+        public final <T> Iterator<T> getServices(Class<T> type) {
+            return defaultGetServices(type);
         }
 
         @Override
-        public final <T> Optional<T> loadFirstService(Class<T> type) {
-            return defaultLoadFirstService(type);
+        public final <T> Optional<T> getFirstService(Class<T> type) {
+            return defaultGetFirstService(type);
         }
 
         @Override
-        public final <T> T loadService(Class<T> type) {
-            return defaultLoadService(type);
+        public final <T> T getService(Class<T> type) {
+            return defaultGetService(type);
         }
     }
 }

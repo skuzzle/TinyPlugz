@@ -67,7 +67,7 @@ public abstract class AbstractTinyPlugzTest {
         mockService(SampleService.class, impl1, impl2);
 
         final Iterator<SampleService> it = getSubject()
-                .loadServices(SampleService.class);
+                .getServices(SampleService.class);
         assertSame(impl1, it.next());
         assertSame(impl2, it.next());
     }
@@ -76,7 +76,7 @@ public abstract class AbstractTinyPlugzTest {
     public void testGetServicesEmpty() throws Exception {
         mockService(SampleService.class);
         final Iterator<SampleService> it = getSubject()
-                .loadServices(SampleService.class);
+                .getServices(SampleService.class);
         assertFalse(it.hasNext());
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractTinyPlugzTest {
     public void testGetFirstServiceEmpty() throws Exception {
         mockService(SampleService.class);
 
-        final Optional<SampleService> it = getSubject().loadFirstService(SampleService.class);
+        final Optional<SampleService> it = getSubject().getFirstService(SampleService.class);
         assertFalse(it.isPresent());
     }
 
@@ -94,7 +94,7 @@ public abstract class AbstractTinyPlugzTest {
         final SampleService impl2 = mock(SampleService.class);
         mockService(SampleService.class, impl1, impl2);
 
-        final Optional<SampleService> it = getSubject().loadFirstService(SampleService.class);
+        final Optional<SampleService> it = getSubject().getFirstService(SampleService.class);
         assertSame(impl1, it.get());
     }
 
@@ -104,13 +104,13 @@ public abstract class AbstractTinyPlugzTest {
         final SampleService impl2 = mock(SampleService.class);
         mockService(SampleService.class, impl1, impl2);
 
-        getSubject().loadService(SampleService.class);
+        getSubject().getService(SampleService.class);
     }
 
     @Test(expected = RuntimeException.class)
     public void testGetServiceNoServices() throws Exception {
         mockService(SampleService.class);
-        getSubject().loadService(SampleService.class);
+        getSubject().getService(SampleService.class);
     }
 
     @Test
@@ -118,7 +118,7 @@ public abstract class AbstractTinyPlugzTest {
         final SampleService impl1 = mock(SampleService.class);
         mockService(SampleService.class, impl1);
 
-        final SampleService service = getSubject().loadService(SampleService.class);
+        final SampleService service = getSubject().getService(SampleService.class);
         assertSame(impl1, service);
     }
 

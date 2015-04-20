@@ -31,7 +31,7 @@ public class DefaultTinyPlugzTest {
     @Test
     public void testGetHostService() throws Exception {
         final Iterator<HostService> providers = TinyPlugz.getDefault()
-                .loadServices(HostService.class);
+                .getServices(HostService.class);
         assertTrue(providers.hasNext());
         final HostService service = providers.next();
         final String expected = "Plugin 1 says: foo";

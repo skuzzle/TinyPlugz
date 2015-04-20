@@ -81,7 +81,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         final ClassLoader mockCL = mock(ClassLoader.class);
         this.subject.initialize(Collections.emptySet(), mockCL, Collections.emptyMap());
 
-        final Iterator<SampleService> provider = this.subject.loadServices(SampleService.class);
+        final Iterator<SampleService> provider = this.subject.getServices(SampleService.class);
         assertSame(impl, provider.next());
     }
 }
