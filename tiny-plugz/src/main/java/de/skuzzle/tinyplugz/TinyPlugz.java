@@ -26,7 +26,7 @@ import java.util.Set;
  *                                     // need additional properties
  *         .withPlugins(source -&gt; source.addAll(pluginFolder))
  *         .deploy();
- *
+ * 
  * final Iterator&lt;MyService&gt; providers = TinyPlugz.getDefault()
  *         .loadServices(MyService.class);
  * </pre>
@@ -47,7 +47,7 @@ import java.util.Set;
  * the {@link #getClassLoader() plugin Classloader} directly.
  * </p>
  *
- * <h3>As parent Classloader</h3>
+ * <h3>As parent Classloader (container mode)</h3>
  * <p>
  * In this scenario your whole application will be loaded by TinyPlugz, making
  * TinyPlugz the parent Classloader of your application. This is achieved by
@@ -73,6 +73,15 @@ import java.util.Set;
  * main thread with TinyPlugz's plugin Classloader.
  * </p>
  *
+ * <h2>Deploytime Extensibility</h2>
+ * <p>
+ * The {@link TinyPlugz} instance returned by {@link #getDefault()} is
+ * automatically determined by using java's {@link ServiceLoader} class. It will
+ * look for an registered service provider for the type TinyPlugz and use the
+ * first encountered provider. If no provider is found, the default
+ * implementation will be used.
+ * </p>
+ *
  * @author Simon Taddiken
  */
 public abstract class TinyPlugz {
@@ -86,33 +95,55 @@ public abstract class TinyPlugz {
      */
     public static TinyPlugz getDefault() {
         final TinyPlugz plugz = instance;
-        if (plugz == null) {
-            throw new IllegalStateException("TinyPlugz has not been initialized");
-        }
+        Require.state(plugz != null, "TinyPlugz has not been initialized");
         return plugz;
     }
 
     static boolean isDeployed() {
+        // visible for the TinyPlugzConfigurator.
         return instance != null;
     }
 
     /**
-     * This method is called right after instantiation of a TinyPlugz instance.
+     * This method is called by the TinyPlugz runtime right after instantiation
+     * of this instance.
      *
      * @param urls The urls pointing to loadable plugins.
-     * @param applicationClassLoader The Classloader to use as parent.
+     * @param parentClassLoader The Classloader to use as parent.
      * @param properties Additional configuration parameters.
      * @throws TinyPlugzException When initializing failed.
      */
-    protected abstract void initializeInstance(Set<URL> urls,
-            ClassLoader applicationClassLoader, Map<String, Object> properties)
+    protected abstract void initialize(Set<URL> urls,
+            ClassLoader parentClassLoader, Map<Object, Object> properties)
             throws TinyPlugzException;
 
-    public abstract void runMain(String cls, String[] args)
+    /**
+     * Executes a main method in the context of the plugin ClassLoader. This
+     * method uses the plugin ClassLoader to load the class with given
+     * {@code className} and then searches for a
+     * {@code public static void main(String[] args)} method to execute.
+     * Additionally, the plugin ClassLoader is set as context ClassLoader for
+     * the current thread.
+     *
+     * <p>
+     * Using this method it is possible to use TinyPlugz as an execution
+     * container for the whole application, because all subsequently loaded
+     * classes will have access to the plugin ClassLoader.
+     * </p>
+     *
+     * @param className Name of the class which contains the main method.
+     * @param args Arguments to pass to the main method.
+     * @throws TinyPlugzException If loading the class or calling it's main
+     *             method fails.
+     */
+    public abstract void runMain(String className, String[] args)
             throws TinyPlugzException;
 
     protected final void defaultRunMain(String className, String[] args)
             throws TinyPlugzException {
+        Require.nonNull(className, "className");
+        Require.nonNull(args, "args");
+
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
             final Class<?> cls = getClassLoader().loadClass(className);
@@ -149,6 +180,8 @@ public abstract class TinyPlugz {
 
     /**
      * Returns the ClassLoader which can access classes from loaded plugins.
+     * This gives the caller low level access to the plugins. If possible, use
+     * the abstractions of the {@link TinyPlugz} class instead.
      *
      * @return The plugin ClassLoader.
      */
@@ -164,6 +197,7 @@ public abstract class TinyPlugz {
     public abstract Optional<URL> getResource(String name);
 
     protected final Optional<URL> defaultGetResource(String name) {
+        Require.nonNull(name, "name");
         return Optional.ofNullable(getClassLoader().getResource(name));
     }
 
@@ -178,6 +212,7 @@ public abstract class TinyPlugz {
     public abstract Iterator<URL> getResources(String name) throws IOException;
 
     protected final Iterator<URL> defaultGetResources(String name) throws IOException {
+        Require.nonNull(name, "name");
         final Enumeration<URL> e = getClassLoader().getResources(name);
         return new Iterator<URL>() {
 
@@ -204,6 +239,7 @@ public abstract class TinyPlugz {
     public abstract void contextClassLoaderScope(Runnable r);
 
     protected final void defaultContextClassLoaderScope(Runnable r) {
+        Require.nonNull(r, "r");
         final Thread current = Thread.currentThread();
         final ClassLoader contextCl = current.getContextClassLoader();
         try {
@@ -225,10 +261,7 @@ public abstract class TinyPlugz {
     public abstract <T> Iterator<T> loadServices(Class<T> type);
 
     protected final <T> Iterator<T> defaultLoadServices(Class<T> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type is null");
-        }
-
+        Require.nonNull(type, "type");
         return ServiceLoader.load(type, getClassLoader()).iterator();
     }
 
@@ -264,15 +297,12 @@ public abstract class TinyPlugz {
 
     protected final <T> T defaultLoadService(Class<T> type) {
         final Iterator<T> services = loadServices(type);
-        if (!services.hasNext()) {
-            throw new IllegalStateException(String.format(
-                    "no provider for service '%s' found", type));
-        }
+        Require.state(services.hasNext(), "no provider for service '%s' found",
+                type.getName());
+
         final T first = services.next();
-        if (services.hasNext()) {
-            throw new IllegalStateException(String.format(
-                    "there are multiple providers for the service '%s'", type));
-        }
+        Require.state(!services.hasNext(),
+                "there are multiple providers for the service '%s'", type.getName());
 
         return first;
     }

@@ -22,12 +22,9 @@ final class PluginSourceBuilderImpl implements PluginSource {
 
     @Override
     public final PluginSource addUnpackedPlugin(Path folder) {
-        if (folder == null) {
-            throw new IllegalArgumentException("folder is null");
-        } else if (!Files.isDirectory(folder)) {
-            throw new IllegalArgumentException(String.format(
-                    "folder '%s' does not denote a directory", folder));
-        }
+        Require.nonNull(folder, "folder");
+        Require.argument(Files.isDirectory(folder),
+                "folder '%s' does not denote a directory", folder);
 
         addPath(folder);
         return this;
@@ -35,10 +32,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
 
     @Override
     public final PluginSource addPluginJar(Path jarFile) {
-        if (jarFile == null) {
-            throw new IllegalArgumentException("jarFile is null");
-        }
-
+        Require.nonNull(jarFile, "jarFile");
         addPath(jarFile);
         return this;
     }
