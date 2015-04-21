@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
 
+    <name>tiny-plugz</name>
     <properties>
         <skuzzle.runtime.version>0.9.0</skuzzle.runtime.version>
     </properties>
