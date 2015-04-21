@@ -1,7 +1,7 @@
 package de.skuzzle.tinyplugz;
 
 /**
- * Utility class for checking parameters.
+ * Utility class for checking parameters and states.
  *
  * @author Simon Taddiken
  */

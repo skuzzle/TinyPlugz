@@ -17,41 +17,41 @@ import org.junit.Test;
 public class IteratorsTest {
 
     @SuppressWarnings("unchecked")
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrapNullIterator() {
-        Iterators.wrap((Iterator[]) null);
-    }
+                @Test(expected = IllegalArgumentException.class)
+                public void testCompositeNullIterator() {
+                    Iterators.composite((Iterator[]) null);
+                }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrapNullIterable() {
-        Iterators.wrap((Iterable[]) null);
-    }
+                @Test(expected = IllegalArgumentException.class)
+                public void testCompositeNullIterable() {
+                    Iterators.composite((Iterable[]) null);
+                }
 
     @Test
-    public void testWrapSingleIterator() throws Exception {
-        final Iterator<String> it = Collections.emptyIterator();
-        assertSame(it, Iterators.wrap(it));
-    }
+                public void testCompositeSingleIterator() throws Exception {
+                    final Iterator<String> it = Collections.emptyIterator();
+                    assertSame(it, Iterators.composite(it));
+                }
 
     @Test
-    public void testWrapIterables() throws Exception {
-        final Collection<String> first = Arrays.asList("a", "b");
-        final Collection<String> second = Arrays.asList("c", "d");
-        final Iterable<String> wrapped = Iterators.wrap(first, second);
-        final Iterator<String> it = wrapped.iterator();
-        assertEquals("a", it.next());
-        assertEquals("b", it.next());
-        assertEquals("c", it.next());
-        assertEquals("d", it.next());
-        assertFalse(it.hasNext());
-    }
+                public void testCompositeIterables() throws Exception {
+                    final Collection<String> first = Arrays.asList("a", "b");
+                    final Collection<String> second = Arrays.asList("c", "d");
+                    final Iterable<String> wrapped = Iterators.composite(first, second);
+                    final Iterator<String> it = wrapped.iterator();
+                    assertEquals("a", it.next());
+                    assertEquals("b", it.next());
+                    assertEquals("c", it.next());
+                    assertEquals("d", it.next());
+                    assertFalse(it.hasNext());
+                }
 
     @Test
-    public void testWrapSingleIterable() throws Exception {
-        final Iterable<String> it = Collections.emptyList();
-        assertSame(it, Iterators.wrap(it));
-    }
+                public void testCompositeSingleIterable() throws Exception {
+                    final Iterable<String> it = Collections.emptyList();
+                    assertSame(it, Iterators.composite(it));
+                }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -59,7 +59,7 @@ public class IteratorsTest {
         final Collection<String> v = new ArrayList<>();
         final Iterator<String>[] enums = (Iterator<String>[])
                 new Iterator<?>[] { v.iterator(), v.iterator(), v.iterator() };
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         Assert.assertFalse(ce.hasNext());
     }
 
@@ -67,7 +67,7 @@ public class IteratorsTest {
     @SuppressWarnings("unchecked")
     public void testEmptyArray() {
         final Iterator<String>[] enums = (Iterator<String>[]) new Iterator<?>[0];
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         Assert.assertFalse(ce.hasNext());
     }
 
@@ -79,7 +79,7 @@ public class IteratorsTest {
         final Iterator<String>[] enums = (Iterator<String>[])
                 new Iterator<?>[] { oneElement.iterator(), empty.iterator(),
                         oneElement.iterator() };
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         Assert.assertEquals("foo", ce.next());
         Assert.assertTrue(ce.hasNext());
         Assert.assertEquals("foo", ce.next());
@@ -94,7 +94,7 @@ public class IteratorsTest {
         final Iterator<String>[] enums = (Iterator<String>[])
                 new Iterator<?>[] { empty.iterator(), oneElement.iterator(),
                         oneElement.iterator() };
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         Assert.assertEquals("foo", ce.next());
         Assert.assertTrue(ce.hasNext());
         Assert.assertEquals("foo", ce.next());
@@ -109,7 +109,7 @@ public class IteratorsTest {
         final Iterator<String>[] enums = (Iterator<String>[])
                 new Iterator<?>[] { oneElement.iterator(), oneElement.iterator(),
                         empty.iterator() };
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         Assert.assertEquals("foo", ce.next());
         Assert.assertTrue(ce.hasNext());
         Assert.assertEquals("foo", ce.next());
@@ -120,7 +120,7 @@ public class IteratorsTest {
     @Test(expected = NoSuchElementException.class)
     public void testNoSuchElementException() {
         final Iterator<String>[] enums = (Iterator<String>[]) new Iterator<?>[0];
-        final Iterator<String> ce = Iterators.wrap(enums);
+        final Iterator<String> ce = Iterators.composite(enums);
         ce.next();
     }
 }

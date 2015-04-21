@@ -110,7 +110,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
         final Iterable<Module> appModules = getAdditionalModules(properties);
         final Iterable<Module> pluginModules = getPluginModules();
         final Iterable<Module> internal = getInternalModule();
-        final Iterable<Module> modules = Iterators.wrap(internal, appModules,
+        final Iterable<Module> modules = Iterators.composite(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
     }

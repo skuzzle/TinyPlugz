@@ -13,10 +13,22 @@ final class Iterators {
         // hidden constructor
     }
 
+    /**
+     * Creates an Iterator over the single given element.
+     *
+     * @param t The element.
+     * @return Iterator returning the single element.
+     */
     public static <T> Iterator<T> singleIterator(T t) {
         return Collections.singleton(t).iterator();
     }
 
+    /**
+     * Wraps the given Iterator into an Iterable.
+     *
+     * @param it The Iterator to wrap.
+     * @return An {@link Iterable} which returns the given Iterator.
+     */
     public static <T> Iterable<T> iterableOf(Iterator<T> it) {
         return new Iterable<T>() {
 
@@ -27,8 +39,15 @@ final class Iterators {
         };
     }
 
+    /**
+     * Creates an iterator which subsequently iterates over all given iterators.
+     *
+     * @param iterators An array of iterators.
+     * @return A composite iterator iterating the values of all given iterators
+     *         in given order.
+     */
     @SafeVarargs
-    public static <T> Iterator<T> wrap(Iterator<T>... iterators) {
+    public static <T> Iterator<T> composite(Iterator<T>... iterators) {
         Require.nonNull(iterators, "iterators");
         if (iterators.length == 0) {
             return Collections.emptyIterator();
@@ -38,9 +57,16 @@ final class Iterators {
         return new CompoundIterator<>(iterators);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Creates an iterable which returns a composite iterator over all iterators
+     * of the given iterables.
+     *
+     * @param iterables The Iterables to wrap.
+     * @return A composite iterable.
+     */
     @SafeVarargs
-    public static <T> Iterable<T> wrap(Iterable<T>...iterables) {
+    @SuppressWarnings("unchecked")
+    public static <T> Iterable<T> composite(Iterable<T>...iterables) {
         Require.nonNull(iterables, "iterables");
         final Iterator<T> it;
         if (iterables.length == 0) {
