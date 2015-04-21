@@ -21,10 +21,10 @@ abstract class TinyPlugzLookUp {
      * Strategy for determining the TinyPlugz implementation using the
      * {@link ServiceLoader}
      */
-    static final TinyPlugzLookUp SPI_STRATEGY = new SPITinyPlugzLookup();
+    public static final TinyPlugzLookUp SPI_STRATEGY = new SPITinyPlugzLookup();
 
     /** Strategy for creating a default implementation of TinyPlugz */
-    static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY = new TinyPlugzLookUp() {
+    public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY = new TinyPlugzLookUp() {
 
         @Override
         @SuppressWarnings("deprecation")
@@ -37,7 +37,7 @@ abstract class TinyPlugzLookUp {
     /**
      * Strategy for using a property defined class as TinyPlugz implementation.
      */
-    static final TinyPlugzLookUp STATIC_STRATEGY = new StaticTinyPlugzLookup();
+    public static final TinyPlugzLookUp STATIC_STRATEGY = new StaticTinyPlugzLookup();
 
     private TinyPlugzLookUp() {
         // hidden constructor
@@ -61,15 +61,15 @@ abstract class TinyPlugzLookUp {
         private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzLookUp.class);
 
         @Override
-        @SuppressWarnings("deprecation")
-        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
+        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
+                throws TinyPlugzException {
             final Iterator<TinyPlugz> providers = ServiceLoader
                     .load(TinyPlugz.class, classLoader)
                     .iterator();
 
             final TinyPlugz impl = providers.hasNext()
                     ? providers.next()
-                    : new TinyPlugzImpl();
+                    : DEFAULT_INSTANCE_STRATEGY.getInstance(classLoader, props);
 
             if (providers.hasNext()) {
                 LOG.warn("Multiple TinyPlugz bindings found on class path");

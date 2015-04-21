@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 final class PluginSourceBuilderImpl implements PluginSource {
 
+    // workaround for slow equals and hashCode method of URL class
     private static final class URLKey {
         private final URL url;
         private final String key;
@@ -54,7 +55,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
     @Override
     public final PluginSource addUnpackedPlugin(Path folder) {
         Require.nonNull(folder, "folder");
-        Require.argument(Files.isDirectory(folder),
+        Require.condition(Files.isDirectory(folder),
                 "path '%s' does not denote a directory", folder);
 
         addPath(folder);
@@ -72,7 +73,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
     public final PluginSource addAllPluginJars(Path folder, Predicate<Path> filter) {
         Require.nonNull(folder, "folder");
         Require.nonNull(filter, "filter");
-        Require.argument(Files.isDirectory(folder),
+        Require.condition(Files.isDirectory(folder),
                 "path '%s' does not denote a directory", folder);
 
         for (int i = 0; i < folder.getNameCount(); ++i) {

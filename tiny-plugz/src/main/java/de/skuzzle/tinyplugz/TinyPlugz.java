@@ -88,7 +88,7 @@ import java.util.ServiceLoader;
  */
 public abstract class TinyPlugz {
 
-    static volatile TinyPlugz instance;
+    private static volatile TinyPlugz instance;
 
     /**
      * Gets the single TinyPlugz instance.
@@ -99,6 +99,10 @@ public abstract class TinyPlugz {
         final TinyPlugz plugz = instance;
         Require.state(plugz != null, "TinyPlugz has not been initialized");
         return plugz;
+    }
+
+    static void deploy(TinyPlugz instance) {
+        TinyPlugz.instance = instance;
     }
 
     static boolean isDeployed() {
@@ -272,28 +276,30 @@ public abstract class TinyPlugz {
     }
 
     /**
-     * Executes the given {@link Runnable} in the scope of the plugin
-     * Classloader. That is, the Classloader which is responsible for loading
-     * plugins is set as context Classloader for the current thread. After the
-     * runnable has been executed, the original context Classloader is restored.
+     * Executes the given {@link ContextAction#perform() ContextAction} in the
+     * scope of the plugin Classloader. That is, the Classloader which is
+     * responsible for loading plugins is set as context Classloader for the
+     * current thread. After the action has been executed, the original context
+     * Classloader is restored.
      *
-     * @param r The runnable to execute.
+     * @param action The action to execute.
      */
-    public abstract void contextClassLoaderScope(Runnable r);
+    public abstract void contextClassLoaderScope(ContextAction action);
 
     /**
-     * Default implementation for {@link #contextClassLoaderScope(Runnable)}
-     * building upon result of {@link #getClassLoader()}.
+     * Default implementation for
+     * {@link #contextClassLoaderScope(ContextAction)} building upon result of
+     * {@link #getClassLoader()}.
      *
-     * @param r The runnable to execute.
+     * @param action The action to execute.
      */
-    protected final void defaultContextClassLoaderScope(Runnable r) {
-        Require.nonNull(r, "r");
+    protected final void defaultContextClassLoaderScope(ContextAction action) {
+        Require.nonNull(action, "action");
         final Thread current = Thread.currentThread();
         final ClassLoader contextCl = current.getContextClassLoader();
         try {
             current.setContextClassLoader(getClassLoader());
-            r.run();
+            action.perform();
         } finally {
             current.setContextClassLoader(contextCl);
         }

@@ -97,6 +97,12 @@ public final class TinyPlugzConfigurator {
         return new Impl(TinyPlugzConfigurator.class.getClassLoader());
     }
 
+    /**
+     * Part of the fluent configurator API. Used to define configuration
+     * properties and the plugins to be used.
+     *
+     * @author Simon Taddiken
+     */
     public static interface DefineProperties {
 
         /**
@@ -141,6 +147,12 @@ public final class TinyPlugzConfigurator {
         DeployTinyPlugz withPlugins(Consumer<PluginSource> source);
     }
 
+    /**
+     * Part of the fluent configurator API. Represents the final step and allows
+     * to actually deploy the configured TinyPlugz instance.
+     *
+     * @author Simon Taddiken
+     */
     public interface DeployTinyPlugz {
 
         /**
@@ -207,7 +219,7 @@ public final class TinyPlugzConfigurator {
                         .collect(Collectors.toList());
                 impl.initialize(plugins, this.parentCl,
                         this.properties);
-                TinyPlugz.instance = impl;
+                TinyPlugz.deploy(impl);
                 return impl;
             }
         }
@@ -283,8 +295,8 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final void contextClassLoaderScope(Runnable r) {
-            defaultContextClassLoaderScope(r);
+        public final void contextClassLoaderScope(ContextAction action) {
+            defaultContextClassLoaderScope(action);
         }
 
         @Override
