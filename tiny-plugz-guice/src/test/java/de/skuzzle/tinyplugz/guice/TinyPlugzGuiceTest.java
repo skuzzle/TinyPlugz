@@ -102,7 +102,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         final TestDefaultInjections inst = this.subject.getService(TestDefaultInjections.class);
         assertSame(this.subject, inst.tinyPlugz);
         assertSame(this.subject.getClassLoader(), inst.classLoader);
-
+        assertNotNull(inst.injector);
     }
 
     private static class TestDefaultInjections {
@@ -111,5 +111,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         @Inject
         @Named(TinyPlugzGuice.PLUGIN_CLASSLOADER)
         private ClassLoader classLoader;
+        @Inject
+        private Injector injector;
     }
 }

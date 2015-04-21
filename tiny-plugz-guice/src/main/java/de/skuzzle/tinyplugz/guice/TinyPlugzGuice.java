@@ -20,12 +20,14 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.ContextAction;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzException;
 
 /**
@@ -39,6 +41,16 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * implemented using the created Injector. Thus the services returned by this
  * TinyPlugz implementation support the full range of Guice's dependency
  * injection features including scopes, constructor injection and so on.
+ *
+ * <h2>Usage</h2>
+ * <p>
+ * This extension comes with a TinyPlugz service provider definition which will
+ * automatically be recognized by the {@link TinyPlugzConfigurator} if it is the
+ * only one provider on the classpath. In your host application you can still
+ * force usage of this implementation by adding the
+ * {@link TinyPlugzConfigurator#FORCE_IMPLEMENTATION} property with the value
+ * {@code "de.skuzzle.tinyplugz.guice.TinyPlugzGuice"}.
+ * </p>
  *
  * <h2>Setup</h2>
  * <p>
@@ -61,9 +73,22 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * </p>
  * <p>
  * The setup is done in {@link #initialize(Collection, ClassLoader, Map)} and
- * thus during deploy-time of TinyPlugz. Once initialized, the TinyPlugz
- * interface is implemented in terms of the created Injector and Guice's
- * multibindings.
+ * thus during deploy-time of TinyPlugz. Please note that you can not access
+ * TinyPlugz using {@link TinyPlugz#getDefault()} within your modules. However
+ * you can inject the TinyPlugz instance where ever needed (e.g. as a parameter
+ * to a provider method in your module). See <em>Default Bindings</em> below.
+ * </p>
+ *
+ * <h2>Service Resolution</h2>
+ * <p>
+ * Services are obtained using three Guice idioms: multibindings, linked
+ * bindings and just-in-time bindings. Given a service type {@code T}, the
+ * {@link #getServices(Class)} method will first attempt to obtain a
+ * {@code Set<T>} from the Injector which might have been bound using a
+ * {@link Multibinder}. If there is no binding or the set is empty, the Injector
+ * is queried for a single instance of type {@code T}, returning either an
+ * explicitly bound instance or an instance created from a just-in-time binding.
+ * If this does not yield an result either, an empty Iterator will be returned.
  * </p>
  *
  * <h2>Default Bindings</h2>
@@ -143,6 +168,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     private Iterable<Module> getInternalModule() {
+        // create the default bindings
         final Module internal = new AbstractModule() {
 
             @Override
