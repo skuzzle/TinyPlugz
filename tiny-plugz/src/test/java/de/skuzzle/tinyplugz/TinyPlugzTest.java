@@ -12,7 +12,6 @@ public class TinyPlugzTest extends AbstractTinyPlugzTest {
 
     private final TinyPlugzImpl subject;
 
-    @SuppressWarnings("deprecation")
     public TinyPlugzTest() {
         this.subject = new TinyPlugzImpl();
     }

@@ -28,7 +28,6 @@ abstract class TinyPlugzLookUp {
             new TinyPlugzLookUp() {
 
         @Override
-        @SuppressWarnings("deprecation")
         TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
                 throws TinyPlugzException {
             return new TinyPlugzImpl();

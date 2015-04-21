@@ -259,14 +259,6 @@ public final class TinyPlugzConfigurator {
 
         private ClassLoader pluginClassLoader;
 
-        /**
-         * @deprecated Do not manually instantiate this class.
-         */
-        @Deprecated
-        TinyPlugzImpl() {
-            // do not call me!
-        }
-
         @Override
         protected final void initialize(Collection<URL> urls,
                 ClassLoader parentClassLoader, Map<Object, Object> properties) {
