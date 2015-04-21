@@ -39,6 +39,10 @@ abstract class TinyPlugzLookUp {
      */
     static final TinyPlugzLookUp STATIC_STRATEGY = new StaticTinyPlugzLookup();
 
+    private TinyPlugzLookUp() {
+        // hidden constructor
+    }
+
     /**
      * Creates a TinyPlugz instance, configuring it according to the given
      * properties.
