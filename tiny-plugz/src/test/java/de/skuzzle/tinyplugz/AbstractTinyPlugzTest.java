@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
@@ -96,6 +97,19 @@ public abstract class AbstractTinyPlugzTest {
 
         final Optional<SampleService> it = getSubject().getFirstService(SampleService.class);
         assertSame(impl1, it.get());
+    }
+
+    @Test
+    public void testIsServiceAvailableNoService() throws Exception {
+        mockService(SampleService.class);
+        assertFalse(getSubject().isServiceAvailable(SampleService.class));
+    }
+
+    @Test
+    public void testIsServiceAvailable() throws Exception {
+        final SampleService impl1 = mock(SampleService.class);
+        mockService(SampleService.class, impl1);
+        assertTrue(getSubject().isServiceAvailable(SampleService.class));
     }
 
     @Test(expected = RuntimeException.class)
