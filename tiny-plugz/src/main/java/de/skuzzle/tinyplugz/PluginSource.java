@@ -4,7 +4,10 @@ import java.nio.file.Path;
 import java.util.function.Predicate;
 
 /**
- * Builder for configuring the plugins to be deployed by {@link TinyPlugz}.
+ * Builder for configuring the plugins to be deployed by {@link TinyPlugz}. This
+ * interface is not intended to be implemented by clients. An instance of this
+ * interface can be consumed while configuring the TinyPlugz instance before
+ * deployment using the {@link TinyPlugzConfigurator}.
  *
  * @author Simon Taddiken
  */

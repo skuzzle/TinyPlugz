@@ -51,7 +51,7 @@ public class TinyPlugzLookUpTest {
         }
 
         @Override
-        public void contextClassLoaderScope(Runnable r) {}
+        public void contextClassLoaderScope(ContextAction action) {}
 
         @Override
         public <T> Iterator<T> getServices(Class<T> type) {

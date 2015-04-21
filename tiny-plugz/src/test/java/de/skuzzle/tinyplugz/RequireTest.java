@@ -29,15 +29,15 @@ public class RequireTest {
     }
 
     @Test
-    public void testArgumentWithFalseCondition() throws Exception {
+    public void testConditionWithFalseCondition() throws Exception {
         this.exception.expect(IllegalArgumentException.class);
         this.exception.expectMessage("foo bar");
-        Require.argument(false, "foo %s", "bar");
+        Require.condition(false, "foo %s", "bar");
     }
 
     @Test
-    public void testArgumentWithTrueCondition() throws Exception {
-        Require.argument(true, "foo", "bar");
+    public void testConditionWithTrueCondition() throws Exception {
+        Require.condition(true, "foo", "bar");
     }
 
     @Test

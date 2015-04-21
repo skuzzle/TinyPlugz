@@ -34,7 +34,7 @@ public final class Require {
      * @throws IllegalArgumentException If {@code condition} is
      *             <code>false</code>.
      */
-    public static void argument(boolean condition, String message, Object... format) {
+    public static void condition(boolean condition, String message, Object... format) {
         if (!condition) {
             throw new IllegalArgumentException(String.format(message, format));
         }

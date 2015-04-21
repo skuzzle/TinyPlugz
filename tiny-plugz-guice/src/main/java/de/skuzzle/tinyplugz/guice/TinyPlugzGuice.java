@@ -23,6 +23,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
+import de.skuzzle.tinyplugz.ContextAction;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
@@ -38,6 +39,32 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * implemented using the created Injector. Thus the services returned by this
  * TinyPlugz implementation support the full range of Guice's dependency
  * injection features including scopes, constructor injection and so on.
+ *
+ * <h2>Setup</h2>
+ * <p>
+ * The setup routine for this implementation upon deployment involves three
+ * major steps.
+ *
+ * <ol>
+ * <li>Creation of the plugin Classloader to access resouces/classes from
+ * plugins.</li>
+ * <li>Collecting instances of Guice {@link Module Modules} by querying the
+ * {@link ServiceLoader} using {@code Module.class} as service interface and the
+ * plugin Classloader as Classloader. This will obtain all Modules which were
+ * registered as service provider interface in either the host application or
+ * the available plugins.</li>
+ * <li>Setting up the Guice Injector with the Modules from the step before and
+ * if configured, additional Modules (see {@link #ADDITIONAL_MODULES}). The
+ * injector will either be a stand-alone injector or a child injector of a
+ * configured parent injector (see {@link #PARENT_INJECTOR}).</li>
+ * </ol>
+ * </p>
+ * <p>
+ * The setup is done in {@link #initialize(Collection, ClassLoader, Map)} and
+ * thus during deploy-time of TinyPlugz. Once initialized, the TinyPlugz
+ * interface is implemented in terms of the created Injector and Guice's
+ * multibindings.
+ * </p>
  *
  * <h2>Default Bindings</h2>
  * <p>
@@ -173,8 +200,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    public final void contextClassLoaderScope(Runnable r) {
-        defaultContextClassLoaderScope(r);
+    public final void contextClassLoaderScope(ContextAction action) {
+        defaultContextClassLoaderScope(action);
     }
 
     /**
