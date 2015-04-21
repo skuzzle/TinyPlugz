@@ -26,7 +26,7 @@ In your host application (probably in its `void main`) write:
 ```java
 final Path pluginFolder = ...; // folder containing plugins to be loaded
 TinyPlugzConfigurator.setup()
-    .withPluings(source -> source.addAll(pluginFolder))
+    .withPluings(source -> source.addAllPluginJars(pluginFolder))
     .deploy();
 ```
 
