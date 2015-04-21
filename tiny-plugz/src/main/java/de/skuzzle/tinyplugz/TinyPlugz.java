@@ -306,6 +306,18 @@ public abstract class TinyPlugz {
     }
 
     /**
+     * Checks whether there is at least one provider available for the given
+     * service. This method is shorthand for
+     * {@code getFirstService(service).isPresent()}.
+     *
+     * @param service The service to check for.
+     * @return Whether at least one provider exists.
+     */
+    public final boolean isServiceAvailable(Class<?> service) {
+        return getFirstService(service).isPresent();
+    }
+
+    /**
      * Loads all services of the given type which are accessible from loaded
      * plugins and the host application by using java's {@link ServiceLoader}
      * capabilities.
