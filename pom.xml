@@ -15,17 +15,55 @@
     <version>0.1.0-SNAPSHOT</version>
 
     <properties>
-        <guice.version>4.0-beta5</guice.version>
-        <mockito.version>1.10.19</mockito.version>
-        <powermock.version>1.6.2</powermock.version>
+        <skuzzle.runtime.version>1.0.0-SNAPSHOT</skuzzle.runtime.version>
     </properties>
 
     <modules>
         <module>tiny-plugz</module>
         <module>tiny-plugz-guice</module>
-        <module>tiny-sample/host</module>
-        <module>tiny-sample/plugin1</module>
-        <module>tiny-sample/plugin2</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>de.skuzzle</groupId>
+                <artifactId>skuzzle-runtime</artifactId>
+                <version>${skuzzle.runtime.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>   
+        <!-- Enable Test Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4-rule</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-classloading-xstream</artifactId>
+        </dependency>
+    </dependencies>
 </project>
