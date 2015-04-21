@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/skuzzle/TinyPlugz.svg)](https://travis-ci.org/skuzzle/TinyPlugz)
+
 TinyPlugz
 ================
 
