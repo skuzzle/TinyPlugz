@@ -24,7 +24,8 @@ abstract class TinyPlugzLookUp {
     public static final TinyPlugzLookUp SPI_STRATEGY = new SPITinyPlugzLookup();
 
     /** Strategy for creating a default implementation of TinyPlugz */
-    public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY = new TinyPlugzLookUp() {
+    public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY =
+            new TinyPlugzLookUp() {
 
         @Override
         @SuppressWarnings("deprecation")
