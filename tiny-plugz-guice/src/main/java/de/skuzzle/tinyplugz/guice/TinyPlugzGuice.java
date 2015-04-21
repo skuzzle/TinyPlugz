@@ -32,11 +32,24 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * extension. When {@link #initialize(Set, ClassLoader, Map) initialize} is
  * called, this implementation asks the {@link ServiceLoader} for providers
  * implementing Guice's {@link Module} and then sets up an {@link Injector}
- * using these modules. The {@link #getService(Class)},
+ * using these modules. Thereby modules from the host and from all available
+ * plugins are collected automatically. The {@link #getService(Class)},
  * {@link #getFirstService(Class)} and {@link #getServices(Class)} methods are
- * implemented using this Injector. Thus the services returned by this TinyPlugz
- * implementation support the full range of Guice's dependency injection
- * features including scopes, constructor injection and so on.
+ * implemented using the created Injector. Thus the services returned by this
+ * TinyPlugz implementation support the full range of Guice's dependency
+ * injection features including scopes, constructor injection and so on.
+ *
+ * <h2>Default Bindings</h2>
+ * <p>
+ * When creating the Injector, two default bindings are added:
+ * <ol>
+ * <li>A binding of {@code TinyPlugz.class} to the current
+ * {@link TinyPlugzGuice} instance. So you do not need to access it using
+ * {@link #getDefault()}.</li>
+ * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
+ * to the current plugin Classloader.</li>
+ * </ol>
+ * </p>
  *
  * @author Simon Taddiken
  */
