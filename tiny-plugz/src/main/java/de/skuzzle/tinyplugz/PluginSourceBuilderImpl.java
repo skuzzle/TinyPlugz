@@ -20,7 +20,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
             this.key = url.toString();
         }
 
-        public URL getURL() {
+        private URL getURL() {
             return this.url;
         }
 
@@ -42,6 +42,11 @@ final class PluginSourceBuilderImpl implements PluginSource {
         this.pluginUrls = new HashSet<>();
     }
 
+    /**
+     * Gets a Stream of URLs for all added plugin locations.
+     *
+     * @return The configured plugins.
+     */
     public final Stream<URL> getPluginUrls() {
         return this.pluginUrls.stream().map(URLKey::getURL);
     }
@@ -50,7 +55,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
     public final PluginSource addUnpackedPlugin(Path folder) {
         Require.nonNull(folder, "folder");
         Require.argument(Files.isDirectory(folder),
-                "folder '%s' does not denote a directory", folder);
+                "path '%s' does not denote a directory", folder);
 
         addPath(folder);
         return this;
@@ -65,6 +70,11 @@ final class PluginSourceBuilderImpl implements PluginSource {
 
     @Override
     public final PluginSource addAllPluginJars(Path folder, Predicate<Path> filter) {
+        Require.nonNull(folder, "folder");
+        Require.nonNull(filter, "filter");
+        Require.argument(Files.isDirectory(folder),
+                "path '%s' does not denote a directory", folder);
+
         for (int i = 0; i < folder.getNameCount(); ++i) {
             final Path elem = folder.getName(i);
             if (Files.isDirectory(elem) && filter.test(elem)) {
