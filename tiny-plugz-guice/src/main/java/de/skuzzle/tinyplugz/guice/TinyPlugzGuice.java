@@ -20,6 +20,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.Require;
@@ -61,6 +62,14 @@ public final class TinyPlugzGuice extends TinyPlugz {
      */
     public static final String PARENT_INJECTOR = "tinyplugz.guice.parentInjector";
 
+    /**
+     * Name for injecting the plugin ClassLoader. Just annotate a
+     * field/parameter with {@code @Named(TinyPlugzGuice.PLUGIN_CLASSLOADER)}.
+     * The value is guaranteed to be {@value #PLUGIN_CLASSLOADER} and will not
+     * change in further versions.
+     */
+    public static final String PLUGIN_CLASSLOADER = "pluginClassLoader";
+
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzGuice.class);
 
     /**
@@ -98,7 +107,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
             @Override
             protected void configure() {
                 bind(TinyPlugz.class).toInstance(TinyPlugzGuice.this);
-                bind(ClassLoader.class).annotatedWith(PluginClassLoader.class)
+                bind(ClassLoader.class).annotatedWith(Names.named(PLUGIN_CLASSLOADER))
                         .toInstance(TinyPlugzGuice.this.pluginClassLoader);
             }
         };

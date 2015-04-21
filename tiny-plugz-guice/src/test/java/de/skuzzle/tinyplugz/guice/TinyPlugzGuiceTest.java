@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,7 +109,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         @Inject
         private TinyPlugz tinyPlugz;
         @Inject
-        @PluginClassLoader
+        @Named(TinyPlugzGuice.PLUGIN_CLASSLOADER)
         private ClassLoader classLoader;
     }
 }
