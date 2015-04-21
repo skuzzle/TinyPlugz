@@ -4,6 +4,6 @@ import java.util.Map;
 
 interface TinyPlugzLookUp {
 
-    public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
+    TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
             throws TinyPlugzException;
 }

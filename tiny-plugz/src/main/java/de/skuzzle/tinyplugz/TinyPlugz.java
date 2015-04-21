@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -163,8 +165,8 @@ public abstract class TinyPlugz {
                 bValidVoid = (clazzRet == void.class);
             }
             if (!bValidModifiers || !bValidVoid) {
-                throw new TinyPlugzException(
-                        "The main() method in class \"" + cls.getName() + "\" not found.");
+                throw new TinyPlugzException(String.format(
+                        "The main() method in class '%s' not found.", cls.getName()));
             }
 
             // Crazy cast "(Object)args" because param is: "Object... args"
@@ -184,6 +186,26 @@ public abstract class TinyPlugz {
      * @return The plugin ClassLoader.
      */
     public abstract ClassLoader getClassLoader();
+
+    /**
+     * Creates a {@link ClassLoader} which accesses the given collection of
+     * plugins.
+     *
+     * @param plugins The plugins.
+     * @param parent The parent ClassLoader.
+     * @return The created ClassLoader.
+     */
+    protected final ClassLoader createClassLoader(Collection<URL> plugins,
+            ClassLoader parent) {
+        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+
+            @Override
+            public ClassLoader run() {
+                return new URLClassLoader(plugins.toArray(new URL[plugins.size()]),
+                        parent);
+            }
+        });
+    }
 
     /**
      * Searches for a resource with given name within loaded plugins and the

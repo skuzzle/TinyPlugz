@@ -2,7 +2,6 @@ package de.skuzzle.tinyplugz.guice;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -104,8 +103,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
             ClassLoader parentClassLoader,
             Map<Object, Object> properties) {
 
-        this.pluginClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]),
-                parentClassLoader);
+        this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
         final Iterable<Module> pluginModules = getPluginModules();

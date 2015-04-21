@@ -7,7 +7,9 @@ package de.skuzzle.tinyplugz;
  */
 public final class Require {
 
-    private Require() {}
+    private Require() {
+        // hidden constructor
+    }
 
     /**
      * Asserts that the given object is non null.

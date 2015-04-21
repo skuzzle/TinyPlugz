@@ -9,7 +9,9 @@ import de.skuzzle.tinyplugz.Require;
 
 final class Iterators {
 
-    private Iterators() {}
+    private Iterators() {
+        // hidden constructor
+    }
 
     public static <T> Iterator<T> singleIterator(T t) {
         return Collections.singleton(t).iterator();

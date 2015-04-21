@@ -2,7 +2,6 @@ package de.skuzzle.tinyplugz;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +49,9 @@ public final class TinyPlugzConfigurator {
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
     private static final Object INIT_LOCK = new Object();
 
-    private TinyPlugzConfigurator() {}
+    private TinyPlugzConfigurator() {
+        // hidden constructor
+    }
 
     /**
      * Sets up a {@link TinyPlugz} instance which uses the current thread's
@@ -226,7 +227,7 @@ public final class TinyPlugzConfigurator {
      *
      * @author Simon Taddiken
      */
-    final static class TinyPlugzImpl extends TinyPlugz {
+    static final class TinyPlugzImpl extends TinyPlugz {
 
         private ClassLoader pluginClassLoader;
 
@@ -234,14 +235,14 @@ public final class TinyPlugzConfigurator {
          * @deprecated Do not manually instantiate this class.
          */
         @Deprecated
-        TinyPlugzImpl() {}
+        TinyPlugzImpl() {
+            // do not call me!
+        }
 
         @Override
         protected final void initialize(Collection<URL> urls,
                 ClassLoader parentClassLoader, Map<Object, Object> properties) {
-            this.pluginClassLoader = new URLClassLoader(
-                    urls.toArray(new URL[urls.size()]),
-                    parentClassLoader);
+            this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
         }
 
         @Override
