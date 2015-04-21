@@ -3,13 +3,14 @@ package de.skuzzle.tinyplugz;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a single property to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(java.util.Set, ClassLoader, Map)}
+         * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
          * .
          *
          * @param name Name of the property.
@@ -112,7 +113,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a multiple properties to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(java.util.Set, ClassLoader, Map)}
+         * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
          * .
          *
          * @param values Mappings to add.
@@ -144,7 +145,7 @@ public final class TinyPlugzConfigurator {
         public TinyPlugz deploy() throws TinyPlugzException;
     }
 
-    private final static class Impl implements DefineProperties, DeployTinyPlugz {
+    private static final class Impl implements DefineProperties, DeployTinyPlugz {
 
         private final Map<Object, Object> properties;
         private final PluginSourceBuilderImpl builder;
@@ -184,7 +185,10 @@ public final class TinyPlugzConfigurator {
 
                 LOG.debug("Using '{}' TinyPlugz implementation",
                         impl.getClass().getName());
-                impl.initialize(this.builder.getPluginUrls(), this.parentCl,
+
+                final Collection<URL> plugins = this.builder.getPluginUrls()
+                        .collect(Collectors.toList());
+                impl.initialize(plugins, this.parentCl,
                         this.properties);
                 TinyPlugz.instance = impl;
                 return impl;
@@ -233,7 +237,7 @@ public final class TinyPlugzConfigurator {
         TinyPlugzImpl() {}
 
         @Override
-        protected final void initialize(Set<URL> urls,
+        protected final void initialize(Collection<URL> urls,
                 ClassLoader parentClassLoader, Map<Object, Object> properties) {
             this.pluginClassLoader = new URLClassLoader(
                     urls.toArray(new URL[urls.size()]),

@@ -4,20 +4,46 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 final class PluginSourceBuilderImpl implements PluginSource {
 
-    private final Set<URL> pluginUrls;
+    private static final class URLKey {
+        private final URL url;
+        private final String key;
+
+        private URLKey(URL url) {
+            this.url = url;
+            this.key = url.toString();
+        }
+
+        public URL getURL() {
+            return this.url;
+        }
+
+        @Override
+        public int hashCode() {
+            return this.key.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj == this || obj instanceof URLKey &&
+                this.key.equals(((URLKey) obj).key);
+        }
+    }
+
+    private final Collection<URLKey> pluginUrls;
 
     PluginSourceBuilderImpl() {
         this.pluginUrls = new HashSet<>();
     }
 
-    public final Set<URL> getPluginUrls() {
-        return this.pluginUrls;
+    public final Stream<URL> getPluginUrls() {
+        return this.pluginUrls.stream().map(URLKey::getURL);
     }
 
     @Override
@@ -51,7 +77,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
     private void addPath(Path path) {
         try {
             final URL url = path.toUri().toURL();
-            this.pluginUrls.add(url);
+            this.pluginUrls.add(new URLKey(url));
         } catch (MalformedURLException e) {
             throw new UnsupportedOperationException(String.format(
                     "could not create URL for path '%s'", path), e);

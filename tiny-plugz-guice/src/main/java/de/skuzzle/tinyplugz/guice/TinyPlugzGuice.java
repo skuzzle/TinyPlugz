@@ -3,6 +3,7 @@ package de.skuzzle.tinyplugz.guice;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,8 +30,8 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
 
 /**
  * TinyPlugz implementation building upon google Guice and its Multibinding
- * extension. When {@link #initialize(Set, ClassLoader, Map) initialize} is
- * called, this implementation asks the {@link ServiceLoader} for providers
+ * extension. When {@link #initialize(Collection, ClassLoader, Map) initialize}
+ * is called, this implementation asks the {@link ServiceLoader} for providers
  * implementing Guice's {@link Module} and then sets up an {@link Injector}
  * using these modules. Thereby modules from the host and from all available
  * plugins are collected automatically. The {@link #getService(Class)},
@@ -85,6 +86,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzGuice.class);
 
+    private Injector injector;
+    private ClassLoader pluginClassLoader;
+
     /**
      * Public no argument constructor for java's ServiceLoader. For proper
      * usage, do not instantiate this class manually. See the TinyPlugz
@@ -95,11 +99,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
     @Deprecated
     public TinyPlugzGuice() {}
 
-    private Injector injector;
-    private ClassLoader pluginClassLoader;
-
     @Override
-    protected final void initialize(Set<URL> urls,
+    protected final void initialize(Collection<URL> urls,
             ClassLoader parentClassLoader,
             Map<Object, Object> properties) {
 

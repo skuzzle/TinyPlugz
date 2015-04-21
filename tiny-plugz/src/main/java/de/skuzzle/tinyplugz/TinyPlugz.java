@@ -6,12 +6,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
@@ -26,7 +26,7 @@ import java.util.Set;
  *                                     // need additional properties
  *         .withPlugins(source -&gt; source.addAll(pluginFolder))
  *         .deploy();
- * 
+ *
  * final Iterator&lt;MyService&gt; providers = TinyPlugz.getDefault()
  *         .loadServices(MyService.class);
  * </pre>
@@ -113,7 +113,7 @@ public abstract class TinyPlugz {
      * @param properties Additional configuration parameters.
      * @throws TinyPlugzException When initializing failed.
      */
-    protected abstract void initialize(Set<URL> urls,
+    protected abstract void initialize(Collection<URL> urls,
             ClassLoader parentClassLoader, Map<Object, Object> properties)
             throws TinyPlugzException;
 
@@ -147,33 +147,31 @@ public abstract class TinyPlugz {
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
             final Class<?> cls = getClassLoader().loadClass(className);
-            final Method method = cls.getMethod("main", new Class<?>[] { String[].class });
+            final Method method = cls.getMethod("main",
+                    new Class<?>[] { String[].class });
 
             boolean bValidModifiers = false;
             boolean bValidVoid = false;
 
             if (method != null) {
-                method.setAccessible(true); // Disable IllegalAccessException
-                int nModifiers = method.getModifiers(); // main() must be
-                                                        // "public static"
+                method.setAccessible(true);
+                int nModifiers = method.getModifiers();
                 bValidModifiers = Modifier.isPublic(nModifiers) &&
                     Modifier.isStatic(nModifiers);
-                Class<?> clazzRet = method.getReturnType(); // main() must be
-                                                            // "void"
+                Class<?> clazzRet = method.getReturnType();
+
                 bValidVoid = (clazzRet == void.class);
             }
-            if (method == null || !bValidModifiers || !bValidVoid) {
+            if (!bValidModifiers || !bValidVoid) {
                 throw new TinyPlugzException(
                         "The main() method in class \"" + cls.getName() + "\" not found.");
             }
 
-            // Invoke method.
             // Crazy cast "(Object)args" because param is: "Object... args"
             method.invoke(null, (Object) args);
-        } catch (InvocationTargetException e) {
-            throw new TinyPlugzException(e.getTargetException());
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException
-                | IllegalArgumentException | ClassNotFoundException e) {
+        } catch (InvocationTargetException | NoSuchMethodException | SecurityException
+                | IllegalAccessException | IllegalArgumentException
+                | ClassNotFoundException e) {
             throw new TinyPlugzException(e);
         }
     }
