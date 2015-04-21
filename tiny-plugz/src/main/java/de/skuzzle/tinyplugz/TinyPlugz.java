@@ -141,6 +141,14 @@ public abstract class TinyPlugz {
     public abstract void runMain(String className, String[] args)
             throws TinyPlugzException;
 
+    /**
+     * Default implementation for {@link #runMain(String, String[])}.
+     *
+     * @param className Name of the class which contains the main method.
+     * @param args Arguments to pass to the main method.
+     * @throws TinyPlugzException If loading the class or calling it's main
+     *             method fails.
+     */
     protected final void defaultRunMain(String className, String[] args)
             throws TinyPlugzException {
         Require.nonNull(className, "className");
@@ -216,6 +224,13 @@ public abstract class TinyPlugz {
      */
     public abstract Optional<URL> getResource(String name);
 
+    /**
+     * Default implementation for {@link #getResource(String)} building upon
+     * result of {@link #getClassLoader()}.
+     *
+     * @param name Name of the resource.
+     * @return An url to the resource.
+     */
     protected final Optional<URL> defaultGetResource(String name) {
         Require.nonNull(name, "name");
         return Optional.ofNullable(getClassLoader().getResource(name));
@@ -231,6 +246,14 @@ public abstract class TinyPlugz {
      */
     public abstract Iterator<URL> getResources(String name) throws IOException;
 
+    /**
+     * Default implementation for {@link #getResources(String)} building upon
+     * result of {@link #getClassLoader()}.
+     *
+     * @param name The name of the resource.
+     * @return An iterator with resulting resources.
+     * @throws IOException If I/O errors occur.
+     */
     protected final Iterator<URL> defaultGetResources(String name) throws IOException {
         Require.nonNull(name, "name");
         final Enumeration<URL> e = getClassLoader().getResources(name);
@@ -258,6 +281,12 @@ public abstract class TinyPlugz {
      */
     public abstract void contextClassLoaderScope(Runnable r);
 
+    /**
+     * Default implementation for {@link #contextClassLoaderScope(Runnable)}
+     * building upon result of {@link #getClassLoader()}.
+     *
+     * @param r The runnable to execute.
+     */
     protected final void defaultContextClassLoaderScope(Runnable r) {
         Require.nonNull(r, "r");
         final Thread current = Thread.currentThread();
@@ -280,11 +309,6 @@ public abstract class TinyPlugz {
      */
     public abstract <T> Iterator<T> getServices(Class<T> type);
 
-    protected final <T> Iterator<T> defaultGetServices(Class<T> type) {
-        Require.nonNull(type, "type");
-        return ServiceLoader.load(type, getClassLoader()).iterator();
-    }
-
     /**
      * Loads services of the given type which are accessible from loaded plugins
      * and the host application by using java's {@link ServiceLoader}
@@ -296,6 +320,13 @@ public abstract class TinyPlugz {
      */
     public abstract <T> Optional<T> getFirstService(Class<T> type);
 
+    /**
+     * Default implementation for {@link #getFirstService(Class)} building upon
+     * result of {@link #getServices(Class)}.
+     *
+     * @param type Type of the service to load.
+     * @return The first service which was found.
+     */
     protected final <T> Optional<T> defaultGetFirstService(Class<T> type) {
         final Iterator<T> services = getServices(type);
         return services.hasNext()
@@ -315,6 +346,13 @@ public abstract class TinyPlugz {
      */
     public abstract <T> T getService(Class<T> type);
 
+    /**
+     * Default implementation of {@link #getService(Class)} building upon result
+     * of {@link #getServices(Class)}.
+     *
+     * @param type Type of the service to load.
+     * @return The single service.
+     */
     protected final <T> T defaultGetService(Class<T> type) {
         final Iterator<T> services = getServices(type);
         Require.state(services.hasNext(), "no provider for service '%s' found",

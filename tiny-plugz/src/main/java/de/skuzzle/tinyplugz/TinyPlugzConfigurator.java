@@ -112,6 +112,15 @@ public final class TinyPlugzConfigurator {
         DefineProperties withProperty(String name, Object value);
 
         /**
+         * Specifies a property without value. It will automatically get
+         * assigned a non-null value.
+         *
+         * @param name Name of the property.
+         * @return A fluent builder object for further configuration.
+         */
+        DefineProperties withProperty(String name);
+
+        /**
          * Specifies a multiple properties to insert into the map which will be
          * passed to
          * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
@@ -148,6 +157,8 @@ public final class TinyPlugzConfigurator {
 
     private static final class Impl implements DefineProperties, DeployTinyPlugz {
 
+        private static final Object NON_NULL_VALUE = new Object();
+
         private final Map<Object, Object> properties;
         private final PluginSourceBuilderImpl builder;
         private final ClassLoader parentCl;
@@ -163,6 +174,11 @@ public final class TinyPlugzConfigurator {
         public DefineProperties withProperty(String name, Object value) {
             this.properties.put(name, value);
             return this;
+        }
+
+        @Override
+        public DefineProperties withProperty(String name) {
+            return withProperty(name, NON_NULL_VALUE);
         }
 
         @Override
@@ -199,11 +215,11 @@ public final class TinyPlugzConfigurator {
         private TinyPlugz getInstance() throws TinyPlugzException {
             final TinyPlugzLookUp lookup;
             if (this.properties.get(FORCE_DEFAULT) != null) {
-                lookup = new DefaultImplementationTinyPlugzLookup();
+                lookup = TinyPlugzLookUp.DEFAULT_INSTANCE_STRATEGY;
             } else if (this.properties.get(FORCE_IMPLEMENTATION) != null) {
-                lookup = new StaticTinyPlugzLookup();
+                lookup = TinyPlugzLookUp.STATIC_STRATEGY;
             } else {
-                lookup = new SPITinyPlugzLookup();
+                lookup = TinyPlugzLookUp.SPI_STRATEGY;
             }
             LOG.debug("Using '{}' for instantiating TinyPlugz",
                     lookup.getClass().getName());
@@ -273,7 +289,8 @@ public final class TinyPlugzConfigurator {
 
         @Override
         public final <T> Iterator<T> getServices(Class<T> type) {
-            return defaultGetServices(type);
+            Require.nonNull(type, "type");
+            return ServiceLoader.load(type, getClassLoader()).iterator();
         }
 
         @Override

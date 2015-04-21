@@ -96,7 +96,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
      * @deprecated Do not manually instantiate this class.
      */
     @Deprecated
-    public TinyPlugzGuice() {}
+    public TinyPlugzGuice() {
+        // ServiceLoader default constructor
+    }
 
     @Override
     protected final void initialize(Collection<URL> urls,
