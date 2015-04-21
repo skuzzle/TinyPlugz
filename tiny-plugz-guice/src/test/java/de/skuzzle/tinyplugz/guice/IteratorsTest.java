@@ -17,41 +17,41 @@ import org.junit.Test;
 public class IteratorsTest {
 
     @SuppressWarnings("unchecked")
-                @Test(expected = IllegalArgumentException.class)
-                public void testCompositeNullIterator() {
-                    Iterators.composite((Iterator[]) null);
-                }
+    @Test(expected = IllegalArgumentException.class)
+    public void testCompositeNullIterator() {
+        Iterators.composite((Iterator[]) null);
+    }
 
     @SuppressWarnings("unchecked")
-                @Test(expected = IllegalArgumentException.class)
-                public void testCompositeNullIterable() {
-                    Iterators.composite((Iterable[]) null);
-                }
+    @Test(expected = IllegalArgumentException.class)
+    public void testCompositeNullIterable() {
+        Iterators.composite((Iterable[]) null);
+    }
 
     @Test
-                public void testCompositeSingleIterator() throws Exception {
-                    final Iterator<String> it = Collections.emptyIterator();
-                    assertSame(it, Iterators.composite(it));
-                }
+    public void testCompositeSingleIterator() throws Exception {
+        final Iterator<String> it = Collections.emptyIterator();
+        assertSame(it, Iterators.composite(it));
+    }
 
     @Test
-                public void testCompositeIterables() throws Exception {
-                    final Collection<String> first = Arrays.asList("a", "b");
-                    final Collection<String> second = Arrays.asList("c", "d");
-                    final Iterable<String> wrapped = Iterators.composite(first, second);
-                    final Iterator<String> it = wrapped.iterator();
-                    assertEquals("a", it.next());
-                    assertEquals("b", it.next());
-                    assertEquals("c", it.next());
-                    assertEquals("d", it.next());
-                    assertFalse(it.hasNext());
-                }
+    public void testCompositeIterables() throws Exception {
+        final Collection<String> first = Arrays.asList("a", "b");
+        final Collection<String> second = Arrays.asList("c", "d");
+        final Iterable<String> wrapped = Iterators.composite(first, second);
+        final Iterator<String> it = wrapped.iterator();
+        assertEquals("a", it.next());
+        assertEquals("b", it.next());
+        assertEquals("c", it.next());
+        assertEquals("d", it.next());
+        assertFalse(it.hasNext());
+    }
 
     @Test
-                public void testCompositeSingleIterable() throws Exception {
-                    final Iterable<String> it = Collections.emptyList();
-                    assertSame(it, Iterators.composite(it));
-                }
+    public void testCompositeSingleIterable() throws Exception {
+        final Iterable<String> it = Collections.emptyList();
+        assertSame(it, Iterators.composite(it));
+    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -124,4 +124,3 @@ public class IteratorsTest {
         ce.next();
     }
 }
-
