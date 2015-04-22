@@ -216,7 +216,9 @@ public final class TinyPlugzConfigurator {
 
         private void validateProperties() throws TinyPlugzException {
             final Object forceDefault = this.properties.get(Options.FORCE_DEFAULT);
-            final Object forceImplementation = this.properties.get(Options.FORCE_IMPLEMENTATION);
+            final Object forceImplementation = this.properties.get(
+                    Options.FORCE_IMPLEMENTATION);
+
             if (forceDefault != null && forceImplementation != null) {
                 throw new TinyPlugzException("Can not use 'FORCE_IMPLEMENTATION' " +
                             "together with 'FORCE_DEFAULT'");

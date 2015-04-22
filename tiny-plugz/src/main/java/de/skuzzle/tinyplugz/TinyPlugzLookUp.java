@@ -75,7 +75,8 @@ abstract class TinyPlugzLookUp {
                 final boolean fail = props.get(
                         Options.FAIL_ON_MULTIPLE_PROVIDERS) != null;
                 if (fail) {
-                    throw new TinyPlugzException("There are multiple TinyPlugz providers");
+                    throw new TinyPlugzException(
+                            "There are multiple TinyPlugz providers");
                 }
                 LOG.warn("Multiple TinyPlugz bindings found on class path");
                 providers.forEachRemaining(provider ->
