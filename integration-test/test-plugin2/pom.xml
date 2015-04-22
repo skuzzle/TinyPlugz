@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.skuzzle.tinyplugz</groupId>
+        <artifactId>tiny-plugz-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../</relativePath>
+    </parent>
+
+    <groupId>de.skuzzle.tinyplugz.test</groupId>
+    <artifactId>test-plugin2</artifactId>
+    <packaging>jar</packaging>
+
+    <name>tiny-plugz-test-plugin2</name>
+
+    <dependencies>
+        <!-- Self -->
+        <dependency>
+            <groupId>de.skuzzle.tinyplugz</groupId>
+            <artifactId>tiny-plugz</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.skuzzle.tinyplugz.test</groupId>
+            <artifactId>test-plugin1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+	        <groupId>de.skuzzle.tinyplugz</groupId>
+	        <artifactId>tiny-plugz</artifactId>
+	        <version>${project.version}</version>
+	        <type>test-jar</type>
+	        <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <configuration>
+                    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
  * providing a high level API around the java {@link ServiceLoader} and
@@ -87,6 +90,8 @@ import java.util.ServiceLoader;
  * @author Simon Taddiken
  */
 public abstract class TinyPlugz {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
 
     private static volatile TinyPlugz instance;
 
@@ -213,8 +218,13 @@ public abstract class TinyPlugz {
 
             @Override
             public ClassLoader run() {
+                if (LOG.isDebugEnabled()) {
+                    for (final URL url : plugins) {
+                        LOG.debug("Loading plugin from '{}'", url);
+                    }
+                }
                 return new URLClassLoader(plugins.toArray(new URL[plugins.size()]),
-                        parent);
+                            parent);
             }
         });
     }
