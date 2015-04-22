@@ -18,11 +18,6 @@
     <dependencies>
         <!-- Self -->
         <dependency>
-            <groupId>de.skuzzle.tinyplugz</groupId>
-            <artifactId>tiny-plugz</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
 	        <groupId>de.skuzzle.tinyplugz</groupId>
 	        <artifactId>tiny-plugz</artifactId>
 	        <version>${project.version}</version>
