@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class TinyPlugzLookUpTest {
     public void testStaticStrategy() throws Exception {
         final String implName = SampleTinyPlugzImpl.class.getName();
         final Map<Object, Object> props = new HashMap<>();
-        props.put(TinyPlugzConfigurator.FORCE_IMPLEMENTATION, implName);
+        props.put(Options.FORCE_IMPLEMENTATION, implName);
 
         final TinyPlugz inst = TinyPlugzLookUp.STATIC_STRATEGY.getInstance(
                 getClass().getClassLoader(), props);
@@ -94,7 +95,7 @@ public class TinyPlugzLookUpTest {
     public void testStaticStrategyWrongType() throws Exception {
         final String implName = Object.class.getName();
         final Map<Object, Object> props = new HashMap<>();
-        props.put(TinyPlugzConfigurator.FORCE_IMPLEMENTATION, implName);
+        props.put(Options.FORCE_IMPLEMENTATION, implName);
 
         TinyPlugzLookUp.STATIC_STRATEGY.getInstance(getClass().getClassLoader(), props);
     }
@@ -106,7 +107,7 @@ public class TinyPlugzLookUpTest {
         MockUtil.mockService(TinyPlugz.class, mock1, mock2);
 
         final TinyPlugz inst = TinyPlugzLookUp.SPI_STRATEGY
-                .getInstance(getClass().getClassLoader(), null);
+                .getInstance(getClass().getClassLoader(), Collections.emptyMap());
 
         assertSame(mock1, inst);
     }
@@ -118,5 +119,16 @@ public class TinyPlugzLookUpTest {
         final TinyPlugz inst = TinyPlugzLookUp.SPI_STRATEGY
                 .getInstance(getClass().getClassLoader(), null);
         assertTrue(inst instanceof TinyPlugzImpl);
+    }
+
+    @Test(expected = TinyPlugzException.class)
+    public void testSPIStrategyWithFail() throws Exception {
+        final TinyPlugz mock1 = mock(TinyPlugz.class);
+        final TinyPlugz mock2 = mock(TinyPlugz.class);
+        MockUtil.mockService(TinyPlugz.class, mock1, mock2);
+        final Map<Object, Object> props = new HashMap<>();
+        props.put(Options.FAIL_ON_MULTIPLE_PROVIDERS, "true");
+
+        TinyPlugzLookUp.SPI_STRATEGY.getInstance(getClass().getClassLoader(), props);
     }
 }

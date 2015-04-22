@@ -22,30 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class TinyPlugzConfigurator {
 
-    /**
-     * Configuration property for specifying a full qualified name of a class
-     * which extends {@link TinyPlugz}. If this property is present, the default
-     * lookup for an implementation using the {@link ServiceLoader} is skipped.
-     *
-     * <p>
-     * Note: The presence of this property AND {@link #FORCE_DEFAULT} will raise
-     * an exception when {@link DeployTinyPlugz#deploy() deploying}.
-     * </p>
-     */
-    public static final String FORCE_IMPLEMENTATION = "tinyplugz.forceImplementation";
-
-    /**
-     * Configuration property for disabling the TinyPlugz implementation lookup
-     * and always use the default implementation. Every non-null value will
-     * enable this feature.
-     *
-     * <p>
-     * Note: The presence of this property AND {@link #FORCE_IMPLEMENTATION}
-     * will raise an exception when {@link DeployTinyPlugz#deploy() deploying}.
-     * </p>
-     */
-    public static final String FORCE_DEFAULT = "tinyplugz.forceDefault";
-
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
     private static final Object INIT_LOCK = new Object();
 
@@ -226,9 +202,9 @@ public final class TinyPlugzConfigurator {
 
         private TinyPlugz getInstance() throws TinyPlugzException {
             final TinyPlugzLookUp lookup;
-            if (this.properties.get(FORCE_DEFAULT) != null) {
+            if (this.properties.get(Options.FORCE_DEFAULT) != null) {
                 lookup = TinyPlugzLookUp.DEFAULT_INSTANCE_STRATEGY;
-            } else if (this.properties.get(FORCE_IMPLEMENTATION) != null) {
+            } else if (this.properties.get(Options.FORCE_IMPLEMENTATION) != null) {
                 lookup = TinyPlugzLookUp.STATIC_STRATEGY;
             } else {
                 lookup = TinyPlugzLookUp.SPI_STRATEGY;
@@ -239,8 +215,8 @@ public final class TinyPlugzConfigurator {
         }
 
         private void validateProperties() throws TinyPlugzException {
-            final Object forceDefault = this.properties.get(FORCE_DEFAULT);
-            final Object forceImplementation = this.properties.get(FORCE_IMPLEMENTATION);
+            final Object forceDefault = this.properties.get(Options.FORCE_DEFAULT);
+            final Object forceImplementation = this.properties.get(Options.FORCE_IMPLEMENTATION);
             if (forceDefault != null && forceImplementation != null) {
                 throw new TinyPlugzException("Can not use 'FORCE_IMPLEMENTATION' " +
                             "together with 'FORCE_DEFAULT'");

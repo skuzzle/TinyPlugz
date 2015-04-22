@@ -72,6 +72,11 @@ abstract class TinyPlugzLookUp {
                     : DEFAULT_INSTANCE_STRATEGY.getInstance(classLoader, props);
 
             if (providers.hasNext()) {
+                final boolean fail = props.get(
+                        Options.FAIL_ON_MULTIPLE_PROVIDERS) != null;
+                if (fail) {
+                    throw new TinyPlugzException("There are multiple TinyPlugz providers");
+                }
                 LOG.warn("Multiple TinyPlugz bindings found on class path");
                 providers.forEachRemaining(provider ->
                         LOG.debug("Ignoring TinyPlugz provider '{}'",
@@ -86,7 +91,7 @@ abstract class TinyPlugzLookUp {
         @Override
         public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
                 throws TinyPlugzException {
-            final String className = props.get(TinyPlugzConfigurator.FORCE_IMPLEMENTATION)
+            final String className = props.get(Options.FORCE_IMPLEMENTATION)
                     .toString();
 
             // as by precondition check in the configurator.

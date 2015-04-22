@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.ContextAction;
+import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
@@ -48,7 +49,7 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * automatically be recognized by the {@link TinyPlugzConfigurator} if it is the
  * only one provider on the classpath. In your host application you can still
  * force usage of this implementation by adding the
- * {@link TinyPlugzConfigurator#FORCE_IMPLEMENTATION} property with the value
+ * {@link Options#FORCE_IMPLEMENTATION} property with the value
  * {@code "de.skuzzle.tinyplugz.guice.TinyPlugzGuice"}.
  * </p>
  *

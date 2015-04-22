@@ -15,8 +15,8 @@ public class TinyPlugzConfiguratorTest {
     @Test(expected = TinyPlugzException.class)
     public void testInvalidProperties() throws Exception {
         TinyPlugzConfigurator.setup()
-                .withProperty(TinyPlugzConfigurator.FORCE_DEFAULT)
-                .withProperty(TinyPlugzConfigurator.FORCE_IMPLEMENTATION, "foo.bar")
+                .withProperty(Options.FORCE_DEFAULT)
+                .withProperty(Options.FORCE_IMPLEMENTATION, "foo.bar")
                 .withPlugins(TinyPlugzConfiguratorTest::noPlugins)
                 .deploy();
     }
