@@ -17,6 +17,8 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
  */
 abstract class TinyPlugzLookUp {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzLookUp.class);
+
     /**
      * Strategy for determining the TinyPlugz implementation using the
      * {@link ServiceLoader}
@@ -57,8 +59,6 @@ abstract class TinyPlugzLookUp {
 
 
     private static final class SPITinyPlugzLookup extends TinyPlugzLookUp {
-
-        private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzLookUp.class);
 
         @Override
         public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
