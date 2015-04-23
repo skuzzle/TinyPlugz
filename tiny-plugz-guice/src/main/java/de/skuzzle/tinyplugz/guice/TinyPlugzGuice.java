@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
@@ -129,6 +128,13 @@ public final class TinyPlugzGuice extends TinyPlugz {
     public static final String PARENT_INJECTOR = "tinyplugz.guice.parentInjector";
 
     /**
+     * Property for specifying a custom {@link InjectorFactory} which will be
+     * used to create the Injector. If this property is present, the property
+     * {@link #PARENT_INJECTOR} will be ignored.
+     */
+    public static final String INJECTOR_FACTORY = "tinyplugz.guice.injectorFactory";
+
+    /**
      * Name for injecting the plugin ClassLoader. Just annotate a
      * field/parameter with {@code @Named(TinyPlugzGuice.PLUGIN_CLASSLOADER)}.
      * The value is guaranteed to be {@value #PLUGIN_CLASSLOADER} and will not
@@ -183,12 +189,14 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     private Injector createInjector(Map<Object, Object> props, Iterable<Module> modules) {
-        final Injector parent = (Injector) props.get(PARENT_INJECTOR);
-        if (parent == null) {
-            return Guice.createInjector(modules);
-        } else {
-            return parent.createChildInjector(modules);
+        InjectorFactory factory = (InjectorFactory) props.get(INJECTOR_FACTORY);
+        if (factory == null) {
+            factory = new DefaultInjectorFactory();
         }
+        final Injector injector = factory.createInjector(modules, props);
+        // XXX: IllegalArgumentException might not be the best choice
+        Require.nonNull(injector, "injector");
+        return injector;
     }
 
     @SuppressWarnings("unchecked")
