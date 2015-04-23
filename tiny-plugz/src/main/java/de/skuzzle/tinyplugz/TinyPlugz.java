@@ -125,8 +125,7 @@ public abstract class TinyPlugz {
      * @throws TinyPlugzException When initializing failed.
      */
     protected abstract void initialize(Collection<URL> urls,
-            ClassLoader parentClassLoader, Map<Object, Object> properties)
-            throws TinyPlugzException;
+            ClassLoader parentClassLoader, Map<Object, Object> properties);
 
     /**
      * Executes a main method in the context of the plugin ClassLoader. This
@@ -147,8 +146,7 @@ public abstract class TinyPlugz {
      * @throws TinyPlugzException If loading the class or calling it's main
      *             method fails.
      */
-    public abstract void runMain(String className, String[] args)
-            throws TinyPlugzException;
+    public abstract void runMain(String className, String[] args);
 
     /**
      * Default implementation for {@link #runMain(String, String[])}.
@@ -158,8 +156,7 @@ public abstract class TinyPlugz {
      * @throws TinyPlugzException If loading the class or calling it's main
      *             method fails.
      */
-    protected final void defaultRunMain(String className, String[] args)
-            throws TinyPlugzException {
+    protected final void defaultRunMain(String className, String[] args) {
         Require.nonNull(className, "className");
         Require.nonNull(args, "args");
 

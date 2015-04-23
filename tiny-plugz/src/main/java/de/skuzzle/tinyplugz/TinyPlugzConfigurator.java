@@ -140,7 +140,7 @@ public final class TinyPlugzConfigurator {
          * @throws TinyPlugzException When initializing TinyPlugz with the
          *             current configuration fails.
          */
-        public TinyPlugz deploy() throws TinyPlugzException;
+        public TinyPlugz deploy();
     }
 
     private static final class Impl implements DefineProperties, DeployTinyPlugz {
@@ -183,7 +183,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public TinyPlugz deploy() throws TinyPlugzException {
+        public TinyPlugz deploy() {
             validateProperties();
             synchronized (INIT_LOCK) {
                 // additional synchronized check is required

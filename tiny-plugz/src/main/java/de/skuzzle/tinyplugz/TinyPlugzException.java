@@ -6,7 +6,7 @@ package de.skuzzle.tinyplugz;
  *
  * @author Simon Taddiken
  */
-public class TinyPlugzException extends Exception {
+public class TinyPlugzException extends RuntimeException {
 
     /** */
     private static final long serialVersionUID = -210615746197934170L;
