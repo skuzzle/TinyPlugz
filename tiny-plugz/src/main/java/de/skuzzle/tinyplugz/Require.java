@@ -53,4 +53,19 @@ public final class Require {
             throw new IllegalStateException(String.format(message, format));
         }
     }
+
+    /**
+     * Asserts that a method call yielded a non-null result.
+     *
+     * @param result The result object.
+     * @param call A String description of the call, like "Object.calledMethod".
+     * @throws IllegalStateException If {@code result} is <code>null</code>.
+     */
+    public static void nonNullResult(Object result, String call) {
+        if (result == null) {
+            // XXX: IllegalStateException might not be the best choice
+            throw new IllegalStateException(String.format(
+                    "call of '%s' yielded unexpected null value", call));
+        }
+    }
 }

@@ -49,7 +49,7 @@ public interface PluginSource {
      * Adds all jar files from the given folder for which the given predicate
      * holds true as plugin. The search is not done recursively in sub folders.
      *
-     * @param folder THe folder containint the files.
+     * @param folder The folder containing the files.
      * @param filter The filter.
      * @return This instance.
      * @throws IllegalArgumentException If the given path does not denote a

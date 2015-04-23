@@ -194,8 +194,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
             factory = new DefaultInjectorFactory();
         }
         final Injector injector = factory.createInjector(modules, props);
-        // XXX: IllegalArgumentException might not be the best choice
-        Require.nonNull(injector, "injector");
+        Require.nonNullResult(injector, "InjectorFactory.createInjector");
         return injector;
     }
 

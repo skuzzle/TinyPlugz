@@ -51,4 +51,18 @@ public class RequireTest {
     public void testStateWithTrueCondition() throws Exception {
         Require.state(true, "foo", "bar");
     }
+
+    @Test
+    public void testNonNullResultWithNullValue() throws Exception {
+        this.exception.expect(IllegalStateException.class);
+        this.exception.expectMessage("call of 'foo' yielded unexpected null value");
+        Require.nonNullResult(null, "foo");
+    }
+
+    @Test
+    public void testNonNullResultWithNullValueAndNullName() throws Exception {
+        this.exception.expect(IllegalStateException.class);
+        this.exception.expectMessage("call of 'null' yielded unexpected null value");
+        Require.nonNullResult(null, null);
+    }
 }

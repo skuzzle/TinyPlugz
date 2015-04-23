@@ -60,8 +60,8 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
             }
         };
         MockUtil.mockService(Module.class, module);
-        final ClassLoader mockCL = mock(ClassLoader.class);
-        this.subject.initialize(Collections.emptySet(), mockCL, Collections.emptyMap());
+        final ClassLoader parent = getClass().getClassLoader();
+        this.subject.initialize(Collections.emptySet(), parent, Collections.emptyMap());
     }
 
     @Test
@@ -69,6 +69,13 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
     public void testInitialized() throws Exception {
         mockService(Module.class);
         assertNotNull(this.subject.getClassLoader());
+    }
+
+    @Test
+    @Override
+    public void testRunMain() throws Exception {
+        mockService(Module.class);
+        super.testRunMain();
     }
 
     @Test

@@ -42,8 +42,8 @@ public abstract class AbstractTinyPlugzTest {
 
     @Before
     public void setUp() throws TinyPlugzException {
-        final ClassLoader mockCL = mock(ClassLoader.class);
-        getSubject().initialize(Collections.emptySet(), mockCL, Collections.emptyMap());
+        final ClassLoader parent = getClass().getClassLoader();
+        getSubject().initialize(Collections.emptySet(), parent, Collections.emptyMap());
     }
 
     protected abstract TinyPlugz getSubject();
@@ -159,4 +159,10 @@ public abstract class AbstractTinyPlugzTest {
         }
     }
 
+    @Test
+    public void testRunMain() throws Exception {
+        final String name = "de.skuzzle.tinyplugz.Main";
+        getSubject().runMain(name, new String[0]);
+        assertTrue(Main.called);
+    }
 }
