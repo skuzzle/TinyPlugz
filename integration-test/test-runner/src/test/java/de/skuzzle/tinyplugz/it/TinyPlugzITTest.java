@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,15 +28,15 @@ public class TinyPlugzITTest {
     public static final boolean IS_MAVEN = Boolean.parseBoolean(
             System.getProperty("isMaven", "false"));
 
-    @BeforeClass
-    public static void setup() throws TinyPlugzException {
+    @Before
+    public void setup() throws TinyPlugzException {
         TinyPlugzConfigurator.setup()
                 .withPlugins(TinyPlugzITTest::selectPlugins)
                 .deploy();
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         TinyPlugz.getInstance().undeploy();
     }
 
