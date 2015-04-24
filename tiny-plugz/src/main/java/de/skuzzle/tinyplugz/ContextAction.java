@@ -7,14 +7,12 @@ package de.skuzzle.tinyplugz;
  * frameworks such as JPA which use the context Classloader for finding certain
  * classes or resources.
  *
- * <code>
  * <pre>
- * TinyPlugz.getDefault().contextClassLoaderScope(() -> {
+ * TinyPlugz.getDefault().contextClassLoaderScope(() -&gt; {
  *     EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
  *     // ...
  * });
  * </pre>
- * </code>
  *
  * @author Simon Taddiken
  * @see TinyPlugz#contextClassLoaderScope(ContextAction)

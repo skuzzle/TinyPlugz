@@ -50,7 +50,6 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * force usage of this implementation by adding the
  * {@link Options#FORCE_IMPLEMENTATION} property with the value
  * {@code "de.skuzzle.tinyplugz.guice.TinyPlugzGuice"}.
- * </p>
  *
  * <h2>Setup</h2>
  * <p>
@@ -70,7 +69,6 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * injector will either be a stand-alone injector or a child injector of a
  * configured parent injector (see {@link #PARENT_INJECTOR}).</li>
  * </ol>
- * </p>
  * <p>
  * The setup is done in {@link #initialize(Collection, ClassLoader, Map)} and
  * thus during deploy-time of TinyPlugz. Please note that you can not access
@@ -89,7 +87,6 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * is queried for a single instance of type {@code T}, returning either an
  * explicitly bound instance or an instance created from a just-in-time binding.
  * If this does not yield an result either, an empty Iterator will be returned.
- * </p>
  *
  * <h2>Default Bindings</h2>
  * <p>
@@ -101,7 +98,6 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
  * </ol>
- * </p>
  *
  * @author Simon Taddiken
  */
@@ -111,12 +107,10 @@ public final class TinyPlugzGuice extends TinyPlugz {
      * Initialization property to specify additional modules to be used when
      * creating the injector. You man specify any object of type
      * {@code Iterable<Module>} as value for this property.
-     *
      * <p>
      * Please note that modules which are registered as services in the host
      * application are loaded automatically and need not to be registered
      * explicitly.
-     * </p>
      */
     public static final String ADDITIONAL_MODULES = "tinyplugz.guice.additionalModules";
 

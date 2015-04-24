@@ -45,14 +45,10 @@ import org.slf4j.LoggerFactory;
  * plugins see classes of the host application. The only way for the host
  * application to access features of loaded plugins is to use the java service
  * extension feature through the TinyPlugz API.
- * </p>
- *
  * <p>
  * This method is preferred because it provides a single point of accessing
  * plugin functionality. However, low level access is still possible by using
  * the {@link #getClassLoader() plugin Classloader} directly.
- * </p>
- *
  * <h3>As parent Classloader (container mode)</h3>
  * <p>
  * In this scenario your whole application will be loaded by TinyPlugz, making
@@ -77,7 +73,6 @@ import org.slf4j.LoggerFactory;
  *
  * Please note that this method also replaces the context Classloader of the
  * main thread with TinyPlugz's plugin Classloader.
- * </p>
  *
  * <h2>Deploytime Extensibility</h2>
  * <p>
@@ -86,7 +81,6 @@ import org.slf4j.LoggerFactory;
  * look for an registered service provider for the type TinyPlugz and use the
  * first encountered provider. If no provider is found, the default
  * implementation will be used.
- * </p>
  *
  * @author Simon Taddiken
  */
@@ -373,6 +367,7 @@ public abstract class TinyPlugz {
      * plugins and the host application by using java's {@link ServiceLoader}
      * capabilities.
      *
+     * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return An iterator of providers for the requested service.
      */
@@ -384,6 +379,7 @@ public abstract class TinyPlugz {
      * capabilities. This method only returns the first service or an empty
      * {@link Optional} if no provider for the requested service is found.
      *
+     * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The first service which was found.
      */
@@ -393,6 +389,7 @@ public abstract class TinyPlugz {
      * Default implementation for {@link #getFirstService(Class)} building upon
      * result of {@link #getServices(Class)}.
      *
+     * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The first service which was found.
      */
@@ -410,6 +407,7 @@ public abstract class TinyPlugz {
      * the requested service. An exception will be thrown if no provider has
      * been found or if multiple providers have been found.
      *
+     * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The single service.
      */
@@ -419,6 +417,7 @@ public abstract class TinyPlugz {
      * Default implementation of {@link #getService(Class)} building upon result
      * of {@link #getServices(Class)}.
      *
+     * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The single service.
      */

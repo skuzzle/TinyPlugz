@@ -117,7 +117,7 @@ public final class TinyPlugzConfigurator {
          * Provides the {@link PluginSource} via the given consumer for adding
          * plugins which should be deployed.
          *
-         * @param source
+         * @param source Consumer for modifying a PluginSourcce.
          * @return A fluent builder object for further configuration.
          */
         DeployTinyPlugz withPlugins(Consumer<PluginSource> source);
