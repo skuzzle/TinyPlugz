@@ -60,6 +60,7 @@ then implements the TinyPlugz interface using a Guice Injector.
 ## FAQ
 
 F: Why is the test-coverage so low?
+
 A: Because of the many static methods involved in the TinyPlugz implementation 
   (like `ServiceLoader.load`, `Files.isDirectory` or `Guice.createInjector`)
   TinyPlugz uses _PowerMockito_ for testing. Sadly, PowerMockito does not play
