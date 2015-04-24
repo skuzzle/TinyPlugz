@@ -48,7 +48,7 @@ public class TinyPlugzITTest {
     private static Path plugin(String name) {
         final Path base = new File(".").getAbsoluteFile().toPath();
         return base.getParent().getParent().resolve(name)
-                .resolve("target/classes/");
+                .resolve("target/test-classes/");
     }
 
     @Rule
