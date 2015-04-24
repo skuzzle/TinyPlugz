@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public final class TinyPlugzConfigurator {
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
-    static final Object DEPLOY_LOCK = new Object();
+    protected static final Object DEPLOY_LOCK = new Object();
 
     private TinyPlugzConfigurator() {
         // hidden constructor
