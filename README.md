@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/skuzzle/TinyPlugz.svg)](https://travis-ci.org/skuzzle/TinyPlugz)
+[SonarQube](https://www.serverd.de/sonar/dashboard/index/1106)
 
 TinyPlugz
 ================
@@ -39,6 +40,10 @@ Iterator<MyService> services = TinyPlugz.getDefault().getServices(MyService.clas
 
 Services are then searched among all plugins and the host application using 
 java's `ServiceLoader` class.
+
+## Logging
+TinyPlugz only has a single dependency on a 3rd party library. It uses _slf4j_
+as logging abstraction to support multiple logging frameworks if desired.
 
 ## Extension
 As mentioned above, the whole TinyPlugz behavior can be exchanged during deploy 
