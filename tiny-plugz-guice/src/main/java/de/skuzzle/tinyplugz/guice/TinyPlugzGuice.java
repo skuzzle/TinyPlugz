@@ -191,9 +191,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
         if (factory == null) {
             factory = new DefaultInjectorFactory();
         }
-        final Injector injector = factory.createInjector(modules, props);
-        Require.nonNullResult(injector, "InjectorFactory.createInjector");
-        return injector;
+        final Injector guiceInjector = factory.createInjector(modules, props);
+        Require.nonNullResult(guiceInjector, "InjectorFactory.createInjector");
+        return guiceInjector;
     }
 
     @SuppressWarnings("unchecked")
