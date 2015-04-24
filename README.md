@@ -20,7 +20,7 @@ Features:
 Before TinyPlugz can be used, it needs to be configured using the 
 `TinyPlugzConfigurator` class. This class is responsible for deploying an 
 application wide single instance of `TinyPlugz` which can then be accessed
-using the static `TinyPlugz.getDefault()` method.
+using the static `TinyPlugz.getInstance()` method.
 
 In your host application (probably in its `void main`) write:
 
@@ -35,7 +35,7 @@ Now you can access services provided by your plugins anywhere in your
 application:
 
 ```java
-Iterator<MyService> services = TinyPlugz.getDefault().getServices(MyService.class);
+Iterator<MyService> services = TinyPlugz.getInstance().getServices(MyService.class);
 ```
 
 Services are then searched among all plugins and the host application using 
