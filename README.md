@@ -16,6 +16,11 @@ Features:
   exchanged during deploy time of your application to provide additional
   features.
       
+## Documentation
+JavaDoc is available here:
+* [TinyPlugz](http://www.skuzzle.de/tiny-plugz/0.1.0/main/doc)
+* [TinyPlugzGuice](http://www.skuzzle.de/tiny-plugz/0.1.0/guice/doc)
+      
 ## Usage
 Before TinyPlugz can be used, it needs to be configured using the 
 `TinyPlugzConfigurator` class. This class is responsible for deploying an 
