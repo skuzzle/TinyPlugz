@@ -7,7 +7,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ TinyPlugz.class, TinyPlugzConfigurator.class })
+@PrepareForTest({ TinyPlugz.class, TinyPlugzConfigurator.class,
+        DefaultServiceLoaderWrapper.class })
 public class TinyPlugzTest extends AbstractTinyPlugzTest {
 
     private final TinyPlugzImpl subject;
