@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * providing a high level API around the java {@link ServiceLoader} and
  * {@link URLClassLoader} classes. Before usage, TinyPlugz must be configured to
  * specify the plugins which should be loaded. After deploying, TinyPlugz can be
- * accessed in a singleton typed manner:
+ * accessed like a singleton:
  *
  * <pre>
  * TinyPlugzConfigurator.setup()
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *         .withPlugins(source -&gt; source.addAll(pluginFolder))
  *         .deploy();
  *
- * final Iterator&lt;MyService&gt; providers = TinyPlugz.getDefault()
+ * final Iterator&lt;MyService&gt; providers = TinyPlugz.getInstance()
  *         .loadServices(MyService.class);
  * </pre>
  *
@@ -80,7 +81,7 @@ import org.slf4j.LoggerFactory;
  *
  * <h2>Deploytime Extensibility</h2>
  * <p>
- * The {@link TinyPlugz} instance returned by {@link #getDefault()} is
+ * The {@link TinyPlugz} instance returned by {@link #getInstance()} is
  * automatically determined by using java's {@link ServiceLoader} class. It will
  * look for an registered service provider for the type TinyPlugz and use the
  * first encountered provider. If no provider is found, the default
@@ -100,19 +101,39 @@ public abstract class TinyPlugz {
      *
      * @return The TinyPlugz instance.
      */
-    public static TinyPlugz getDefault() {
+    public static TinyPlugz getInstance() {
         final TinyPlugz plugz = instance;
         Require.state(plugz != null, "TinyPlugz has not been initialized");
         return plugz;
     }
 
     static void deploy(TinyPlugz instance) {
+        // visible for TinyPlugzConfigurator
         TinyPlugz.instance = instance;
     }
 
-    static boolean isDeployed() {
-        // visible for the TinyPlugzConfigurator.
+    /**
+     * Checks whether TinyPlugz is currently deployed and is thus accessible
+     * using {@link #getInstance()}.
+     *
+     * @return Whether {@link TinyPlugz}
+     */
+    public static boolean isDeployed() {
         return instance != null;
+    }
+
+    /**
+     * Undeploys the global {@link TinyPlugz} instance and calls its
+     * {@link #dispose()} method.
+     */
+    public final void undeploy() {
+        synchronized (TinyPlugzConfigurator.DEPLOY_LOCK) {
+            Require.state(isDeployed(),
+                    "Can not undeploy TinyPlugz: no instance deployed");
+            TinyPlugz plugz = instance;
+            instance = null;
+            plugz.dispose();
+        }
     }
 
     /**
@@ -120,12 +141,34 @@ public abstract class TinyPlugz {
      * of this instance.
      *
      * @param urls The urls pointing to loadable plugins.
-     * @param parentClassLoader The Classloader to use as parent.
+     * @param parentClassLoader The Classloader to use as parent for the plugin
+     *            Classloader.
      * @param properties Additional configuration parameters.
      * @throws TinyPlugzException When initializing failed.
      */
     protected abstract void initialize(Collection<URL> urls,
             ClassLoader parentClassLoader, Map<Object, Object> properties);
+
+    /**
+     * Called upon {@link #undeploy() undeploy} to release resources.
+     */
+    protected abstract void dispose();
+
+    /**
+     * Default behavior for {@link #dispose()}: Calls {@link Closeable#close()
+     * close} if the Classloader returned by {@link #getClassLoader()} is an
+     * instance of {@link Closeable}.
+     */
+    protected final void defaultDispose() {
+        if (getClassLoader() instanceof Closeable) {
+            final Closeable cl = (Closeable) getClassLoader();
+            try {
+                cl.close();
+            } catch (IOException e) {
+                LOG.error("Error while closing plugin Classloader", e);
+            }
+        }
+    }
 
     /**
      * Executes a main method in the context of the plugin ClassLoader. This
@@ -138,7 +181,8 @@ public abstract class TinyPlugz {
      * <p>
      * Using this method it is possible to use TinyPlugz as an execution
      * container for the whole application, because all subsequently loaded
-     * classes will have access to the plugin ClassLoader.
+     * classes will be loaded by a Classloader which has the plugin Classloader
+     * as parent.
      * </p>
      *
      * @param className Name of the class which contains the main method.

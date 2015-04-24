@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.it;
 
 public class HostSampleServiceImpl implements HostSampleService {
 

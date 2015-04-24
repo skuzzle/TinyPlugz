@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public final class TinyPlugzConfigurator {
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
-    private static final Object INIT_LOCK = new Object();
+    static final Object DEPLOY_LOCK = new Object();
 
     private TinyPlugzConfigurator() {
         // hidden constructor
@@ -134,7 +134,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Finally deploys the {@link TinyPlugz} instance using the the
          * configured values. The configured instance will be globally
-         * accessible using {@link TinyPlugz#getDefault()}.
+         * accessible using {@link TinyPlugz#getInstance()}.
          *
          * @return The configured instance.
          * @throws TinyPlugzException When initializing TinyPlugz with the
@@ -185,7 +185,7 @@ public final class TinyPlugzConfigurator {
         @Override
         public TinyPlugz deploy() {
             validateProperties();
-            synchronized (INIT_LOCK) {
+            synchronized (DEPLOY_LOCK) {
                 // additional synchronized check is required
                 Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
 
@@ -244,6 +244,11 @@ public final class TinyPlugzConfigurator {
         protected final void initialize(Collection<URL> urls,
                 ClassLoader parentClassLoader, Map<Object, Object> properties) {
             this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
+        }
+
+        @Override
+        protected final void dispose() {
+            defaultDispose();
         }
 
         @Override

@@ -68,6 +68,9 @@ public class TinyPlugzLookUpTest {
         public <T> T getService(Class<T> type) {
             return null;
         }
+
+        @Override
+        protected void dispose() {}
     }
 
     @Before

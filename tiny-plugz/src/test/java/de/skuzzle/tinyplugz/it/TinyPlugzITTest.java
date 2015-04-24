@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -11,12 +11,18 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TinyPlugzIT {
+import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
+import de.skuzzle.tinyplugz.TinyPlugzException;
+
+public class TinyPlugzITTest {
 
     public static final boolean IS_MAVEN = Boolean.parseBoolean(
             System.getProperty("isMaven", "false"));
@@ -24,8 +30,13 @@ public class TinyPlugzIT {
     @BeforeClass
     public static void setup() throws TinyPlugzException {
         TinyPlugzConfigurator.setup()
-                .withPlugins(TinyPlugzIT::selectPlugins)
+                .withPlugins(TinyPlugzITTest::selectPlugins)
                 .deploy();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        TinyPlugz.getInstance().undeploy();
     }
 
     private static void selectPlugins(PluginSource source) {
@@ -48,7 +59,7 @@ public class TinyPlugzIT {
     public void testGetServiceFailMultiple() throws Exception {
         this.exception.expect(IllegalStateException.class);
         this.exception.expectMessage("multiple providers");
-        TinyPlugz.getDefault().getService(HostSampleService.class);
+        TinyPlugz.getInstance().getService(HostSampleService.class);
     }
 
     @Test
@@ -56,7 +67,7 @@ public class TinyPlugzIT {
         final Set<String> expected = new HashSet<>(
                 Arrays.asList("Host foo", "Plugin1 foo", "Plugin2 foo"));
 
-        final Iterator<HostSampleService> it = TinyPlugz.getDefault()
+        final Iterator<HostSampleService> it = TinyPlugz.getInstance()
                 .getServices(HostSampleService.class);
         final Set<String> actual = new HashSet<>();
         it.forEachRemaining(service -> actual.add(service.returnInput("foo")));
@@ -65,7 +76,7 @@ public class TinyPlugzIT {
 
     @Test
     public void testGetFirstService() throws Exception {
-        final Optional<HostSampleService> opt = TinyPlugz.getDefault()
+        final Optional<HostSampleService> opt = TinyPlugz.getInstance()
                 .getFirstService(HostSampleService.class);
         assertTrue(opt.isPresent());
     }

@@ -74,7 +74,7 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * <p>
  * The setup is done in {@link #initialize(Collection, ClassLoader, Map)} and
  * thus during deploy-time of TinyPlugz. Please note that you can not access
- * TinyPlugz using {@link TinyPlugz#getDefault()} within your modules. However
+ * TinyPlugz using {@link TinyPlugz#getInstance()} within your modules. However
  * you can inject the TinyPlugz instance where ever needed (e.g. as a parameter
  * to a provider method in your module). See <em>Default Bindings</em> below.
  * </p>
@@ -97,7 +97,7 @@ import de.skuzzle.tinyplugz.TinyPlugzException;
  * <ol>
  * <li>A binding of {@code TinyPlugz.class} to the current
  * {@link TinyPlugzGuice} instance. So you do not need to access it using
- * {@link #getDefault()}.</li>
+ * {@link #getInstance()}.</li>
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
  * </ol>
@@ -172,6 +172,11 @@ public final class TinyPlugzGuice extends TinyPlugz {
         final Iterable<Module> modules = Iterators.composite(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
+    }
+
+    @Override
+    protected void dispose() {
+        defaultDispose();
     }
 
     private Iterable<Module> getInternalModule() {
