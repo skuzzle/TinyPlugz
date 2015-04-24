@@ -56,3 +56,12 @@ The _tiny-plugz-guice_ extension takes advantage of this features to provide
 a plugin system with supporting dependency injection: while deploying, it pulls
 implementations of Guice modules from plugins using the `ServiceLoader` and 
 then implements the TinyPlugz interface using a Guice Injector.
+
+## FAQ
+
+F: Why is the test-coverage so low?
+A: Because of the many static methods involved in the TinyPlugz implementation 
+  (like `ServiceLoader.load`, `Files.isDirectory` or `Guice.createInjector`)
+  TinyPlugz uses _PowerMockito_ for testing. Sadly, PowerMockito does not play
+  very well together with the _jacoco_ code coverage plugin, which is the reason
+  that the reported coverage is much lower than the actual coverage.

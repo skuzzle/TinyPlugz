@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>de.skuzzle.tinyplugz.test</groupId>
-    <artifactId>test-plugin2</artifactId>
+    <artifactId>test-runner</artifactId>
     <packaging>jar</packaging>
 
-    <name>tiny-plugz-test-plugin2</name>
+    <name>tiny-plugz-test-runner</name>
 
     <dependencies>
         <!-- Self -->
@@ -22,16 +22,26 @@
             <artifactId>tiny-plugz</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Test -->
         <dependency>
             <groupId>de.skuzzle.tinyplugz</groupId>
             <artifactId>tiny-plugz</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>de.skuzzle.tinyplugz.test</groupId>
             <artifactId>test-plugin1</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.skuzzle.tinyplugz.test</groupId>
+            <artifactId>test-plugin2</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

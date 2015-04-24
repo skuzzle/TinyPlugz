@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz.test.testplugin1;
-import de.skuzzle.tinyplugz.it.HostSampleService;
+
+import de.skuzzle.tinyplugz.HostSampleService;
 
 public class Plugin1HostInterfaceImpl implements HostSampleService {
 

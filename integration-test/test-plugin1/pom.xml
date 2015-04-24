@@ -16,13 +16,11 @@
     <name>tiny-plugz-test-plugin1</name>
 
     <dependencies>
-        <!-- Self -->
         <dependency>
-	        <groupId>de.skuzzle.tinyplugz</groupId>
-	        <artifactId>tiny-plugz</artifactId>
-	        <version>${project.version}</version>
-	        <type>test-jar</type>
-	        <scope>compile</scope>
+            <groupId>de.skuzzle.tinyplugz</groupId>
+            <artifactId>tiny-plugz</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 

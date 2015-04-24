@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import de.skuzzle.tinyplugz.HostSampleService;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
@@ -46,9 +47,7 @@ public class TinyPlugzITTest {
 
     private static Path plugin(String name) {
         final Path base = new File(".").getAbsoluteFile().toPath();
-        return base.getParent().getParent()
-                .resolve("integration-test")
-                .resolve(name)
+        return base.getParent().getParent().resolve(name)
                 .resolve("target/classes/");
     }
 

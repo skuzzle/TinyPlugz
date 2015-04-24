@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz.it;
+package de.skuzzle.tinyplugz;
 
 public interface HostSampleService {
 
