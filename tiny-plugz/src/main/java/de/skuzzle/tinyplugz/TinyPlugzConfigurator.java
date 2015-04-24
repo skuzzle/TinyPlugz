@@ -160,6 +160,7 @@ public final class TinyPlugzConfigurator {
 
         @Override
         public DefineProperties withProperty(String name, Object value) {
+            Require.nonNull(name, "name");
             this.properties.put(name, value);
             return this;
         }
@@ -172,12 +173,14 @@ public final class TinyPlugzConfigurator {
         @Override
         public DefineProperties withProperties(
                 Map<? extends Object, ? extends Object> values) {
+            Require.nonNull(values, "values");
             this.properties.putAll(values);
             return this;
         }
 
         @Override
         public DeployTinyPlugz withPlugins(Consumer<PluginSource> source) {
+            Require.nonNull(source, "source");
             source.accept(this.builder);
             return this;
         }
