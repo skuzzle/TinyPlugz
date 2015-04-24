@@ -55,6 +55,7 @@ public final class TinyPlugzConfigurator {
      * @return Fluent builder object for further configuration.
      */
     public static DefineProperties setupUsingParent(ClassLoader parentClassLoader) {
+        Require.nonNull(parentClassLoader, "parentClassLoader");
         return new Impl(parentClassLoader);
     }
 
