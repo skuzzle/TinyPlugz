@@ -28,7 +28,6 @@ import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
-import de.skuzzle.tinyplugz.TinyPlugzException;
 
 /**
  * TinyPlugz implementation building upon google Guice and its Multibinding
@@ -213,7 +212,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    public final void runMain(String className, String[] args) throws TinyPlugzException {
+    public final void runMain(String className, String[] args) {
         defaultRunMain(className, args);
     }
 

@@ -30,8 +30,7 @@ abstract class TinyPlugzLookUp {
             new TinyPlugzLookUp() {
 
         @Override
-        TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
-                throws TinyPlugzException {
+                TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
             return new TinyPlugzImpl();
         }
     };
@@ -54,15 +53,13 @@ abstract class TinyPlugzLookUp {
      * @return The created instance.
      * @throws TinyPlugzException If configuring the new instance fails.
      */
-    abstract TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
-            throws TinyPlugzException;
+    abstract TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props);
 
 
     private static final class SPITinyPlugzLookup extends TinyPlugzLookUp {
 
         @Override
-        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
-                throws TinyPlugzException {
+        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
             final Iterator<TinyPlugz> providers = ServiceLoader
                     .load(TinyPlugz.class, classLoader)
                     .iterator();
@@ -90,8 +87,7 @@ abstract class TinyPlugzLookUp {
     private static final class StaticTinyPlugzLookup extends TinyPlugzLookUp {
 
         @Override
-        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props)
-                throws TinyPlugzException {
+        public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
             final String className = props.get(Options.FORCE_IMPLEMENTATION)
                     .toString();
 

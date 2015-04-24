@@ -203,7 +203,7 @@ public final class TinyPlugzConfigurator {
             }
         }
 
-        private TinyPlugz getInstance() throws TinyPlugzException {
+        private TinyPlugz getInstance() {
             final TinyPlugzLookUp lookup;
             if (this.properties.get(Options.FORCE_DEFAULT) != null) {
                 lookup = TinyPlugzLookUp.DEFAULT_INSTANCE_STRATEGY;
@@ -217,7 +217,7 @@ public final class TinyPlugzConfigurator {
             return lookup.getInstance(this.parentCl, this.properties);
         }
 
-        private void validateProperties() throws TinyPlugzException {
+        private void validateProperties() {
             final Object forceDefault = this.properties.get(Options.FORCE_DEFAULT);
             final Object forceImplementation = this.properties.get(
                     Options.FORCE_IMPLEMENTATION);
@@ -257,8 +257,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final void runMain(String className, String[] args)
-                throws TinyPlugzException {
+        public final void runMain(String className, String[] args) {
             defaultRunMain(className, args);
         }
 
