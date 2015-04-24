@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -241,7 +240,12 @@ public final class TinyPlugzConfigurator {
      */
     static final class TinyPlugzImpl extends TinyPlugz {
 
+        private final ServiceLoaderWrapper serviceLoader;
         private ClassLoader pluginClassLoader;
+
+        public TinyPlugzImpl() {
+            this.serviceLoader = new DefaultServiceLoaderWrapper();
+        }
 
         @Override
         protected final void initialize(Collection<URL> urls,
@@ -282,7 +286,7 @@ public final class TinyPlugzConfigurator {
         @Override
         public final <T> Iterator<T> getServices(Class<T> type) {
             Require.nonNull(type, "type");
-            return ServiceLoader.load(type, getClassLoader()).iterator();
+            return this.serviceLoader.loadService(type, this.pluginClassLoader);
         }
 
         @Override
