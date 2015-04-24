@@ -88,10 +88,6 @@ abstract class TinyPlugzLookUp {
         public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
             final String className = props.get(Options.FORCE_IMPLEMENTATION)
                     .toString();
-
-            // as by precondition check in the configurator.
-            assert className != null;
-
             try {
                 final Class<?> cls = classLoader.loadClass(className);
                 if (!TinyPlugz.class.isAssignableFrom(cls)) {
