@@ -244,7 +244,7 @@ public final class TinyPlugzConfigurator {
         private final ServiceLoaderWrapper serviceLoader;
         private ClassLoader pluginClassLoader;
 
-        public TinyPlugzImpl() {
+        TinyPlugzImpl() {
             this.serviceLoader = new DefaultServiceLoaderWrapper();
         }
 
