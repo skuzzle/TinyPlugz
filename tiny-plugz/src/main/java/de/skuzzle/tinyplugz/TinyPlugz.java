@@ -204,19 +204,12 @@ public abstract class TinyPlugz {
             final Method method = cls.getMethod("main",
                     new Class<?>[] { String[].class });
 
-            boolean bValidModifiers = false;
-            boolean bValidVoid = false;
+            final boolean methodValid = method != null &&
+                Modifier.isPublic(method.getModifiers()) &&
+                Modifier.isStatic(method.getModifiers()) &&
+                method.getReturnType() == void.class;
 
-            if (method != null) {
-                method.setAccessible(true);
-                int nModifiers = method.getModifiers();
-                bValidModifiers = Modifier.isPublic(nModifiers) &&
-                    Modifier.isStatic(nModifiers);
-                Class<?> clazzRet = method.getReturnType();
-
-                bValidVoid = (clazzRet == void.class);
-            }
-            if (!bValidModifiers || !bValidVoid) {
+            if (!methodValid) {
                 throw new TinyPlugzException(String.format(
                         "The main() method in class '%s' not found.", cls.getName()));
             }
