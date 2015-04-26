@@ -168,7 +168,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    protected void dispose() {
+    protected final void dispose() {
         defaultDispose();
     }
 
