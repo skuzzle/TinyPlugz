@@ -53,7 +53,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * <h2>Setup</h2>
  * <p>
  * The setup routine for this implementation upon deployment involves three
- * major steps.
+ * major steps which are executed automatically:
  *
  * <ol>
  * <li>Creation of the plugin Classloader to access resouces/classes from

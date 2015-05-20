@@ -252,7 +252,7 @@ public abstract class TinyPlugz {
                     }
                 }
                 return new URLClassLoader(plugins.toArray(new URL[plugins.size()]),
-                            parent);
+                        parent);
             }
         });
     }
@@ -403,6 +403,8 @@ public abstract class TinyPlugz {
      * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The single service.
+     * @throws IllegalStateException If no provider or if more than one provider
+     *             of given type is available.
      */
     public abstract <T> T getService(Class<T> type);
 
@@ -413,6 +415,8 @@ public abstract class TinyPlugz {
      * @param <T> The type of the service provider interface.
      * @param type Type of the service to load.
      * @return The single service.
+     * @throws IllegalStateException If no provider or if more than one provider
+     *             of given type is available.
      */
     protected final <T> T defaultGetService(Class<T> type) {
         final Iterator<T> services = getServices(type);
