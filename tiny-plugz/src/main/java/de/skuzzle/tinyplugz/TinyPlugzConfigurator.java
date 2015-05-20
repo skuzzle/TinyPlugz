@@ -1,12 +1,14 @@
 package de.skuzzle.tinyplugz;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,9 @@ import org.slf4j.LoggerFactory;
  * @author Simon Taddiken
  */
 public final class TinyPlugzConfigurator {
+
+    /** Default resource name of tiny plugz class path configuration */
+    public static final String TINY_PLUGZ_CONFIG = "tiny-plugz.properties";
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
     protected static final Object DEPLOY_LOCK = new Object();
@@ -80,6 +85,25 @@ public final class TinyPlugzConfigurator {
      * @author Simon Taddiken
      */
     public static interface DefineProperties {
+
+        /**
+         * Adds properties read from {@value #TINY_PLUGZ_CONFIG} file from the
+         * class path.
+         *
+         * @return A fluent builder object for further configuration.
+         * @throws IllegalStateException If the file can not be found.
+         */
+        public DefineProperties withClasspathProperties();
+
+        /**
+         * Adds properties read from the class path using the given resource
+         * name.
+         *
+         * @param resourceName Name of the properties file resource.
+         * @return A fluent builder object for further configuration.
+         * @throws IllegalStateException If the file can not be found.
+         */
+        public DefineProperties withClasspathProperties(String resourceName);
 
         /**
          * Specifies a single property to insert into the map which will be
@@ -159,6 +183,32 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
+        public DefineProperties withClasspathProperties() {
+            return withClasspathProperties(TINY_PLUGZ_CONFIG);
+        }
+
+        @Override
+        public DefineProperties withClasspathProperties(String resourceName) {
+            Require.nonNull(resourceName, "resourceName");
+
+            final URL url = this.parentCl.getResource(resourceName);
+            Require.state(url != null, "Resource <%s> not found", resourceName);
+
+            final Properties props = new Properties();
+
+            try (final InputStream in = url.openStream()) {
+                props.load(in);
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                        String.format("Resource <%s> could not be read", resourceName),
+                        e);
+            }
+
+            this.properties.putAll(props);
+            return this;
+        }
+
+        @Override
         public DefineProperties withProperty(String name, Object value) {
             Require.nonNull(name, "name");
             this.properties.put(name, value);
@@ -227,7 +277,7 @@ public final class TinyPlugzConfigurator {
 
             if (forceDefault != null && forceImplementation != null) {
                 throw new TinyPlugzException("Can not use 'FORCE_IMPLEMENTATION' " +
-                            "together with 'FORCE_DEFAULT'");
+                    "together with 'FORCE_DEFAULT'");
             }
         }
     }
