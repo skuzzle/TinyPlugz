@@ -110,7 +110,7 @@ public abstract class TinyPlugz {
      * Checks whether TinyPlugz is currently deployed and is thus accessible
      * using {@link #getInstance()}.
      *
-     * @return Whether {@link TinyPlugz}
+     * @return Whether {@link TinyPlugz} is deployed.
      */
     public static boolean isDeployed() {
         return instance != null;

@@ -74,7 +74,10 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * TinyPlugz using {@link TinyPlugz#getInstance()} within your modules. However
  * you can inject the TinyPlugz instance where ever needed (e.g. as a parameter
  * to a provider method in your module). See <em>Default Bindings</em> below.
- * </p>
+ * <p>
+ * Please note that all modules which will be pulled in from the service loader
+ * need a public no-argument constructor. If this is not sufficient for your
+ * use-case, have a look at the {@link #ADDITIONAL_MODULES} option.
  *
  * <h2>Service Resolution</h2>
  * <p>
@@ -97,6 +100,33 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
  * </ol>
+ *
+ * <h2>Automatically Create Services</h2>
+ * <p>
+ * If you want to automatically create servie provider bindings in the META-INF
+ * directory of your application, I recommend a library like google's <a
+ * href="https://github.com/google/auto/tree/master/service">auto-service</a>.
+ * You can then implement your TinyPlugz compatible guice modules like:
+ *
+ * <pre>
+ * package com.your.domain;
+ *
+ * import com.google.auto.service.AutoService;
+ * import com.google.inject.AbstractModule;
+ * import com.google.inject.Module;
+ *
+ * &#064;AutoService(Module.class)
+ * public class MyModule extends AbstractModule {
+ *     &#064;Override
+ *     public void setup() {
+ *         // ....
+ *     }
+ * }
+ * </pre>
+ *
+ * The compiler will then automatically create the file @{code
+ * META-INF/services/com.google.inject.Module} and list the full qualified names
+ * of all your modules annotated like the above.
  *
  * @author Simon Taddiken
  */
