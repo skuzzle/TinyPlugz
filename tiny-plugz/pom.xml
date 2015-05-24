@@ -17,9 +17,6 @@
     </description>
 
     <properties>
-        <site.name>TinyPlugz</site.name>
-        <github.name>TinyPlugz</github.name>
-
         <skipIT>true</skipIT>
     </properties>
 
