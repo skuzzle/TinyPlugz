@@ -16,7 +16,7 @@
 
     <name>tiny-plugz</name>
     <properties>
-        <skuzzle.runtime.version>0.9.1-SNAPSHOT</skuzzle.runtime.version>
+        <skuzzle.runtime.version>0.9.2</skuzzle.runtime.version>
     </properties>
 
     <modules>
