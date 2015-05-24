@@ -28,6 +28,7 @@ import de.skuzzle.tinyplugz.TinyPlugzServletContextListener;
  * information into the servlet context.
  *
  * @author Simon Taddiken
+ * @see TinyPlugzServletContextListener
  */
 public abstract class TinyPlugzGuiceServletContextListener extends
         GuiceServletContextListener {
@@ -69,6 +70,24 @@ public abstract class TinyPlugzGuiceServletContextListener extends
         // do nothing
     }
 
+    /**
+     * Called when this listener receives the context destroyed event. TinyPlugz will not
+     * be deployed anymore by the time this method is called. The default implementation
+     * does nothing.
+     *
+     * @param ctx The destroyed servlet context.
+     */
+    protected void tinyPlugzUndeployed(ServletContext ctx) {
+        // do nothing
+    }
+
+    /**
+     * Returns the guice {@link Injector} which will be created by TinyPlugz.
+     * The injector will be made available when this listener receives the
+     * context initialized event.
+     *
+     * @return The guice Injector to use within the web application.
+     */
     @Override
     protected Injector getInjector() {
         Require.state(this.injector != null, "Injector not initialized");
@@ -89,8 +108,13 @@ public abstract class TinyPlugzGuiceServletContextListener extends
 
     @Override
     public final void contextDestroyed(ServletContextEvent servletContextEvent) {
+        // undeploy tiny plugz
         this.delegate.contextDestroyed(servletContextEvent);
+
+        // undeploy guice
         super.contextDestroyed(servletContextEvent);
+
+        tinyPlugzUndeployed(servletContextEvent.getServletContext());
         this.injector = null;
     }
 }
