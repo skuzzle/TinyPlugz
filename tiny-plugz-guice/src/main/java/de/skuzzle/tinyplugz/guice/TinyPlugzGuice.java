@@ -132,7 +132,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * }
  * </pre>
  *
- * The compiler will automatically create the file @{code
+ * The compiler will automatically create the file {@code
  * META-INF/services/com.google.inject.Module} and list the full qualified names
  * of all your modules annotated like the above.
  *
