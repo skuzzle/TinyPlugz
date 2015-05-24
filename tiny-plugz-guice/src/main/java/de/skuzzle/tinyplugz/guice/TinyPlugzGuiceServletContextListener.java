@@ -89,7 +89,7 @@ public abstract class TinyPlugzGuiceServletContextListener extends
      * @return The guice Injector to use within the web application.
      */
     @Override
-    protected Injector getInjector() {
+    protected final Injector getInjector() {
         Require.state(this.injector != null, "Injector not initialized");
         return this.injector;
     }
