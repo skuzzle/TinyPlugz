@@ -49,6 +49,13 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * force usage of this implementation by adding the
  * {@link Options#FORCE_IMPLEMENTATION} property with the value
  * {@code "de.skuzzle.tinyplugz.guice.TinyPlugzGuice"}.
+ * <p>
+ * <b>Note:</b> Like directly calling the Injector's
+ * {@link Injector#getInstance(Class) getInstance} method, calling
+ * {@link #getService(Class) getService}, {@link #getFirstService(Class)
+ * getFirstService} and {@link #getServices(Class) getServices} is discouraged
+ * in favor of directly injecting dependencies where needed. Please refer to the
+ * Guice documentation for learning about best practices.
  *
  * <h2>Setup</h2>
  * <p>
@@ -103,8 +110,9 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  *
  * <h2>Automatically Create Services</h2>
  * <p>
- * If you want to automatically create servie provider bindings in the META-INF
- * directory of your application, I recommend a library like google's <a
+ * If you want to automatically create service provider bindings in the META-INF
+ * directory of your application, it is recommended to use a library like
+ * google's <a
  * href="https://github.com/google/auto/tree/master/service">auto-service</a>.
  * You can then implement your TinyPlugz compatible guice modules like:
  *
@@ -124,7 +132,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * }
  * </pre>
  *
- * The compiler will then automatically create the file @{code
+ * The compiler will automatically create the file @{code
  * META-INF/services/com.google.inject.Module} and list the full qualified names
  * of all your modules annotated like the above.
  *
