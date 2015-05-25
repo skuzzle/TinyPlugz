@@ -2,6 +2,7 @@ package de.skuzzle.tinyplugz;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -13,7 +14,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 /**
  * ServletContextListener for configuring TinyPlugz for a web application. Users
  * need to extend this class to provide the actual configuration for TinyPlugz
- * by implementing {@link #configure(DefineProperties, Path)}. You then need to
+ * by implementing {@link #configure(DefineProperties, Optional)}. You then need to
  * register the listener in your web.xml:
  *
  * <pre>
@@ -48,18 +49,23 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
      * </pre>
      *
      * @param props Builder object for specifying configuration properties.
-     * @param webInfDir The location of the WEB-INF directory.
+     * @param webInfDir The location of the WEB-INF directory. Might be an empty
+     *            optional if the WEB-INF directory could not be located.
      * @return The {@link DeployTinyPlugz} instance which is returned by the
      *         given builder's
      *         {@link DefineProperties#withPlugins(java.util.function.Consumer)
      *         withPlugins} method.
      */
-    protected abstract DeployTinyPlugz configure(DefineProperties props, Path webInfDir);
+    protected abstract DeployTinyPlugz configure(DefineProperties props,
+            Optional<Path> webInfDir);
 
     @Override
     public final void contextInitialized(ServletContextEvent sce) {
         final ServletContext ctx = sce.getServletContext();
-        final Path webInfDir = Paths.get(ctx.getRealPath(WEB_INF));
+        final String path = ctx.getRealPath(WEB_INF);
+        final Optional<Path> webInfDir = path == null
+                ? Optional.empty()
+                : Optional.of(Paths.get(path));
 
         final ClassLoader webAppCl = getClass().getClassLoader();
         final DefineProperties props = TinyPlugzConfigurator.setupUsingParent(webAppCl);

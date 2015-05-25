@@ -1,6 +1,7 @@
 package de.skuzzle.tinyplugz.guice;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -18,7 +19,7 @@ import de.skuzzle.tinyplugz.TinyPlugzServletContextListener;
  * ServletContextListener which uses TinyPlugz for configuring the application's
  * guice {@link Injector}. When receiving the contextInitialized event, this
  * listener will deploy TinyPlugz using the configuration given by
- * {@link #configure(DefineProperties, Path)}. It will then obtain the injector
+ * {@link #configure(DefineProperties, Optional)}. It will then obtain the injector
  * from TinyPlugz and configure the {@link GuiceServletContextListener}
  * appropriately.
  * <p>
@@ -39,7 +40,7 @@ public abstract class TinyPlugzGuiceServletContextListener extends
 
                 @Override
                 protected final DeployTinyPlugz configure(DefineProperties props,
-                        Path webInfDir) {
+                        Optional<Path> webInfDir) {
 
                     return TinyPlugzGuiceServletContextListener.this.configure
                             (props, webInfDir);
@@ -50,12 +51,14 @@ public abstract class TinyPlugzGuiceServletContextListener extends
      * Configures TinyPlugz. See {@link TinyPlugzServletContextListener}.
      *
      * @param props Builder object for specifying configuration options.
-     * @param webInfDir The web application's WEB-INF directory.
+     * @param webInfDir The web application's WEB-INF directory. Optional will
+     *            be empty if the location could not be resolved.
      * @return The {@link DeployTinyPlugz} instance returned by
      *         {@link DefineProperties#withPlugins(java.util.function.Consumer)}
      *         .
      */
-    protected abstract DeployTinyPlugz configure(DefineProperties props, Path webInfDir);
+    protected abstract DeployTinyPlugz configure(DefineProperties props,
+            Optional<Path> webInfDir);
 
     /**
      * Called after TinyPlugz and guice have successfully been setup. The
@@ -71,9 +74,9 @@ public abstract class TinyPlugzGuiceServletContextListener extends
     }
 
     /**
-     * Called when this listener receives the context destroyed event. TinyPlugz will not
-     * be deployed anymore by the time this method is called. The default implementation
-     * does nothing.
+     * Called when this listener receives the context destroyed event. TinyPlugz
+     * will not be deployed anymore by the time this method is called. The
+     * default implementation does nothing.
      *
      * @param ctx The destroyed servlet context.
      */

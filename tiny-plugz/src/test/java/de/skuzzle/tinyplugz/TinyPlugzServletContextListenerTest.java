@@ -1,10 +1,12 @@
 package de.skuzzle.tinyplugz;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -45,11 +47,26 @@ public class TinyPlugzServletContextListenerTest {
     }
 
     @Test
+    public void testNoWebInf() throws Exception {
+        when(this.context.getRealPath("WEB-INF")).thenReturn(null);
+        this.subject = new TinyPlugzServletContextListener() {
+
+            @Override
+            protected DeployTinyPlugz configure(DefineProperties props, Optional<Path> webInfDir) {
+                assertFalse(webInfDir.isPresent());
+                return TinyPlugzServletContextListenerTest.this.deployTinyPlugz;
+            }
+        };
+        this.subject.contextInitialized(this.contextEvent);
+    }
+
+    @Test
     public void testInitContext() throws Exception {
         this.subject = new TinyPlugzServletContextListener() {
             @Override
-            protected DeployTinyPlugz configure(DefineProperties props, Path webInfDir) {
-                assertSame(TinyPlugzServletContextListenerTest.this.webInfDir, webInfDir);
+            protected DeployTinyPlugz configure(DefineProperties props,
+                    Optional<Path> webInfDir) {
+                assertSame(TinyPlugzServletContextListenerTest.this.webInfDir, webInfDir.get());
                 return TinyPlugzServletContextListenerTest.this.deployTinyPlugz;
             }
         };
