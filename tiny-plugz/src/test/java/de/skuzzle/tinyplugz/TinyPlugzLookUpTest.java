@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -47,7 +46,7 @@ public class TinyPlugzLookUpTest {
         }
 
         @Override
-        public Iterator<URL> getResources(String name) throws IOException {
+        public ElementIterator<URL> getResources(String name) throws IOException {
             return null;
         }
 
@@ -55,7 +54,7 @@ public class TinyPlugzLookUpTest {
         public void contextClassLoaderScope(ContextAction action) {}
 
         @Override
-        public <T> Iterator<T> getServices(Class<T> type) {
+        public <T> ElementIterator<T> getServices(Class<T> type) {
             return null;
         }
 

@@ -24,6 +24,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.ContextAction;
+import de.skuzzle.tinyplugz.ElementIterator;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
@@ -265,7 +266,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    public final Iterator<URL> getResources(String name) throws IOException {
+    public final ElementIterator<URL> getResources(String name) throws IOException {
         return defaultGetResources(name);
     }
 
@@ -288,7 +289,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
      * </ol>
      */
     @Override
-    public final <T> Iterator<T> getServices(Class<T> type) {
+    public final <T> ElementIterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
 
         Iterator<T> result = null;
@@ -308,7 +309,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 result = Collections.emptyIterator();
             }
         }
-        return result;
+        return ElementIterator.wrap(result);
     }
 
     @SuppressWarnings("unchecked")

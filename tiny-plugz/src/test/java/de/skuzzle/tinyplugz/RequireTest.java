@@ -1,5 +1,7 @@
 package de.skuzzle.tinyplugz;
 
+import static org.junit.Assert.assertSame;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,7 +13,8 @@ public class RequireTest {
 
     @Test
     public void testRequireNull() throws Exception {
-        Require.nonNull(new Object(), "foo");
+        final Object obj = new Object();
+        assertSame(obj, Require.nonNull(obj, "foo"));
     }
 
     @Test
@@ -50,6 +53,12 @@ public class RequireTest {
     @Test
     public void testStateWithTrueCondition() throws Exception {
         Require.state(true, "foo", "bar");
+    }
+
+    @Test
+    public void testNonNullResultWithNonNullValue() throws Exception {
+        final Object obj = new Object();
+        assertSame(obj, Require.nonNullResult(obj, ""));
     }
 
     @Test

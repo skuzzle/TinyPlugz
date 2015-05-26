@@ -14,15 +14,18 @@ public final class Require {
     /**
      * Asserts that the given object is non null.
      *
+     * @param <T> Type of the obejct to test.
      * @param obj The object to test.
      * @param paramName The name of the parameter (used for exception message).
+     * @return The object.
      * @throws IllegalArgumentException If {@code obj} is null.
      */
-    public static void nonNull(Object obj, String paramName) {
+    public static <T> T nonNull(T obj, String paramName) {
         if (obj == null) {
             throw new IllegalArgumentException(String.format(
                     "'%s' must not be null", paramName));
         }
+        return obj;
     }
 
     /**
@@ -57,15 +60,18 @@ public final class Require {
     /**
      * Asserts that a method call yielded a non-null result.
      *
+     * @param <T> Type of the obejct to test.
      * @param result The result object.
      * @param call A String description of the call, like "Object.calledMethod".
+     * @return The object which was passed in.
      * @throws IllegalStateException If {@code result} is <code>null</code>.
      */
-    public static void nonNullResult(Object result, String call) {
+    public static <T> T nonNullResult(T result, String call) {
         if (result == null) {
             // XXX: IllegalStateException might not be the best choice
             throw new IllegalStateException(String.format(
                     "call of '%s' yielded unexpected null value", call));
         }
+        return result;
     }
 }

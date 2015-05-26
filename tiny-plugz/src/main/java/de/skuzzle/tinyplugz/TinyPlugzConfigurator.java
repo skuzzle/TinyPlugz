@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -325,7 +324,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final Iterator<URL> getResources(String name) throws IOException {
+        public final ElementIterator<URL> getResources(String name) throws IOException {
             return defaultGetResources(name);
         }
 
@@ -335,9 +334,10 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final <T> Iterator<T> getServices(Class<T> type) {
+        public final <T> ElementIterator<T> getServices(Class<T> type) {
             Require.nonNull(type, "type");
-            return this.serviceLoader.loadService(type, this.pluginClassLoader);
+            return ElementIterator.wrap(
+                    this.serviceLoader.loadService(type, this.pluginClassLoader));
         }
 
         @Override

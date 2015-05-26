@@ -285,8 +285,9 @@ public abstract class TinyPlugz {
      * @param name The name of the resource.
      * @return An iterator with resulting resources.
      * @throws IOException If I/O errors occur.
+     * @see ElementIterator
      */
-    public abstract Iterator<URL> getResources(String name) throws IOException;
+    public abstract ElementIterator<URL> getResources(String name) throws IOException;
 
     /**
      * Default implementation for {@link #getResources(String)} building upon
@@ -296,21 +297,11 @@ public abstract class TinyPlugz {
      * @return An iterator with resulting resources.
      * @throws IOException If I/O errors occur.
      */
-    protected final Iterator<URL> defaultGetResources(String name) throws IOException {
+    protected final ElementIterator<URL> defaultGetResources(String name)
+            throws IOException {
         Require.nonNull(name, "name");
         final Enumeration<URL> e = getClassLoader().getResources(name);
-        return new Iterator<URL>() {
-
-            @Override
-            public boolean hasNext() {
-                return e.hasMoreElements();
-            }
-
-            @Override
-            public URL next() {
-                return e.nextElement();
-            }
-        };
+        return ElementIterator.wrap(e);
     }
 
     /**
@@ -364,7 +355,7 @@ public abstract class TinyPlugz {
      * @param type Type of the service to load.
      * @return An iterator of providers for the requested service.
      */
-    public abstract <T> Iterator<T> getServices(Class<T> type);
+    public abstract <T> ElementIterator<T> getServices(Class<T> type);
 
     /**
      * Loads services of the given type which are accessible from loaded plugins

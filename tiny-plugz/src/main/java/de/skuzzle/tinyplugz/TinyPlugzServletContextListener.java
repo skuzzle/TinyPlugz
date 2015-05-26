@@ -1,9 +1,5 @@
 package de.skuzzle.tinyplugz;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -14,7 +10,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 /**
  * ServletContextListener for configuring TinyPlugz for a web application. Users
  * need to extend this class to provide the actual configuration for TinyPlugz
- * by implementing {@link #configure(DefineProperties, Optional)}. You then need to
+ * by implementing {@link #configure(DefineProperties, ServletContext)}. You then need to
  * register the listener in your web.xml:
  *
  * <pre>
@@ -31,8 +27,6 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
  */
 public abstract class TinyPlugzServletContextListener implements ServletContextListener {
 
-    private static final String WEB_INF = "WEB-INF";
-
     /**
      * Provides settings for deploying TinyPlugz. The passed in path is the
      * location of the web application's WEB-INF directory and may be used for
@@ -40,8 +34,9 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
      *
      * <pre>
      * &#064;Override
-     * protected final DeployTinyPlugz configure(DefineProperties props, Path webInfDir) {
-     *     final Path pluginDir = webInfDir.resolve(&quot;plugins&quot;);
+     * protected final DeployTinyPlugz configure(DefineProperties props, ServletContext context) {
+     *     final String pathString = context.getRealPath("WEB-INF/plugins");
+     *     final Path pluginDir = Paths.get(pathString);
      *
      *     return props.withProperty(Options.FAIL_ON_MULTIPLE_PROVIDERS)
      *             .withPlugins(source -&gt; source.addAllPluginJars(pluginDir));
@@ -49,27 +44,24 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
      * </pre>
      *
      * @param props Builder object for specifying configuration properties.
-     * @param webInfDir The location of the WEB-INF directory. Might be an empty
-     *            optional if the WEB-INF directory could not be located.
+     * @param context The current servlet context.
      * @return The {@link DeployTinyPlugz} instance which is returned by the
      *         given builder's
      *         {@link DefineProperties#withPlugins(java.util.function.Consumer)
      *         withPlugins} method.
      */
     protected abstract DeployTinyPlugz configure(DefineProperties props,
-            Optional<Path> webInfDir);
+            ServletContext context);
 
     @Override
     public final void contextInitialized(ServletContextEvent sce) {
         final ServletContext ctx = sce.getServletContext();
-        final String path = ctx.getRealPath(WEB_INF);
-        final Optional<Path> webInfDir = path == null
-                ? Optional.empty()
-                : Optional.of(Paths.get(path));
-
         final ClassLoader webAppCl = getClass().getClassLoader();
         final DefineProperties props = TinyPlugzConfigurator.setupUsingParent(webAppCl);
-        final DeployTinyPlugz config = configure(props, webInfDir);
+
+        final DeployTinyPlugz config = Require.nonNullResult(
+                configure(props, ctx),
+                "TinyPlugzServletContextListener.configure");
 
         config.deploy();
     }
@@ -78,5 +70,4 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
     public final void contextDestroyed(ServletContextEvent sce) {
         TinyPlugz.getInstance().undeploy();
     }
-
 }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import de.skuzzle.tinyplugz.ElementIterator;
 import de.skuzzle.tinyplugz.Require;
 
 final class Iterators {
@@ -83,13 +84,13 @@ final class Iterators {
     }
 
     /**
-     * An {@link Iterator} implementation which internally iterates an array of
+     * An {@link ElementIterator} implementation which internally iterates an array of
      * enumerations.
      *
      * @author Simon Taddiken
      * @param <E> Type of elements returned by this Iterator.
      */
-    private static final class CompoundIterator<E> implements Iterator<E> {
+    private static final class CompoundIterator<E> implements ElementIterator<E> {
         /** Array of Iterators to iterate */
         private final Iterator<E>[] iterators;
 

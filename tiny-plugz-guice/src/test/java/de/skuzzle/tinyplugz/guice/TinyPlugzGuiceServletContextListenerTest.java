@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -47,7 +46,7 @@ public class TinyPlugzGuiceServletContextListenerTest {
 
             @Override
             protected DeployTinyPlugz configure(DefineProperties props,
-                    Optional<Path> webInfDir) {
+                    ServletContext context) {
                 return props.withPlugins(PluginSource::noPlugins);
             }
         };
