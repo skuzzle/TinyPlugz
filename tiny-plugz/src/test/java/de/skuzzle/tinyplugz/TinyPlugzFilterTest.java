@@ -2,6 +2,8 @@ package de.skuzzle.tinyplugz;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -47,7 +49,9 @@ public class TinyPlugzFilterTest {
 
     @After
     public void tearDown() {
-        TinyPlugz.getInstance().undeploy();
+        if (TinyPlugz.isDeployed()) {
+            TinyPlugz.getInstance().undeploy();
+        }
     }
 
     @Test
@@ -65,6 +69,21 @@ public class TinyPlugzFilterTest {
         final ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
         this.subject.doFilter(this.request, this.response, chain);
         assertSame(realClassLoader, Thread.currentThread().getContextClassLoader());
+    }
+
+    @Test
+    public void testFilterNoTinyPlugz() throws Exception {
+        TinyPlugz.getInstance().undeploy();
+        final FilterChain chain = mock(FilterChain.class);
+        this.subject.doFilter(this.request, this.response, chain);
+        verify(chain).doFilter(this.request, this.response);
+    }
+
+    @Test
+    public void testFilterChain() throws Exception {
+        final FilterChain chain = mock(FilterChain.class);
+        this.subject.doFilter(this.request, this.response, chain);
+        verify(chain).doFilter(this.request, this.response);
     }
 
     @Test

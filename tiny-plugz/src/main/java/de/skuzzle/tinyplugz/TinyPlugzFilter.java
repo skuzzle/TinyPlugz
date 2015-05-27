@@ -12,7 +12,12 @@ import javax.servlet.ServletResponse;
 /**
  * Sets the TinyPlugz classloader as context classloader to the current thread
  * before processing the filter chain and restores the previous context
- * classloader afterwards.
+ * classloader afterwards. This filter can be employed even if TinyPlugz is not already
+ * deployed. In that case, the filter delegates to the filter chain without further
+ * actions.
+ * <p>
+ * Exchanging the context class loader allows frameworks like JSF to look up resources
+ * that reside in plugins loaded by TinyPlugz.
  *
  * @author Simon Taddiken
  * @since 0.2.0
