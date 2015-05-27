@@ -17,7 +17,7 @@ import javax.servlet.ServletResponse;
  * @author Simon Taddiken
  * @since 0.2.0
  */
-public final class TinyPlugzServletFilter implements Filter {
+public final class TinyPlugzFilter implements Filter {
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response,
