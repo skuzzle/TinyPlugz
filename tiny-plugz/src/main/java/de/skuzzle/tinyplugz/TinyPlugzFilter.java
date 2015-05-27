@@ -43,9 +43,13 @@ public final class TinyPlugzFilter implements Filter {
     }
 
     @Override
-    public final void init(FilterConfig filterConfig) throws ServletException {}
+    public final void init(FilterConfig filterConfig) throws ServletException {
+        // Nothing to do here
+    }
 
     @Override
-    public final void destroy() {}
+    public final void destroy() {
+        // Nothing to do here
+    }
 
 }
