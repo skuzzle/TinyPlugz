@@ -283,8 +283,7 @@ public final class TinyPlugzConfigurator {
 
                 final Collection<URL> plugins = this.builder.getPluginUrls()
                         .collect(Collectors.toList());
-                impl.initialize(plugins, this.parentCl,
-                        this.properties);
+                impl.initialize(plugins, this.parentCl, this.properties);
                 TinyPlugz.deploy(impl);
                 return impl;
             }
