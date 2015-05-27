@@ -60,7 +60,7 @@ public final class TinyPlugzFilter implements Filter {
             try {
                 Thread.currentThread().setContextClassLoader(tinyPlugzCl);
                 chain.doFilter(request, response);
-            } finally {
+
                 // Check if context classloader has been exchanged by someone else
                 final ClassLoader currentContextCl =
                         Thread.currentThread().getContextClassLoader();
@@ -72,6 +72,8 @@ public final class TinyPlugzFilter implements Filter {
                     Require.state(!this.failOnChange, ServletException::new,
                             "Context ClassLoader exchanged by 3rd party", "");
                 }
+
+            } finally {
                 Thread.currentThread().setContextClassLoader(backupCl);
             }
         } else {
