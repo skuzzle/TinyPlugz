@@ -1,5 +1,7 @@
 package de.skuzzle.tinyplugz;
 
+import java.util.function.Function;
+
 /**
  * Utility class for checking parameters and states.
  *
@@ -54,6 +56,24 @@ public final class Require {
     public static void state(boolean state, String message, Object... format) {
         if (!state) {
             throw new IllegalStateException(String.format(message, format));
+        }
+    }
+
+    /**
+     * Asserts that the given condition holds <code>true</code> and throws a
+     * custom exception if not.
+     *
+     * @param state The condition to check.
+     * @param excpetionCtor Constructor of the exception to throw.
+     * @param message String for exception message.
+     * @param format Formatting parameters for the exception message.
+     * @throws T If {@code condition} is <code>false</code>.
+     * @since 0.2.0
+     */
+    public static <T extends Exception> void state(boolean state,
+            Function<String, T> excpetionCtor, String message, Object format) throws T {
+        if (!state) {
+            throw excpetionCtor.apply(String.format(message, format));
         }
     }
 

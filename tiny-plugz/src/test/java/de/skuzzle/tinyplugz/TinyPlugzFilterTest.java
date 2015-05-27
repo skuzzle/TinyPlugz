@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -36,6 +37,8 @@ public class TinyPlugzFilterTest {
     private ServletRequest request;
     @Mock
     private ServletResponse response;
+    @Mock
+    private FilterConfig config;
 
     private Filter subject;
 
@@ -103,5 +106,21 @@ public class TinyPlugzFilterTest {
         } catch (IOException e) {
             assertSame(realClassLoader, Thread.currentThread().getContextClassLoader());
         }
+    }
+
+    @Test(expected = ServletException.class)
+    public void testDiscoverExchange() throws Exception {
+        final FilterChain chain = new FilterChain() {
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response)
+                    throws IOException, ServletException {
+                final ClassLoader someClassLoader = mock(ClassLoader.class);
+                Thread.currentThread().setContextClassLoader(someClassLoader);
+            }
+        };
+        when(this.config.getInitParameter("fail-when-classloader-changed")).thenReturn("true");
+        this.subject.init(this.config);
+        this.subject.doFilter(this.request, this.response, chain);
     }
 }
