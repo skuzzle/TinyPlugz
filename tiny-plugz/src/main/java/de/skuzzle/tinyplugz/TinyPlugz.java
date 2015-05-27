@@ -118,13 +118,16 @@ public abstract class TinyPlugz {
 
     /**
      * Undeploys the global {@link TinyPlugz} instance and calls its
-     * {@link #dispose()} method.
+     * {@link #dispose()} method. This method will fail if the instance on which
+     * it is called is not the deployed instance.
      */
     public final void undeploy() {
         synchronized (TinyPlugzConfigurator.DEPLOY_LOCK) {
             Require.state(isDeployed(),
                     "Can not undeploy TinyPlugz: no instance deployed");
             TinyPlugz plugz = instance;
+            Require.state(plugz == this,
+                    "Undeploy called on an instance which was not the deployed one");
             instance = null;
             plugz.dispose();
         }

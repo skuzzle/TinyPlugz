@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,8 @@ public final class TinyPlugzConfigurator {
     public static final String TINY_PLUGZ_CONFIG = "tiny-plugz.properties";
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
+
+    /** Lock which synchronizes every non-trivial access to TinyPlugz.instance. */
     protected static final Object DEPLOY_LOCK = new Object();
 
     private TinyPlugzConfigurator() {
@@ -35,11 +38,16 @@ public final class TinyPlugzConfigurator {
     /**
      * Sets up a {@link TinyPlugz} instance which uses the current thread's
      * context Classloader as parent Classloader.
-     *
+     * <p>
+     * This Classloader will be used for several purposes.
+     * First, it serves as parent Classloader for the plugin Classloader which
+     * is to be created to access classes and configurations from plugins.
+     * Second, the Classloader will be used to look up the TinyPlugz service
+     * provider either using the {@link ServiceLoader} or by looking up an
+     * explicit implementation class.
      * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
-     * </p>
      *
      * @return Fluent builder object for further configuration.
      */
@@ -51,9 +59,15 @@ public final class TinyPlugzConfigurator {
      * Sets up a {@link TinyPlugz} instance which uses the given Classloader as
      * parent Classloader.
      * <p>
+     * This Classloader will be used for several purposes.
+     * First, it serves as parent Classloader for the plugin Classloader which
+     * is to be created to access classes and configurations from plugins.
+     * Second, the Classloader will be used to look up the TinyPlugz service
+     * provider either using the {@link ServiceLoader} or by looking up an
+     * explicit implementation class.
+     * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
-     * </p>
      *
      * @param parentClassLoader The parent Classloader to use.
      * @return Fluent builder object for further configuration.
@@ -67,9 +81,15 @@ public final class TinyPlugzConfigurator {
      * Sets up a {@link TinyPlugz} instance which uses the Classloader which
      * loaded the {@link TinyPlugzConfigurator} class as parent Classloader.
      * <p>
+     * This Classloader will be used for several purposes.
+     * First, it serves as parent Classloader for the plugin Classloader which
+     * is to be created to access classes and configurations from plugins.
+     * Second, the Classloader will be used to look up the TinyPlugz service
+     * provider either using the {@link ServiceLoader} or by looking up an
+     * explicit implementation class.
+     * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
-     * </p>
      *
      * @return Fluent builder object for further configuration.
      */
@@ -126,8 +146,9 @@ public final class TinyPlugzConfigurator {
         DefineProperties withProperty(String name);
 
         /**
-         * Makes all {@link System#getProperties() system properties} available in the
-         * map passed to {@link TinyPlugz#initialize(Collection, ClassLoader, Map)}.
+         * Makes all {@link System#getProperties() system properties} available
+         * in the map passed to
+         * {@link TinyPlugz#initialize(Collection, ClassLoader, Map)}.
          *
          * @return A fluent builder object for further configuration.
          * @since 0.2.0

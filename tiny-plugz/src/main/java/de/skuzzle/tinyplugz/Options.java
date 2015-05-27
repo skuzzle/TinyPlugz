@@ -5,7 +5,7 @@ import java.util.ServiceLoader;
 /**
  * Holds constants which can be passed to the {@link TinyPlugzConfigurator}
  * before deployment.
- * 
+ *
  * @author Simon Taddiken
  */
 public final class Options {
@@ -14,6 +14,9 @@ public final class Options {
      * Configuration property for specifying a full qualified name of a class
      * which extends {@link TinyPlugz}. If this property is present, the default
      * lookup for an implementation using the {@link ServiceLoader} is skipped.
+     * TinyPlugz will try to load the given class using the configured parent
+     * Classloader (see static factory methods in {@link TinyPlugzConfigurator}
+     * ).
      *
      * <p>
      * Note: The presence of this property AND {@link Options#FORCE_DEFAULT}
