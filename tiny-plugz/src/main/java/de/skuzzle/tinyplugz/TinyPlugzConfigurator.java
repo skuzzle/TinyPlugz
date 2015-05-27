@@ -126,6 +126,15 @@ public final class TinyPlugzConfigurator {
         DefineProperties withProperty(String name);
 
         /**
+         * Makes all {@link System#getProperties() system properties} available in the
+         * map passed to {@link TinyPlugz#initialize(Collection, ClassLoader, Map)}.
+         *
+         * @return A fluent builder object for further configuration.
+         * @since 0.2.0
+         */
+        DefineProperties withSystemProperties();
+
+        /**
          * Specifies a multiple properties to insert into the map which will be
          * passed to
          * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
@@ -217,6 +226,11 @@ public final class TinyPlugzConfigurator {
         @Override
         public DefineProperties withProperty(String name) {
             return withProperty(name, NON_NULL_VALUE);
+        }
+
+        @Override
+        public DefineProperties withSystemProperties() {
+            return withProperties(System.getProperties());
         }
 
         @Override
