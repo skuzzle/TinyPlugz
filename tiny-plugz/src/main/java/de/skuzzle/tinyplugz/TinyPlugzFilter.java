@@ -9,9 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Sets the TinyPlugz classloader as context classloader to the current thread
  * before processing the filter chain and restores the previous context
@@ -40,8 +37,6 @@ public final class TinyPlugzFilter implements Filter {
     public static final String FAIL_ON_CLASSLOADER_CHANGED =
             "fail-when-classloader-changed";
 
-    private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzFilter.class);
-
     private boolean failOnChange = false;
 
     @Override
@@ -54,29 +49,8 @@ public final class TinyPlugzFilter implements Filter {
     public final void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        if (TinyPlugz.isDeployed()) {
-            final ClassLoader tinyPlugzCl = TinyPlugz.getInstance().getClassLoader();
-            final ClassLoader backupCl = Thread.currentThread().getContextClassLoader();
-            try {
-                Thread.currentThread().setContextClassLoader(tinyPlugzCl);
-                chain.doFilter(request, response);
-
-                // Check if context classloader has been exchanged by someone else
-                final ClassLoader currentContextCl =
-                        Thread.currentThread().getContextClassLoader();
-                if (currentContextCl != backupCl) {
-                    LOG.warn("Context ClassLoader exchanged by 3rd party. " +
-                        "Request: {0},Thread: {}",
-                        request.toString(), Thread.currentThread().getName());
-
-                    Require.state(!this.failOnChange, ServletException::new,
-                            "Context ClassLoader exchanged by 3rd party", "");
-                }
-
-            } finally {
-                Thread.currentThread().setContextClassLoader(backupCl);
-            }
-        } else {
+        try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
+            exchange.setFailOnChange(this.failOnChange);
             chain.doFilter(request, response);
         }
     }

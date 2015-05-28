@@ -108,7 +108,7 @@ public class TinyPlugzFilterTest {
         }
     }
 
-    @Test(expected = ServletException.class)
+    @Test(expected = IllegalStateException.class)
     public void testDiscoverExchange() throws Exception {
         final FilterChain chain = new FilterChain() {
 

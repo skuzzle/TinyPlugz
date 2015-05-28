@@ -254,7 +254,7 @@ public abstract class TinyPlugz {
                         LOG.debug("Loading plugin from '{}'", url);
                     }
                 }
-                return new URLClassLoader(plugins.toArray(new URL[plugins.size()]),
+                return new TinyPlugzClassLoader(plugins.toArray(new URL[plugins.size()]),
                         parent);
             }
         });

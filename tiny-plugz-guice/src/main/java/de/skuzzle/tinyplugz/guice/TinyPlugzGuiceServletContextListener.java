@@ -20,7 +20,7 @@ import de.skuzzle.tinyplugz.TinyPlugzServletContextListener;
  * from TinyPlugz and configure the {@link GuiceServletContextListener}
  * appropriately.
  * <p>
- * {@link #tinyPlugzDeployed(TinyPlugz, Injector, ServletContext)} will be
+ * {@link #tinyPlugzDeployed(TinyPlugz, Injector, ServletContextEvent)} will be
  * called if TinyPlugz and guice have successfully been setup. Its default
  * implementation does nothing and may be overridden e.g. to put additional
  * information into the servlet context.
@@ -62,10 +62,10 @@ public abstract class TinyPlugzGuiceServletContextListener extends
      *
      * @param tinyPlugz The deployed TinyPlugz instance.
      * @param injector The created guice injector.
-     * @param ctx The current servlet context.
+     * @param contextEvent The current servlet context event.
      */
     protected void tinyPlugzDeployed(TinyPlugz tinyPlugz, Injector injector,
-            ServletContext ctx) {
+            ServletContextEvent contextEvent) {
         // do nothing
     }
 
@@ -74,9 +74,9 @@ public abstract class TinyPlugzGuiceServletContextListener extends
      * will not be deployed anymore by the time this method is called. The
      * default implementation does nothing.
      *
-     * @param ctx The destroyed servlet context.
+     * @param contextEvent The current servlet context event.
      */
-    protected void tinyPlugzUndeployed(ServletContext ctx) {
+    protected void tinyPlugzUndeployed(ServletContextEvent contextEvent) {
         // do nothing
     }
 
@@ -101,8 +101,7 @@ public abstract class TinyPlugzGuiceServletContextListener extends
         this.injector = TinyPlugz.getInstance().getService(Injector.class);
         super.contextInitialized(servletContextEvent);
 
-        tinyPlugzDeployed(TinyPlugz.getInstance(), this.injector,
-                servletContextEvent.getServletContext());
+        tinyPlugzDeployed(TinyPlugz.getInstance(), this.injector, servletContextEvent);
     }
 
     @Override
@@ -113,7 +112,7 @@ public abstract class TinyPlugzGuiceServletContextListener extends
         // undeploy guice
         super.contextDestroyed(servletContextEvent);
 
-        tinyPlugzUndeployed(servletContextEvent.getServletContext());
+        tinyPlugzUndeployed(servletContextEvent);
         this.injector = null;
     }
 }
