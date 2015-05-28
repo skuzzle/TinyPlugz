@@ -51,9 +51,6 @@ public class TinyPlugzLookUpTest {
         }
 
         @Override
-        public void contextClassLoaderScope(ContextAction action) {}
-
-        @Override
         public <T> ElementIterator<T> getServices(Class<T> type) {
             return null;
         }

@@ -2,10 +2,8 @@ package de.skuzzle.tinyplugz;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
 import java.util.Collections;
@@ -134,29 +132,6 @@ public abstract class AbstractTinyPlugzTest {
 
         final SampleService service = getSubject().getService(SampleService.class);
         assertSame(impl1, service);
-    }
-
-    @Test
-    public void testRunInContextClassLoader() throws Exception {
-        final ClassLoader backup = Thread.currentThread().getContextClassLoader();
-        getSubject().contextClassLoaderScope(() -> {
-            final ClassLoader contextCl = Thread.currentThread().getContextClassLoader();
-            assertNotSame(contextCl, backup);
-        });
-        assertSame(backup, Thread.currentThread().getContextClassLoader());
-    }
-
-    @Test
-    public void testRunInContextClassLoaderRestoreOnException() throws Exception {
-        final ClassLoader backup = Thread.currentThread().getContextClassLoader();
-        try {
-            getSubject().contextClassLoaderScope(() -> {
-                throw new RuntimeException();
-            });
-            fail();
-        } catch (RuntimeException e) {
-            assertSame(backup, Thread.currentThread().getContextClassLoader());
-        }
     }
 
     @Test

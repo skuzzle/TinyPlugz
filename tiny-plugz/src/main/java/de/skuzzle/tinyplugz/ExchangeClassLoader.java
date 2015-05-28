@@ -72,11 +72,11 @@ public final class ExchangeClassLoader implements AutoCloseable {
     @Override
     public final void close() {
         final ClassLoader current = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.backupCl);
         if (current != this.backupCl) {
             LOG.warn("Detected 3rd party ClassLoader exchange");
             Require.state(!this.failOnChange, "Detected 3rd party ClassLoader exchange");
         }
-        Thread.currentThread().setContextClassLoader(this.backupCl);
     }
 
 }

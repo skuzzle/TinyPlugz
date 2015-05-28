@@ -365,11 +365,6 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public final void contextClassLoaderScope(ContextAction action) {
-            defaultContextClassLoaderScope(action);
-        }
-
-        @Override
         public final <T> ElementIterator<T> getServices(Class<T> type) {
             Require.nonNull(type, "type");
             return ElementIterator.wrap(

@@ -308,36 +308,6 @@ public abstract class TinyPlugz {
     }
 
     /**
-     * Executes the given {@link ContextAction#perform() ContextAction} in the
-     * scope of the plugin Classloader. That is, the Classloader which is
-     * responsible for loading plugins is set as context Classloader for the
-     * current thread. After the action has been executed, the original context
-     * Classloader is restored.
-     *
-     * @param action The action to execute.
-     */
-    public abstract void contextClassLoaderScope(ContextAction action);
-
-    /**
-     * Default implementation for
-     * {@link #contextClassLoaderScope(ContextAction)} building upon result of
-     * {@link #getClassLoader()}.
-     *
-     * @param action The action to execute.
-     */
-    protected final void defaultContextClassLoaderScope(ContextAction action) {
-        Require.nonNull(action, "action");
-        final Thread current = Thread.currentThread();
-        final ClassLoader contextCl = current.getContextClassLoader();
-        try {
-            current.setContextClassLoader(getClassLoader());
-            action.perform();
-        } finally {
-            current.setContextClassLoader(contextCl);
-        }
-    }
-
-    /**
      * Checks whether there is at least one provider available for the given
      * service. This method is shorthand for
      * {@code getFirstService(service).isPresent()}.

@@ -18,8 +18,17 @@ import javax.servlet.ServletResponse;
  */
 public final class TinyPlugzContextServlet implements Servlet {
 
+    /**
+     * Wraps the given Servlet.
+     *
+     * @param servlet The servlet to wrap.
+     * @return The decorated servlet.
+     */
     public static Servlet wrap(Servlet servlet) {
         Require.nonNull(servlet, "servlet");
+        if (servlet instanceof TinyPlugzContextServlet) {
+            return servlet;
+        }
         return new TinyPlugzContextServlet(servlet);
     }
 

@@ -23,7 +23,6 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
-import de.skuzzle.tinyplugz.ContextAction;
 import de.skuzzle.tinyplugz.ElementIterator;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.Require;
@@ -268,11 +267,6 @@ public final class TinyPlugzGuice extends TinyPlugz {
     @Override
     public final ElementIterator<URL> getResources(String name) throws IOException {
         return defaultGetResources(name);
-    }
-
-    @Override
-    public final void contextClassLoaderScope(ContextAction action) {
-        defaultContextClassLoaderScope(action);
     }
 
     /**
