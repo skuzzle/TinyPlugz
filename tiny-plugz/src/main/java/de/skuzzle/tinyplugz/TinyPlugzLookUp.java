@@ -28,11 +28,11 @@ abstract class TinyPlugzLookUp {
     /** Strategy for creating a default implementation of TinyPlugz */
     public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY =
             new TinyPlugzLookUp() {
-        @Override
-        TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
-            return new TinyPlugzImpl();
-        }
-    };
+                @Override
+                TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
+                    return new TinyPlugzImpl();
+                }
+            };
 
     /**
      * Strategy for using a property defined class as TinyPlugz implementation.
@@ -86,19 +86,39 @@ abstract class TinyPlugzLookUp {
 
         @Override
         public TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
-            final String className = props.get(Options.FORCE_IMPLEMENTATION)
-                    .toString();
+            final Object value = props.get(Options.FORCE_IMPLEMENTATION);
+            if (value instanceof TinyPlugz) {
+                return (TinyPlugz) value;
+            } else if (value instanceof Class<?>) {
+                return fromClass((Class<?>) value);
+            } else if (value instanceof String) {
+                return fromClassName(classLoader, value.toString());
+            } else {
+                throw new TinyPlugzException(String.format(
+                        "Illegal value for 'Options.FORCE_IMPLEMENTATION: %s", value));
+            }
+        }
+
+        private TinyPlugz fromClass(Class<?> cls) {
             try {
-                final Class<?> cls = classLoader.loadClass(className);
                 if (!TinyPlugz.class.isAssignableFrom(cls)) {
                     throw new TinyPlugzException(String.format(
                             "'%s' does not extend TinyPlugz", cls.getName()));
                 }
                 return (TinyPlugz) cls.newInstance();
-            } catch (ClassNotFoundException | InstantiationException
-                    | IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 throw new TinyPlugzException(
                         "Error while instantiating static TinyPlugz implementation", e);
+            }
+        }
+
+        private TinyPlugz fromClassName(ClassLoader classLoader, String className) {
+            try {
+                final Class<?> cls = classLoader.loadClass(className);
+                return fromClass(cls);
+            } catch (ClassNotFoundException e) {
+                throw new TinyPlugzException(String.format(
+                        "Class '%s' not found using '%s'", className, classLoader), e);
             }
         }
     }

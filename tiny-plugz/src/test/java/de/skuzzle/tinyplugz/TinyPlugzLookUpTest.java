@@ -83,7 +83,7 @@ public class TinyPlugzLookUpTest {
     }
 
     @Test
-    public void testStaticStrategy() throws Exception {
+    public void testStaticStrategyWithClassName() throws Exception {
         final String implName = SampleTinyPlugzImpl.class.getName();
         final Map<Object, Object> props = new HashMap<>();
         props.put(Options.FORCE_IMPLEMENTATION, implName);
@@ -91,6 +91,27 @@ public class TinyPlugzLookUpTest {
         final TinyPlugz inst = TinyPlugzLookUp.STATIC_STRATEGY.getInstance(
                 getClass().getClassLoader(), props);
         assertTrue(inst instanceof SampleTinyPlugzImpl);
+    }
+
+    @Test
+    public void testStaticStrategyWithClass() throws Exception {
+        final Map<Object, Object> props = new HashMap<>();
+        props.put(Options.FORCE_IMPLEMENTATION, SampleTinyPlugzImpl.class);
+
+        final TinyPlugz inst = TinyPlugzLookUp.STATIC_STRATEGY.getInstance(
+                getClass().getClassLoader(), props);
+        assertTrue(inst instanceof SampleTinyPlugzImpl);
+    }
+
+    @Test
+    public void testStaticStrategyWithImpl() throws Exception {
+        final TinyPlugz expected = new SampleTinyPlugzImpl();
+        final Map<Object, Object> props = new HashMap<>();
+        props.put(Options.FORCE_IMPLEMENTATION, expected);
+
+        final TinyPlugz inst = TinyPlugzLookUp.STATIC_STRATEGY.getInstance(
+                getClass().getClassLoader(), props);
+        assertSame(expected, inst);
     }
 
     @Test(expected = TinyPlugzException.class)
