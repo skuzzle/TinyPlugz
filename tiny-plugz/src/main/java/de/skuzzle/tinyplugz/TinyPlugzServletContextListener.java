@@ -28,9 +28,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 public abstract class TinyPlugzServletContextListener implements ServletContextListener {
 
     /**
-     * Provides settings for deploying TinyPlugz. The passed in path is the
-     * location of the web application's WEB-INF directory and may be used for
-     * looking up plugins. Sample implementation of this method:
+     * Provides settings for deploying TinyPlugz. Sample implementation of this method:
      *
      * <pre>
      * &#064;Override
