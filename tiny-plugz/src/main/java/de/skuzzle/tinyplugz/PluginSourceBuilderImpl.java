@@ -1,13 +1,16 @@
 package de.skuzzle.tinyplugz;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 final class PluginSourceBuilderImpl implements PluginSource {
 
@@ -76,13 +79,23 @@ final class PluginSourceBuilderImpl implements PluginSource {
         Require.condition(Files.isDirectory(folder),
                 "path '%s' does not denote a directory", folder);
 
-        for (int i = 0; i < folder.getNameCount(); ++i) {
-            final Path elem = folder.getName(i);
-            if (Files.isDirectory(elem) && filter.test(elem)) {
-                addPluginJar(elem);
-            }
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(folder)) {
+            StreamSupport.stream(dirStream.spliterator(), false)
+                    .filter(this::isJar)
+                    .filter(filter)
+                    .forEach(this::addPath);
+
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "IO error occurred during listing of plugins", e);
         }
+
         return this;
+    }
+
+    private boolean isJar(Path path) {
+        return !Files.isDirectory(path) &&
+            path.getFileName().toString().toLowerCase().endsWith(".jar");
     }
 
     @Override
