@@ -80,7 +80,7 @@ public final class Require {
     /**
      * Asserts that a method call yielded a non-null result.
      *
-     * @param <T> Type of the obejct to test.
+     * @param <T> Type of the object to test.
      * @param result The result object.
      * @param call A String description of the call, like "Object.calledMethod".
      * @return The object which was passed in.
