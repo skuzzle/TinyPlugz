@@ -95,7 +95,7 @@ abstract class TinyPlugzLookUp {
                 return fromClassName(classLoader, value.toString());
             } else {
                 throw new TinyPlugzException(String.format(
-                        "Illegal value for 'Options.FORCE_IMPLEMENTATION: %s", value));
+                        "Illegal value for 'Options.FORCE_IMPLEMENTATION': %s", value));
             }
         }
 
