@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 
@@ -29,6 +30,15 @@ public interface PluginSource {
     public static void noPlugins(PluginSource source) {
         // do nothing
     }
+
+    /**
+     * Adds a plugin which is located by the given URL.
+     *
+     * @param url The URL of the plugin.
+     * @return This instance.
+     * @since 0.2.0
+     */
+    PluginSource addPlugin(URL url);
 
     /**
      * Adds a plugin which is not packed into a jar but which contents are

@@ -85,6 +85,13 @@ final class PluginSourceBuilderImpl implements PluginSource {
         return this;
     }
 
+    @Override
+    public PluginSource addPlugin(URL url) {
+        Require.nonNull(url, "url");
+        this.pluginUrls.add(new URLKey(url));
+        return this;
+    }
+
     private void addPath(Path path) {
         try {
             final URL url = path.toUri().toURL();
