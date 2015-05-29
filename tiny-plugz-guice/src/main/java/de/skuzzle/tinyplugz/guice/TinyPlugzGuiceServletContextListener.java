@@ -74,9 +74,11 @@ public abstract class TinyPlugzGuiceServletContextListener extends
      * will not be deployed anymore by the time this method is called. The
      * default implementation does nothing.
      *
+     * @param injector The guice injector.
      * @param contextEvent The current servlet context event.
      */
-    protected void tinyPlugzUndeployed(ServletContextEvent contextEvent) {
+    protected void tinyPlugzUndeployed(Injector injector,
+            ServletContextEvent contextEvent) {
         // do nothing
     }
 
@@ -112,7 +114,7 @@ public abstract class TinyPlugzGuiceServletContextListener extends
         // undeploy guice
         super.contextDestroyed(servletContextEvent);
 
-        tinyPlugzUndeployed(servletContextEvent);
+        tinyPlugzUndeployed(this.injector, servletContextEvent);
         this.injector = null;
     }
 }

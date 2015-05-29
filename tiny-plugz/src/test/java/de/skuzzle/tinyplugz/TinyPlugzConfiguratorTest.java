@@ -5,10 +5,6 @@ import org.junit.Test;
 
 public class TinyPlugzConfiguratorTest {
 
-    private static void noPlugins(PluginSource source) {
-
-    }
-
     @Before
     public void setUp() throws Exception {}
 
@@ -17,7 +13,7 @@ public class TinyPlugzConfiguratorTest {
         TinyPlugzConfigurator.setup()
                 .withProperty(Options.FORCE_DEFAULT)
                 .withProperty(Options.FORCE_IMPLEMENTATION, "foo.bar")
-                .withPlugins(TinyPlugzConfiguratorTest::noPlugins)
+                .withPlugins(PluginSource::noPlugins)
                 .deploy();
     }
 }

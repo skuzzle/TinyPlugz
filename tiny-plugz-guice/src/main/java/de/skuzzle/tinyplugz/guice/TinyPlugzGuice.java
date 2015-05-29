@@ -19,6 +19,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
@@ -107,6 +108,9 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
  * </ol>
+ * Additionally, a method interceptor is bound which allows methods annotated with
+ * {@link TinyPlugzContext} to be executed with exchanging the thread's context
+ * Classloader for the TinyPlugz Classloader.
  *
  * <h2>Automatically Create Services</h2>
  * <p>
@@ -216,6 +220,10 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
             @Override
             protected void configure() {
+                bindInterceptor(Matchers.any(),
+                        Matchers.annotatedWith(TinyPlugzContext.class),
+                        new TinyPlugzContextInterceptor());
+
                 bind(TinyPlugz.class).toInstance(TinyPlugzGuice.this);
                 bind(ClassLoader.class).annotatedWith(Names.named(PLUGIN_CLASSLOADER))
                         .toInstance(TinyPlugzGuice.this.pluginClassLoader);

@@ -23,7 +23,6 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
  * contextInitialized event and will be undeployed when the listener receives
  * the contextDestroyed event.
  * @author Simon Taddiken
- * @see TinyPlugzFilter
  */
 public abstract class TinyPlugzServletContextListener implements ServletContextListener {
 
