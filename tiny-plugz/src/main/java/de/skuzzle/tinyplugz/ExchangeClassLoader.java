@@ -19,6 +19,19 @@ import org.slf4j.LoggerFactory;
  */
 public final class ExchangeClassLoader implements AutoCloseable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExchangeClassLoader.class);
+
+    private final ClassLoader backupCl;
+    private final ClassLoader exchangeCl;
+
+    private boolean failOnChange;
+
+    private ExchangeClassLoader(ClassLoader classLoader) {
+        this.exchangeCl = classLoader;
+        this.backupCl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.exchangeCl);
+    }
+
     /**
      * Exchanges the context ClassLoader with the given one until
      * {@link #close()} is called.
@@ -44,19 +57,6 @@ public final class ExchangeClassLoader implements AutoCloseable {
             return new ExchangeClassLoader(TinyPlugz.getInstance().getClassLoader());
         }
         return new ExchangeClassLoader(Thread.currentThread().getContextClassLoader());
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(ExchangeClassLoader.class);
-
-    private final ClassLoader backupCl;
-    private final ClassLoader exchangeCl;
-
-    private boolean failOnChange;
-
-    private ExchangeClassLoader(ClassLoader classLoader) {
-        this.exchangeCl = classLoader;
-        this.backupCl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(this.exchangeCl);
     }
 
     /**

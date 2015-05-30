@@ -18,6 +18,12 @@ import javax.servlet.ServletResponse;
  */
 public final class TinyPlugzContextServlet implements Servlet {
 
+    private final Servlet wrapped;
+
+    private TinyPlugzContextServlet(Servlet wrapped) {
+        this.wrapped = wrapped;
+    }
+
     /**
      * Wraps the given Servlet.
      *
@@ -32,21 +38,15 @@ public final class TinyPlugzContextServlet implements Servlet {
         return new TinyPlugzContextServlet(servlet);
     }
 
-    private final Servlet wrapped;
-
-    private TinyPlugzContextServlet(Servlet wrapped) {
-        this.wrapped = wrapped;
-    }
-
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public final void init(ServletConfig config) throws ServletException {
         try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
             this.wrapped.init(config);
         }
     }
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException,
+    public final void service(ServletRequest req, ServletResponse res) throws ServletException,
             IOException {
         try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
             this.wrapped.service(req, res);
@@ -54,17 +54,19 @@ public final class TinyPlugzContextServlet implements Servlet {
     }
 
     @Override
-    public ServletConfig getServletConfig() {
+    public final ServletConfig getServletConfig() {
         return this.wrapped.getServletConfig();
     }
 
     @Override
-    public String getServletInfo() {
+    public final String getServletInfo() {
         return this.wrapped.getServletInfo();
     }
 
     @Override
-    public void destroy() {
-        this.wrapped.destroy();
+    public final void destroy() {
+        try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
+            this.wrapped.destroy();
+        }
     }
 }
