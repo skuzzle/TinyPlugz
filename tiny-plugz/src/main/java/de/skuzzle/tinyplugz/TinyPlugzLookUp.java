@@ -29,7 +29,8 @@ abstract class TinyPlugzLookUp {
     public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY =
             new TinyPlugzLookUp() {
                 @Override
-                TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props) {
+                TinyPlugz getInstance(ClassLoader classLoader,
+                        Map<Object, Object> props) {
                     return new TinyPlugzImpl();
                 }
             };
