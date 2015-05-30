@@ -46,8 +46,8 @@ public final class TinyPlugzContextServlet implements Servlet {
     }
 
     @Override
-    public final void service(ServletRequest req, ServletResponse res) throws ServletException,
-            IOException {
+    public final void service(ServletRequest req, ServletResponse res)
+            throws ServletException, IOException {
         try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
             this.wrapped.service(req, res);
         }
