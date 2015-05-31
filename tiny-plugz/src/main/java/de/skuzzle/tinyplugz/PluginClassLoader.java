@@ -136,7 +136,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         }
 
         // second, look up in our dependencies
-        if (result == null && equals(result)) {
+        if (result == null && equals(requestor)) {
 
             if (this.dependencyClassLoader != null) {
                 try {
