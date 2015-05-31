@@ -75,7 +75,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
                     .filter(url -> url != null)
                     .toArray(size -> new URL[size]);
 
-            final URLClassLoader dependencyCl = AccessController.doPrivileged(
+            return AccessController.doPrivileged(
                     new PrivilegedAction<URLClassLoader>() {
 
                 @Override
@@ -84,7 +84,6 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
                 }
             });
 
-            return dependencyCl;
         } catch (IOException e) {
             LOG.error("Error reading manifest file for {0}", this.self, e);
         }
