@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.ElementIterator;
+import de.skuzzle.tinyplugz.Iterators;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;

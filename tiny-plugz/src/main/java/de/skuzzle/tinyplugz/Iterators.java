@@ -1,14 +1,11 @@
-package de.skuzzle.tinyplugz.guice;
+package de.skuzzle.tinyplugz;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import de.skuzzle.tinyplugz.ElementIterator;
-import de.skuzzle.tinyplugz.Require;
-
-final class Iterators {
+public final class Iterators {
 
     private Iterators() {
         // hidden constructor
@@ -48,14 +45,21 @@ final class Iterators {
      *         in given order.
      */
     @SafeVarargs
-    public static <T> Iterator<T> composite(Iterator<T>... iterators) {
+    public static <T> ElementIterator<T> composite(Iterator<T>... iterators) {
         Require.nonNull(iterators, "iterators");
+        final Iterator<T> result;
         if (iterators.length == 0) {
-            return Collections.emptyIterator();
+            result = Collections.emptyIterator();
         } else if (iterators.length == 1) {
-            return iterators[0];
+            if (iterators[0] instanceof ElementIterator<?>) {
+                return (ElementIterator<T>) iterators[0];
+            }
+            result = iterators[0];
+        } else {
+            result = new CompoundIterator<>(iterators);
         }
-        return new CompoundIterator<>(iterators);
+        return ElementIterator.wrap(result);
+
     }
 
     /**

@@ -7,8 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -245,19 +243,7 @@ public abstract class TinyPlugz {
      */
     protected final ClassLoader createClassLoader(Collection<URL> plugins,
             ClassLoader parent) {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-
-            @Override
-            public ClassLoader run() {
-                if (LOG.isDebugEnabled()) {
-                    for (final URL url : plugins) {
-                        LOG.debug("Loading plugin from '{}'", url);
-                    }
-                }
-                return new TinyPlugzClassLoader(plugins.toArray(new URL[plugins.size()]),
-                        parent);
-            }
-        });
+        return CommonClassLoader.forPlugins(plugins, parent);
     }
 
     /**

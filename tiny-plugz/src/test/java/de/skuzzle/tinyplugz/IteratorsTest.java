@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz.guice;
+package de.skuzzle.tinyplugz;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,12 +26,6 @@ public class IteratorsTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCompositeNullIterable() {
         Iterators.composite((Iterable[]) null);
-    }
-
-    @Test
-    public void testCompositeSingleIterator() throws Exception {
-        final Iterator<String> it = Collections.emptyIterator();
-        assertSame(it, Iterators.composite(it));
     }
 
     @Test
