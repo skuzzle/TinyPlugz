@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.security.AccessController;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 
-class CommonClassLoader extends ClassLoader implements DependencyResolver {
+class CommonClassLoader extends ClassLoader implements DependencyResolver, Closeable {
 
     private Collection<PluginClassLoader> plugins;
 
@@ -16,7 +17,7 @@ class CommonClassLoader extends ClassLoader implements DependencyResolver {
         super(parent);
     }
 
-    public static CommonClassLoader forPlugins(Collection<URL> urls,
+    static CommonClassLoader forPlugins(Collection<URL> urls,
             ClassLoader appClassLoader) {
         Require.nonNull(urls, "urls");
         Require.nonNull(appClassLoader, "parent");
@@ -62,6 +63,8 @@ class CommonClassLoader extends ClassLoader implements DependencyResolver {
 
     @Override
     public final Class<?> findClass(PluginClassLoader requestor, String name) {
+        Require.nonNull(name, "name");
+
         for (final PluginClassLoader pluginCl : this.plugins) {
             final Class<?> cls = pluginCl.findClass(requestor, name);
             if (cls != null) {
@@ -73,6 +76,8 @@ class CommonClassLoader extends ClassLoader implements DependencyResolver {
 
     @Override
     public final URL findResource(PluginClassLoader requestor, String name) {
+        Require.nonNull(name, "name");
+
         for (final PluginClassLoader pluginCl : this.plugins) {
             final URL url = pluginCl.findResource(requestor, name);
             if (url != null) {
@@ -85,9 +90,17 @@ class CommonClassLoader extends ClassLoader implements DependencyResolver {
     @Override
     public final void findResources(PluginClassLoader requestor, String name,
             Collection<URL> target) throws IOException {
+        Require.nonNull(name, "name");
 
         for (final PluginClassLoader pluginCl : this.plugins) {
             pluginCl.findResources(requestor, name, target);
+        }
+    }
+
+    @Override
+    public final void close() throws IOException {
+        for (final PluginClassLoader pluginCl : this.plugins) {
+            pluginCl.close();
         }
     }
 

@@ -5,6 +5,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * Utility class for dealing with Iterators.
+ *
+ * @author Simon Taddiken
+ */
 public final class Iterators {
 
     private Iterators() {

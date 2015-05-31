@@ -38,7 +38,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         this.dependencyClassLoader = createDependencyClassLoader();
     }
 
-    public static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
+    static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
 
@@ -128,27 +128,30 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
     @Override
     public final Class<?> findClass(PluginClassLoader requestor, String name)  {
         // first, look up in own jar
+        Class<?> result = null;
         try {
-            return super.findClass(name);
+            result = super.findClass(name);
         } catch (ClassNotFoundException ignore) {
             LOG.trace("Class {0} not found in plugin itself", name, ignore);
         }
 
         // second, look up in our dependencies
-        if (requestor == this) {
+        if (result == null && equals(result)) {
 
             if (this.dependencyClassLoader != null) {
                 try {
-                    return this.dependencyClassLoader.loadClass(name);
+                    result = this.dependencyClassLoader.loadClass(name);
                 } catch (ClassNotFoundException ignore) {
                     LOG.trace("Class {0} not found in dependencies", name, ignore);
                 }
             }
 
             // third, look up in other plugins
-            return this.dependencyResolver.findClass(requestor, name);
+            if (result == null) {
+                result = this.dependencyResolver.findClass(requestor, name);
+            }
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -156,14 +159,16 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         // look up in own jar
         URL url = super.findResource(name);
 
-        if (url == null && requestor == this) {
+        if (url == null && equals(requestor)) {
             // second look up in our dependencies
             if (this.dependencyClassLoader != null) {
                 url = this.dependencyClassLoader.findResource(name);
             }
 
             // third, look up in other plugins
-            url = this.dependencyResolver.findResource(requestor, name);
+            if (url == null) {
+                url = this.dependencyResolver.findResource(requestor, name);
+            }
         }
         return url;
     }
@@ -175,7 +180,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         final Enumeration<URL> selfResult = super.findResources(name);
         addAll(target, selfResult);
 
-        if (requestor == this) {
+        if (equals(requestor)) {
 
             // look up in dependencies
             if (this.dependencyClassLoader != null) {
@@ -194,6 +199,11 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         while (elements.hasMoreElements()) {
             target.add(elements.nextElement());
         }
+    }
+
+    @Override
+    public final String toString() {
+        return "[PluginClassLoader: " + this.self + "]";
     }
 
     @Override
