@@ -7,7 +7,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
@@ -16,28 +18,33 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PluginClassLoader extends URLClassLoader {
+class PluginClassLoader extends URLClassLoader implements DependencyResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
     private static final Pattern WHITESPACES = Pattern.compile("\\s+");
     private final URL self;
     private final String basePath;
     private final URLClassLoader dependencyClassLoader;
+    private final DependencyResolver dependencyResolver;
 
-    private PluginClassLoader(URL plugin, ClassLoader parent) {
-        super(new URL[] {Require.nonNull(plugin, "plugin")},
-                Require.nonNull(parent, "parent"));
+    private PluginClassLoader(URL plugin, ClassLoader appClassLoader,
+            DependencyResolver dependencyResolver) {
+        super(new URL[] { Require.nonNull(plugin, "plugin") },
+                Require.nonNull(appClassLoader, "parent"));
+
+        this.dependencyResolver = dependencyResolver;
         this.self = plugin;
         this.basePath = getBasePath(plugin);
-        this.dependencyClassLoader = addManifestDependencies();
+        this.dependencyClassLoader = createDependencyClassLoader();
     }
 
-    public static PluginClassLoader create(URL plugin, CommonClassLoader parent) {
+    public static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
+            DependencyResolver dependencyResolver) {
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
 
             @Override
             public PluginClassLoader run() {
-                return new PluginClassLoader(plugin, parent);
+                return new PluginClassLoader(plugin, appClassLoader,  dependencyResolver);
             }
 
         });
@@ -53,7 +60,7 @@ class PluginClassLoader extends URLClassLoader {
         return url.getPath().substring(0, i);
     }
 
-    private URLClassLoader addManifestDependencies() {
+    private URLClassLoader createDependencyClassLoader() {
         final URL mfURL = findManfestUrl();
         if (mfURL == null) {
             return null;
@@ -96,42 +103,97 @@ class PluginClassLoader extends URLClassLoader {
     }
 
     private URL findManfestUrl() {
-        return findResource("META-INF/manifest.mf");
+        // crucial to use super method because we only want to search our own jar
+        return super.findResource("META-INF/manifest.mf");
     }
 
     @Override
-    public final Class<?> findClass(String name) throws ClassNotFoundException {
-        try {
-            return super.findClass(name);
-        } catch (ClassNotFoundException e) {
-            if (this.dependencyClassLoader != null) {
-                return this.dependencyClassLoader.loadClass(name);
-            }
-        }
-        throw new ClassNotFoundException(name);
+    protected final Class<?> findClass(String name) throws ClassNotFoundException {
+        return findClass(this, name);
     }
 
     @Override
     public final URL findResource(String name) {
+        return findResource(this, name);
+    }
+
+    @Override
+    public final Enumeration<URL> findResources(String name) throws IOException {
+        final Collection<URL> urls = new ArrayList<>();
+        findResources(this, name, urls);
+        return ElementIterator.wrap(urls.iterator());
+    }
+
+
+    @Override
+    public final Class<?> findClass(PluginClassLoader requestor, String name)  {
+        // first, look up in own jar
+        try {
+            return super.findClass(name);
+        } catch (ClassNotFoundException ignore) {
+            LOG.trace("Class {0} not found in plugin itself", name, ignore);
+        }
+
+        // second, look up in our dependencies
+        if (requestor == this) {
+
+            if (this.dependencyClassLoader != null) {
+                try {
+                    return this.dependencyClassLoader.loadClass(name);
+                } catch (ClassNotFoundException ignore) {
+                    LOG.trace("Class {0} not found in dependencies", name, ignore);
+                }
+            }
+
+            // third, look up in other plugins
+            return this.dependencyResolver.findClass(requestor, name);
+        }
+        return null;
+    }
+
+    @Override
+    public URL findResource(PluginClassLoader requestor, String name) {
+        // look up in own jar
         URL url = super.findResource(name);
-        if (url == null && this.dependencyClassLoader != null) {
-            url = this.dependencyClassLoader.findResource(name);
+
+        if (url == null && requestor == this) {
+            // second look up in our dependencies
+            if (this.dependencyClassLoader != null) {
+                url = this.dependencyClassLoader.findResource(name);
+            }
+
+            // third, look up in other plugins
+            url = this.dependencyResolver.findResource(requestor, name);
         }
         return url;
     }
 
     @Override
-    public final Enumeration<URL> findResources(String name) throws IOException {
-        final Enumeration<URL> urls = super.findResources(name);
-        if (this.dependencyClassLoader != null) {
-            final Enumeration<URL> depUrls =
-                    this.dependencyClassLoader.findResources(name);
+    public void findResources(PluginClassLoader requestor, String name,
+            Collection<URL> target) throws IOException {
+        // look up in own jar
+        final Enumeration<URL> selfResult = super.findResources(name);
+        addAll(target, selfResult);
 
-            return Iterators.composite(
-                    ElementIterator.wrap(urls),
-                    ElementIterator.wrap(depUrls));
+        if (requestor == this) {
+
+            // look up in dependencies
+            if (this.dependencyClassLoader != null) {
+                final Enumeration<URL> dependencyResult =
+                        this.dependencyClassLoader.findResources(name);
+
+                addAll(target, dependencyResult);
+            }
+
+            // look up in other plugins
+            this.dependencyResolver.findResources(requestor, name, target);
         }
-        return urls;
+    }
+
+    private <T> void addAll(Collection<T> target, Enumeration<T> elements) {
+        while (elements.hasMoreElements()) {
+            target.add(elements.nextElement());
+        }
     }
 
     @Override
