@@ -19,6 +19,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.skuzzle.tinyplugz.PluginSourceBuilderImpl;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Files.class, PluginSourceBuilderImpl.class,
         PluginSourceBuilderImplTest.class })

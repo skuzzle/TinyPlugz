@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -18,23 +19,38 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class PluginClassLoader extends URLClassLoader implements DependencyResolver {
+final class PluginClassLoader extends URLClassLoader implements DependencyResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
+
+    /** To split classpath entries. */
     private static final Pattern WHITESPACES = Pattern.compile("\\s+");
+
+    /** URL to the plugin this loader belongs to. */
     private final URL self;
+
+    /** Base path of the plugin, obtained from the plugin's URL. */
     private final String basePath;
+
+    /**
+     * Optionally created loader to access dependencies stated in plugin's
+     * MANIFEST Class-Path entry.
+     */
     private final URLClassLoader dependencyClassLoader;
+
+    /** Resolver to access classes and resources from other loaded plugins. */
     private final DependencyResolver dependencyResolver;
 
-    private PluginClassLoader(URL plugin, ClassLoader appClassLoader,
+    private PluginClassLoader(URL pluginUrl, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
-        super(new URL[] { Require.nonNull(plugin, "plugin") },
-                Require.nonNull(appClassLoader, "parent"));
+        super(new URL[] { Require.nonNull(pluginUrl, "pluginUrl") },
+                Require.nonNull(appClassLoader, "appClassLoader"));
 
-        this.dependencyResolver = dependencyResolver;
-        this.self = plugin;
-        this.basePath = getBasePath(plugin);
+        this.dependencyResolver = Require.nonNull(dependencyResolver,
+                "dependencyResolver");
+
+        this.self = pluginUrl;
+        this.basePath = getBasePathOf(pluginUrl);
         this.dependencyClassLoader = createDependencyClassLoader();
     }
 
@@ -44,18 +60,13 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
 
             @Override
             public PluginClassLoader run() {
-                return new PluginClassLoader(plugin, appClassLoader,  dependencyResolver);
+                return new PluginClassLoader(plugin, appClassLoader, dependencyResolver);
             }
 
         });
     }
 
-    private ClassLoader getApplicationClassLoader() {
-        final ClassLoader common = getParent();
-        return common.getParent();
-    }
-
-    private String getBasePath(URL url) {
+    private String getBasePathOf(URL url) {
         final int i = url.getPath().lastIndexOf('/');
         return url.getPath().substring(0, i);
     }
@@ -78,11 +89,11 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
             return AccessController.doPrivileged(
                     new PrivilegedAction<URLClassLoader>() {
 
-                @Override
-                public URLClassLoader run() {
-                    return new URLClassLoader(urls, getApplicationClassLoader());
-                }
-            });
+                        @Override
+                        public URLClassLoader run() {
+                            return new URLClassLoader(urls, PluginClassLoader.this.getParent());
+                        }
+                    });
 
         } catch (IOException e) {
             LOG.error("Error reading manifest file for {0}", this.self, e);
@@ -102,7 +113,8 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
     }
 
     private URL findManfestUrl() {
-        // crucial to use super method because we only want to search our own jar
+        // crucial to use super method because we only want to search our own
+        // jar
         return super.findResource("META-INF/manifest.mf");
     }
 
@@ -123,9 +135,13 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
         return ElementIterator.wrap(urls.iterator());
     }
 
+    @Override
+    protected String findLibrary(String libname) {
+        return findNativeLibrary(this, libname);
+    }
 
     @Override
-    public final Class<?> findClass(PluginClassLoader requestor, String name)  {
+    public final Class<?> findClass(DependencyResolver requestor, String name) {
         // first, look up in own jar
         Class<?> result = null;
         try {
@@ -154,7 +170,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
     }
 
     @Override
-    public URL findResource(PluginClassLoader requestor, String name) {
+    public URL findResource(DependencyResolver requestor, String name) {
         // look up in own jar
         URL url = super.findResource(name);
 
@@ -173,7 +189,7 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
     }
 
     @Override
-    public void findResources(PluginClassLoader requestor, String name,
+    public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException {
         // look up in own jar
         final Enumeration<URL> selfResult = super.findResources(name);
@@ -192,6 +208,15 @@ class PluginClassLoader extends URLClassLoader implements DependencyResolver {
             // look up in other plugins
             this.dependencyResolver.findResources(requestor, name, target);
         }
+    }
+
+    @Override
+    public String findNativeLibrary(DependencyResolver requestor, String name) {
+        final File path = new File(this.basePath, name);
+        if (!path.exists()) {
+            return null;
+        }
+        return path.getAbsolutePath();
     }
 
     private <T> void addAll(Collection<T> target, Enumeration<T> elements) {

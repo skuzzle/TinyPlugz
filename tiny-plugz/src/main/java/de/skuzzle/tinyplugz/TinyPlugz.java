@@ -17,6 +17,7 @@ import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
  * providing a high level API around the java {@link ServiceLoader} and
@@ -243,7 +244,7 @@ public abstract class TinyPlugz {
      */
     protected final ClassLoader createClassLoader(Collection<URL> plugins,
             ClassLoader parent) {
-        return CommonClassLoader.forPlugins(plugins, parent);
+        return DelegateClassLoader.forPlugins(plugins, parent);
     }
 
     /**

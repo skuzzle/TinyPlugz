@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
@@ -9,7 +10,7 @@ import java.util.Collection;
  *
  * @author Simon Taddiken
  */
-interface DependencyResolver {
+interface DependencyResolver extends Closeable {
 
     /**
      * Searches for a class with given name.
@@ -21,7 +22,7 @@ interface DependencyResolver {
      *            <code>null</code>.
      * @return The class or <code>null</code> if none was found.
      */
-    public Class<?> findClass(PluginClassLoader requestor, String name);
+    public Class<?> findClass(DependencyResolver requestor, String name);
 
     /**
      * Searches for a resource with given name.
@@ -32,7 +33,7 @@ interface DependencyResolver {
      * @param name The name of the resource to search for.
      * @return An URL to the resource or <code>null</code> if none was found.
      */
-    public URL findResource(PluginClassLoader requestor, String name);
+    public URL findResource(DependencyResolver requestor, String name);
 
     /**
      * Searches for all resources with given name and collects them in the given
@@ -45,7 +46,17 @@ interface DependencyResolver {
      * @param target Target collection.
      * @throws IOException If an IO error occurs.
      */
-    public void findResources(PluginClassLoader requestor, String name,
+    public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException;
 
+    /**
+     * Returns the path of the native library with given name.
+     *
+     * @param requestor The plugin that wishes to find the library. Parameter
+     *            will be <code>null</code> if this method is not called from
+     *            any plugin (but from the application itself).
+     * @param name The name of the library. Must not be <code>null</code>.
+     * @return The path to the library with given name.
+     */
+    public String findNativeLibrary(DependencyResolver requestor, String name);
 }
