@@ -9,7 +9,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 
+/**
+ * This ClassLoader allows the application to access classes and resources from
+ * any loaded plugin.
+ *
+ * @author Simon Taddiken
+ */
 final class DelegateClassLoader extends ClassLoader implements Closeable {
+
+    static {
+        registerAsParallelCapable();
+    }
 
     private final DependencyResolver delegator;
 
@@ -26,8 +36,9 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
         final Collection<DependencyResolver> plugins = new ArrayList<>(urls.size());
         final DependencyResolver delegator = new DelegateDependencyResolver(plugins);
         for (final URL pluginURL : urls) {
-            plugins.add(PluginClassLoader.create(pluginURL, appClassLoader,
-                    delegator));
+            // Plugin classloaders must be created with the application classloader
+            // as parent
+            plugins.add(PluginClassLoader.create(pluginURL, appClassLoader, delegator));
         }
         return AccessController.doPrivileged(new PrivilegedAction<DelegateClassLoader>() {
 

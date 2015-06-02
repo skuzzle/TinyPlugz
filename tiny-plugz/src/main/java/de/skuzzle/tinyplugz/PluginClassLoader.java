@@ -19,6 +19,14 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ClassLoader for loading classes from a single plugin, given as URL. This
+ * ClassLoader will create a child ClassLoader for accessing dependencies of the
+ * plugin. Dependencies must be stated in the plugin's manifest Class-Path
+ * attribute. Each entry will be interpreted relative to the plugin's base path.
+ *
+ * @author Simon Taddiken
+ */
 final class PluginClassLoader extends URLClassLoader implements DependencyResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
@@ -34,7 +42,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     /**
      * Optionally created loader to access dependencies stated in plugin's
-     * MANIFEST Class-Path entry.
+     * MANIFEST Class-Path entry. This field will be <code>null</code> if this
+     * plugin has no dependencies.
      */
     private final URLClassLoader dependencyClassLoader;
 
@@ -86,14 +95,21 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     .filter(url -> url != null)
                     .toArray(size -> new URL[size]);
 
-            return AccessController.doPrivileged(
-                    new PrivilegedAction<URLClassLoader>() {
+            if (urls.length > 0) {
+                return AccessController.doPrivileged(
+                        new PrivilegedAction<URLClassLoader>() {
 
-                        @Override
-                        public URLClassLoader run() {
-                            return new URLClassLoader(urls, PluginClassLoader.this.getParent());
-                        }
-                    });
+                            // Dependency classloader gets the same parent as
+                            // the plugin loader -> dependencies can not load
+                            // classes
+                            // from plugins
+                            @Override
+                            public URLClassLoader run() {
+                                return new URLClassLoader(urls,
+                                        PluginClassLoader.this.getParent());
+                            }
+                        });
+            }
 
         } catch (IOException e) {
             LOG.error("Error reading manifest file for {0}", this.self, e);
@@ -142,31 +158,34 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
-        // first, look up in own jar
-        Class<?> result = null;
-        try {
-            result = super.findClass(name);
-        } catch (ClassNotFoundException ignore) {
-            LOG.trace("Class {0} not found in plugin itself", name, ignore);
-        }
+        synchronized (getClassLoadingLock(name)) {
+            // first, look up in own jar
+            Class<?> result = null;
+            try {
+                result = super.findClass(name);
+            } catch (ClassNotFoundException ignore) {
+                LOG.trace("Class {0} not found in plugin itself", name, ignore);
+            }
 
-        // second, look up in our dependencies
-        if (result == null && equals(requestor)) {
+            // second, look up in our dependencies
+            if (result == null && equals(requestor)) {
 
-            if (this.dependencyClassLoader != null) {
-                try {
-                    result = this.dependencyClassLoader.loadClass(name);
-                } catch (ClassNotFoundException ignore) {
-                    LOG.trace("Class {0} not found in dependencies", name, ignore);
+                if (this.dependencyClassLoader != null) {
+                    try {
+                        result = this.dependencyClassLoader.loadClass(name);
+                    } catch (ClassNotFoundException ignore) {
+                        LOG.trace("Class {0} not found in dependencies", name, ignore);
+                    }
+                }
+
+                // third, look up in other plugins
+                if (result == null) {
+                    result = this.dependencyResolver.findClass(requestor, name);
                 }
             }
+            return result;
 
-            // third, look up in other plugins
-            if (result == null) {
-                result = this.dependencyResolver.findClass(requestor, name);
-            }
         }
-        return result;
     }
 
     @Override
