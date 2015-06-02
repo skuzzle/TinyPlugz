@@ -79,4 +79,9 @@ public class TinyPlugzITTest {
                 .getFirstService(HostSampleService.class);
         assertTrue(opt.isPresent());
     }
+
+    @Test(expected = ClassNotFoundException.class)
+    public void testTryLoadDependencyClass() throws Exception {
+        TinyPlugz.getInstance().getClassLoader().loadClass("de.skuzzle.semantic.Version");
+    }
 }

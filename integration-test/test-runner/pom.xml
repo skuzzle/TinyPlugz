@@ -30,18 +30,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>de.skuzzle.tinyplugz.test</groupId>
-            <artifactId>test-plugin1</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.skuzzle.tinyplugz.test</groupId>
-            <artifactId>test-plugin2</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+        
     </dependencies>
 
     <build>

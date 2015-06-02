@@ -33,6 +33,12 @@
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>de.skuzzle</groupId>
+            <artifactId>semantic-version</artifactId>
+            <version>0.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>

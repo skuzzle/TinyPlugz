@@ -51,6 +51,7 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
+        System.out.println("Delegate Class: " + name);
         final Class<?> cls = this.delegator.findClass(null, name);
         if (cls == null) {
             throw new ClassNotFoundException(name);
@@ -60,11 +61,13 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected final URL findResource(String name) {
+        System.out.println("Delegate Resource: " + name);
         return this.delegator.findResource(null, name);
     }
 
     @Override
     protected final Enumeration<URL> findResources(String name) throws IOException {
+        System.out.println("Delegate Resources: " + name);
         final Collection<URL> urls = new ArrayList<>();
         this.delegator.findResources(null, name, urls);
         return ElementIterator.wrap(urls.iterator());

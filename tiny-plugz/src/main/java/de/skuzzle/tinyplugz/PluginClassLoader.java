@@ -75,9 +75,19 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         });
     }
 
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        return super.loadClass(name);
+    }
+
     private String getBasePathOf(URL url) {
-        final int i = url.getPath().lastIndexOf('/');
-        return url.getPath().substring(0, i);
+        String path = url.getPath();
+        if (path.endsWith("/")) {
+            return path;
+        }
+        int i = path.lastIndexOf('/');
+        path = path.substring(0, i + 1); // +1 to include slash
+        return path + "/";
     }
 
     private URLClassLoader createDependencyClassLoader() {
@@ -88,6 +98,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         try (InputStream in = mfURL.openStream()) {
             final Manifest mf = new Manifest(in);
             final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
+            if (cp == null) {
+                return null;
+            }
             final String[] entries = WHITESPACES.split(cp);
 
             final URL[] urls = Arrays.stream(entries)
@@ -120,7 +133,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     private URL getRelativeURL(String name) {
         try {
             return new URL(this.self.getProtocol(), this.self.getHost(),
-                    this.self.getPort(), this.basePath + "/" + name);
+                    this.self.getPort(), this.basePath + name.trim());
         } catch (MalformedURLException e) {
             LOG.error("Error constructing relative url with base path {0} and name {1}",
                     this.basePath, name, e);
@@ -136,16 +149,19 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
+        System.out.println("Plugin Class: " + name);
         return findClass(this, name);
     }
 
     @Override
     public final URL findResource(String name) {
+        System.out.println("Plugin resource: " + name);
         return findResource(this, name);
     }
 
     @Override
     public final Enumeration<URL> findResources(String name) throws IOException {
+        System.out.println("Plugin resources: " + name);
         final Collection<URL> urls = new ArrayList<>();
         findResources(this, name, urls);
         return ElementIterator.wrap(urls.iterator());
