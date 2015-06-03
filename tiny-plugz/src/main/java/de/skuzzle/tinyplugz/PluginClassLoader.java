@@ -129,12 +129,14 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     private URLClassLoader createDependencyClassLoader() {
         final URL mfURL = findManfestUrl();
         if (mfURL == null) {
+            LOG.trace("Plugin '{}' has no manifest", getSimpleName());
             return null;
         }
         try (InputStream in = mfURL.openStream()) {
             final Manifest mf = new Manifest(in);
             final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
             if (cp == null) {
+                LOG.trace("Plugin '{}' has no Class-Path attribute", getSimpleName());
                 return null;
             }
             final String[] entries = WHITESPACES.split(cp);
