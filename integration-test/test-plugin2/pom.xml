@@ -33,7 +33,7 @@
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>de.skuzzle</groupId>
             <artifactId>semantic-version</artifactId>
@@ -42,6 +42,15 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </testResource>
+        </testResources>
+
         <plugins>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
