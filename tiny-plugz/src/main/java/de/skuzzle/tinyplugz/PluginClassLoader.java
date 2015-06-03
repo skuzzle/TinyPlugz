@@ -140,7 +140,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             final String[] entries = WHITESPACES.split(cp);
 
             final URL[] urls = Arrays.stream(entries)
-                    .map(this::getRelativeURL)
+                    .map(this::resolveRelative)
                     .filter(url -> url != null)
                     .toArray(size -> new URL[size]);
 
@@ -166,10 +166,12 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return null;
     }
 
-    private URL getRelativeURL(String name) {
+    private URL resolveRelative(String name) {
         try {
-            return new URL(this.self.getProtocol(), this.self.getHost(),
+            final URL url = new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
+            LOG.debug("Add dependency of {}: {}", getSimpleName(), url);
+            return url;
         } catch (MalformedURLException e) {
             LOG.error("Error constructing relative url with base path {} and name {}",
                     this.basePath, name, e);
