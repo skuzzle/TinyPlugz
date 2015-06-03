@@ -63,7 +63,7 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
             final ClassLoader loader = c.getClassLoader() == null
                     ? this
                     : c.getClassLoader();
-            LOG.debug("{} loaded by {}", name, loader);
+            LOG.debug("'{}' loaded by '{}'", name, loader);
             return c;
         } catch (ClassNotFoundException e) {
             throw e;
@@ -72,7 +72,7 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
-        LOG.trace("delegate.findClass({})", name);
+        LOG.trace("delegate.findClass('{}')", name);
         final Class<?> cls = this.delegator.findClass(null, name);
         if (cls == null) {
             throw new ClassNotFoundException(name);
@@ -82,13 +82,13 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected final URL findResource(String name) {
-        LOG.trace("delegate.findResource({})", name);
+        LOG.trace("delegate.findResource('{}')", name);
         return this.delegator.findResource(null, name);
     }
 
     @Override
     protected final Enumeration<URL> findResources(String name) throws IOException {
-        LOG.trace("delegate.findResources({})", name);
+        LOG.trace("delegate.findResources('{}')", name);
         final Collection<URL> urls = new ArrayList<>();
         this.delegator.findResources(null, name, urls);
         return ElementIterator.wrap(urls.iterator());

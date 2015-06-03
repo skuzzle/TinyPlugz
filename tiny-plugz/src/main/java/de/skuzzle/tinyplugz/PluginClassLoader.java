@@ -172,10 +172,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         try {
             final URL url = new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
-            LOG.debug("Add dependency of {}: {}", getSimpleName(), url);
+            LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url);
             return url;
         } catch (MalformedURLException e) {
-            LOG.error("Error constructing relative url with base path {} and name {}",
+            LOG.error("Error constructing relative url with base path '{}' and name '{}'",
                     this.basePath, name, e);
         }
         return null;
@@ -217,7 +217,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("{}.findClassFor({}, {})", getSimpleName(),
+        LOG.trace("{}.findClassFor(<{}>, '{}')", getSimpleName(),
                 nameOf(requestor), name);
 
         synchronized (getClassLoadingLock(name)) {
@@ -251,7 +251,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public URL findResource(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("{}.findResourceFor({}, {})",getSimpleName(),
+        LOG.trace("{}.findResourceFor(<{}>, '{}')",getSimpleName(),
                 nameOf(requestor), name);
 
         // look up in own jar
@@ -275,7 +275,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException {
         Require.nonNull(name, "name");
-        LOG.trace("{}.findResourcesFor({}, {})", getSimpleName(),
+        LOG.trace("{}.findResourcesFor(<{}>, '{}')", getSimpleName(),
                 nameOf(requestor), name);
 
         // look up in own jar
