@@ -13,6 +13,13 @@ import java.util.Collection;
 interface DependencyResolver extends Closeable {
 
     /**
+     * Returns a simple displayable name for this resolver.
+     *
+     * @return The name.
+     */
+    public String getSimpleName();
+
+    /**
      * Searches for a class with given name.
      *
      * @param requestor The plugin for which the Class should be searched.

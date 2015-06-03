@@ -80,4 +80,9 @@ final class DelegateDependencyResolver implements DependencyResolver {
         }
     }
 
+    @Override
+    public final String getSimpleName() {
+        return "Delegator";
+    }
+
 }

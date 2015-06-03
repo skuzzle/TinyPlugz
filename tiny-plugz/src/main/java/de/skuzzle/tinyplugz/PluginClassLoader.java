@@ -40,6 +40,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     /** Base path of the plugin, obtained from the plugin's URL. */
     private final String basePath;
 
+    /** A simple name describing the plugin loaded by this loader */
+    private final String simpleName;
+
     /**
      * Optionally created loader to access dependencies stated in plugin's
      * MANIFEST Class-Path entry. This field will be <code>null</code> if this
@@ -60,6 +63,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
         this.self = pluginUrl;
         this.basePath = getBasePathOf(pluginUrl);
+        this.simpleName = getName(pluginUrl);
         this.dependencyClassLoader = createDependencyClassLoader();
     }
 
@@ -76,18 +80,48 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
-        return super.loadClass(name);
+    protected final Class<?> loadClass(String name, boolean resolve)
+            throws ClassNotFoundException {
+
+        try {
+            final Class<?> c = super.loadClass(name, resolve);
+            final ClassLoader loader = c.getClassLoader() == null
+                    ? this
+                    : c.getClassLoader();
+            LOG.debug("{0} loaded by {1}", name, loader);
+            return c;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
     }
 
     private String getBasePathOf(URL url) {
         String path = url.getPath();
-        if (path.endsWith("/")) {
-            return path;
+        // If the url ends with '/' it already denotes the base directory.
+        // Otherwise it is a file for which we need to extract the parent folder
+        if (!path.endsWith("/")) {
+            // this is an URL to a file
+            int i = path.lastIndexOf('/');
+            path = path.substring(0, i + 1); // +1 to include slash
         }
+        return path;
+    }
+
+    private String getName(URL url) {
+        String path = url.getPath();
+        int j = -1;
+        if (path.endsWith("/")) {
+            // strip off trailing /
+            path = path.substring(0, path.length() - 1);
+        } else {
+            // if it's a file, we strip off the extension
+            j = path.lastIndexOf('.');
+        }
+
+        j = j == -1 ? path.length() : j;
         int i = path.lastIndexOf('/');
-        path = path.substring(0, i + 1); // +1 to include slash
-        return path + "/";
+        path = path.substring(i + 1, j);
+        return path;
     }
 
     private URLClassLoader createDependencyClassLoader() {
@@ -148,20 +182,22 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     @Override
+    public final String getSimpleName() {
+        return this.simpleName;
+    }
+
+    @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
-        System.out.println("Plugin Class: " + name);
         return findClass(this, name);
     }
 
     @Override
     public final URL findResource(String name) {
-        System.out.println("Plugin resource: " + name);
         return findResource(this, name);
     }
 
     @Override
     public final Enumeration<URL> findResources(String name) throws IOException {
-        System.out.println("Plugin resources: " + name);
         final Collection<URL> urls = new ArrayList<>();
         findResources(this, name, urls);
         return ElementIterator.wrap(urls.iterator());
@@ -174,6 +210,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
+        Require.nonNull(name, "name");
+        LOG.trace("pluginClassLoader.findClassFor({0}, {1})", requestor, name);
+
         synchronized (getClassLoadingLock(name)) {
             // first, look up in own jar
             Class<?> result = null;
@@ -206,6 +245,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public URL findResource(DependencyResolver requestor, String name) {
+        Require.nonNull(name, "name");
+        LOG.trace("pluginClassLoader.findResourceFor({0}, {1})", requestor, name);
+
         // look up in own jar
         URL url = super.findResource(name);
 
@@ -226,6 +268,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException {
+        Require.nonNull(name, "name");
+        LOG.trace("pluginClassLoader.findResourcesFor({0}, {1})", requestor, name);
+
         // look up in own jar
         final Enumeration<URL> selfResult = super.findResources(name);
         addAll(target, selfResult);
@@ -262,7 +307,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final String toString() {
-        return "[PluginClassLoader: " + this.self + "]";
+        return "[PluginClassLoader: " + this.simpleName + "]";
     }
 
     @Override

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This ClassLoader allows the application to access classes and resources from
  * any loaded plugin.
@@ -20,6 +23,8 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
     static {
         registerAsParallelCapable();
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DelegateClassLoader.class);
 
     private final DependencyResolver delegator;
 
@@ -50,8 +55,24 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
     }
 
     @Override
+    protected final Class<?> loadClass(String name, boolean resolve)
+            throws ClassNotFoundException {
+
+        try {
+            final Class<?> c = super.loadClass(name, resolve);
+            final ClassLoader loader = c.getClassLoader() == null
+                    ? this
+                    : c.getClassLoader();
+            LOG.debug("{0} loaded by {1}", name, loader);
+            return c;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
+    }
+
+    @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
-        System.out.println("Delegate Class: " + name);
+        LOG.trace("delegate.findClass({0})", name);
         final Class<?> cls = this.delegator.findClass(null, name);
         if (cls == null) {
             throw new ClassNotFoundException(name);
@@ -61,13 +82,13 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     @Override
     protected final URL findResource(String name) {
-        System.out.println("Delegate Resource: " + name);
+        LOG.trace("delegate.findResource({0})", name);
         return this.delegator.findResource(null, name);
     }
 
     @Override
     protected final Enumeration<URL> findResources(String name) throws IOException {
-        System.out.println("Delegate Resources: " + name);
+        LOG.trace("delegate.findResources({0})", name);
         final Collection<URL> urls = new ArrayList<>();
         this.delegator.findResources(null, name, urls);
         return ElementIterator.wrap(urls.iterator());
@@ -81,5 +102,10 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
     @Override
     public final void close() throws IOException {
         this.delegator.close();
+    }
+
+    @Override
+    public String toString() {
+        return "DelegateClassLoader";
     }
 }
