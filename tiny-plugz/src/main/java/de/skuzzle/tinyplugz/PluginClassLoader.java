@@ -55,12 +55,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     private PluginClassLoader(URL pluginUrl, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
-        super(new URL[] { Require.nonNull(pluginUrl, "pluginUrl") },
-                Require.nonNull(appClassLoader, "appClassLoader"));
+        super(new URL[] { pluginUrl },appClassLoader);
 
-        this.dependencyResolver = Require.nonNull(dependencyResolver,
-                "dependencyResolver");
-
+        this.dependencyResolver = dependencyResolver;
         this.self = pluginUrl;
         this.basePath = getBasePathOf(pluginUrl);
         this.simpleName = getName(pluginUrl);
@@ -69,10 +66,15 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
+        Require.nonNull(plugin, "plugin");
+        Require.nonNull(appClassLoader, "appClassLoader");
+        Require.nonNull(dependencyResolver, "dependencyResolver");
+
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
 
             @Override
             public PluginClassLoader run() {
+                LOG.debug("Loading plugin from {}", plugin);
                 return new PluginClassLoader(plugin, appClassLoader, dependencyResolver);
             }
 
@@ -88,7 +90,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             final ClassLoader loader = c.getClassLoader() == null
                     ? this
                     : c.getClassLoader();
-            LOG.debug("{0} loaded by {1}", name, loader);
+            LOG.debug("{} loaded by {}", name, loader);
             return c;
         } catch (ClassNotFoundException e) {
             throw e;
@@ -159,7 +161,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             }
 
         } catch (IOException e) {
-            LOG.error("Error reading manifest file for {0}", this.self, e);
+            LOG.error("Error reading manifest file for {}", this.self, e);
         }
         return null;
     }
@@ -169,7 +171,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             return new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
         } catch (MalformedURLException e) {
-            LOG.error("Error constructing relative url with base path {0} and name {1}",
+            LOG.error("Error constructing relative url with base path {} and name {}",
                     this.basePath, name, e);
         }
         return null;
@@ -211,7 +213,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("pluginClassLoader.findClassFor({0}, {1})", requestor, name);
+        LOG.trace("{}.findClassFor({}, {})", getSimpleName(),
+                nameOf(requestor), name);
 
         synchronized (getClassLoadingLock(name)) {
             // first, look up in own jar
@@ -219,7 +222,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             try {
                 result = super.findClass(name);
             } catch (ClassNotFoundException ignore) {
-                LOG.trace("Class {0} not found in plugin itself", name, ignore);
             }
 
             // second, look up in our dependencies
@@ -229,7 +231,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     try {
                         result = this.dependencyClassLoader.loadClass(name);
                     } catch (ClassNotFoundException ignore) {
-                        LOG.trace("Class {0} not found in dependencies", name, ignore);
                     }
                 }
 
@@ -246,7 +247,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public URL findResource(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("pluginClassLoader.findResourceFor({0}, {1})", requestor, name);
+        LOG.trace("{}.findResourceFor({}, {})",getSimpleName(),
+                nameOf(requestor), name);
 
         // look up in own jar
         URL url = super.findResource(name);
@@ -269,7 +271,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException {
         Require.nonNull(name, "name");
-        LOG.trace("pluginClassLoader.findResourcesFor({0}, {1})", requestor, name);
+        LOG.trace("{}.findResourcesFor({}, {})", getSimpleName(),
+                nameOf(requestor), name);
 
         // look up in own jar
         final Enumeration<URL> selfResult = super.findResources(name);
@@ -308,6 +311,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public final String toString() {
         return "[PluginClassLoader: " + this.simpleName + "]";
+    }
+
+    private String nameOf(DependencyResolver requestor) {
+        return requestor == null ? "<application>" : requestor.getSimpleName();
     }
 
     @Override
