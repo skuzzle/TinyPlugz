@@ -55,15 +55,4 @@ interface DependencyResolver extends Closeable {
      */
     public void findResources(DependencyResolver requestor, String name,
             Collection<URL> target) throws IOException;
-
-    /**
-     * Returns the path of the native library with given name.
-     *
-     * @param requestor The plugin that wishes to find the library. Parameter
-     *            will be <code>null</code> if this method is not called from
-     *            any plugin (but from the application itself).
-     * @param name The name of the library. Must not be <code>null</code>.
-     * @return The path to the library with given name.
-     */
-    public String findNativeLibrary(DependencyResolver requestor, String name);
 }

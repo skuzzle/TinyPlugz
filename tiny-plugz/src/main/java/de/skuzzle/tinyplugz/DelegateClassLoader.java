@@ -99,11 +99,6 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
     }
 
     @Override
-    protected final String findLibrary(String libname) {
-        return this.delegator.findNativeLibrary(null, libname);
-    }
-
-    @Override
     public final void close() throws IOException {
         this.delegator.close();
     }

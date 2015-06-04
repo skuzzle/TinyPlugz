@@ -58,22 +58,6 @@ final class DelegateDependencyResolver implements DependencyResolver {
     }
 
     @Override
-    public final String findNativeLibrary(DependencyResolver requestor, String name) {
-        Require.nonNull(name, "name");
-
-        for (final DependencyResolver pluginCl : this.children) {
-            if (pluginCl.equals(requestor)) {
-                continue;
-            }
-            final String s = pluginCl.findNativeLibrary(requestor, name);
-            if (s != null) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public final void close() throws IOException {
         for (final DependencyResolver pluginCl : this.children) {
             pluginCl.close();

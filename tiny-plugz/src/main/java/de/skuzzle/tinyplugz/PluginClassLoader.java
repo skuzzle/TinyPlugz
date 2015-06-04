@@ -1,6 +1,5 @@
 package de.skuzzle.tinyplugz;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -234,11 +233,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     @Override
-    protected String findLibrary(String libname) {
-        return findNativeLibrary(this, libname);
-    }
-
-    @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
 
@@ -321,15 +315,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             // look up in other plugins
             this.dependencyResolver.findResources(requestor, name, target);
         }
-    }
-
-    @Override
-    public String findNativeLibrary(DependencyResolver requestor, String name) {
-        final File path = new File(this.basePath, name);
-        if (!path.exists()) {
-            return null;
-        }
-        return path.getAbsolutePath();
     }
 
     private <T> void addAll(Collection<T> target, Enumeration<T> elements) {
