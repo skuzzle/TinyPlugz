@@ -25,7 +25,7 @@ import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzException;
 
-public class TinyPlugzITTest {
+public class TinyPlugzIT {
 
     public static final boolean IS_MAVEN = Boolean.parseBoolean(
             System.getProperty("isMaven", "false"));
@@ -33,7 +33,7 @@ public class TinyPlugzITTest {
     @Before
     public void setup() throws TinyPlugzException {
         TinyPlugzConfigurator.setup()
-                .withPlugins(TinyPlugzITTest::selectPlugins)
+                .withPlugins(TinyPlugzIT::selectPlugins)
                 .deploy();
     }
 
