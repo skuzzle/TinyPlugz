@@ -51,7 +51,7 @@
 	                    </goals>
 	                    <configuration>
 	                        <append>true</append>
-	                        <destFile>${sonar.jacoco.itReportPath}</destFile>
+	                        <destFile>${basedir}/../../target/jacoco-it.exec</destFile>
 	                    </configuration>
 	                </execution>
 	            </executions>
