@@ -31,7 +31,6 @@
             <groupId>de.skuzzle.tinyplugz.test</groupId>
             <artifactId>test-plugin1</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
         </dependency>
 
         <dependency>
@@ -42,14 +41,14 @@
     </dependencies>
 
     <build>
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test/resources</directory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
                 <includes>
                     <include>**</include>
                 </includes>
-            </testResource>
-        </testResources>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
