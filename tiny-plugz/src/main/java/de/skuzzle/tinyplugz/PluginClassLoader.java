@@ -55,7 +55,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     private PluginClassLoader(URL pluginUrl, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
-        super(new URL[] { pluginUrl },appClassLoader);
+        super(new URL[] { pluginUrl }, appClassLoader);
 
         this.dependencyResolver = dependencyResolver;
         this.self = pluginUrl;
@@ -81,20 +81,39 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         });
     }
 
+    /**
+     * Gets the URL pointing to the location from which this plugin was loaded.
+     *
+     * @return The plugin's location.
+     */
+    public final URL getPluginURL() {
+        return this.self;
+    }
+
+    /**
+     * Gets the base path of the plugin loaded by this Classloader. If the
+     * plugin was loaded from a jar, its base path is the folder that contains
+     * the jar. If it was loaded from a directory, just that directory is the
+     * base path.
+     * <p>
+     * The path returned by this method will always end with a '/'
+     *
+     * @return The base path.
+     */
+    public final String getBasePath() {
+        return this.basePath;
+    }
+
     @Override
     protected final Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
 
-        try {
-            final Class<?> c = super.loadClass(name, resolve);
-            final ClassLoader loader = c.getClassLoader() == null
-                    ? this
-                    : c.getClassLoader();
-            LOG.debug("{} loaded by {}", name, loader);
-            return c;
-        } catch (ClassNotFoundException e) {
-            throw e;
-        }
+        final Class<?> c = super.loadClass(name, resolve);
+        final ClassLoader loader = c.getClassLoader() == null
+                ? this
+                : c.getClassLoader();
+        LOG.debug("{} loaded by {}", name, loader);
+        return c;
     }
 
     private String getBasePathOf(URL url) {
@@ -120,7 +139,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             j = path.lastIndexOf('.');
         }
 
-        j = j == -1 ? path.length() : j;
+        j = j == -1
+                ? path.length()
+                : j;
         int i = path.lastIndexOf('/');
         path = path.substring(i + 1, j);
         return path;
@@ -152,11 +173,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
                             // Dependency classloader gets the same parent as
                             // the plugin loader -> dependencies can not load
-                            // classes
-                            // from plugins
+                            // classes from plugins
                             @Override
                             public URLClassLoader run() {
-                                return new URLClassLoader(urls,
+                                return new DependencyClassLoader(urls,
                                         PluginClassLoader.this.getParent());
                             }
                         });
@@ -194,7 +214,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     protected final Class<?> findClass(String name) throws ClassNotFoundException {
-        return findClass(this, name);
+        final Class<?> cls = findClass(this, name);
+        if (cls == null) {
+            throw new ClassNotFoundException(name);
+        }
+        return cls;
     }
 
     @Override
@@ -217,15 +241,17 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("{}.findClassFor(<{}>, '{}')", getSimpleName(),
-                nameOf(requestor), name);
 
+        LOG.trace("{}.findClassFor(<{}>, '{}')", getSimpleName(), nameOf(requestor),
+                name);
         synchronized (getClassLoadingLock(name)) {
             // first, look up in own jar
-            Class<?> result = null;
-            try {
-                result = super.findClass(name);
-            } catch (ClassNotFoundException ignore) {
+            Class<?> result = findLoadedClass(name);
+            if (result == null) {
+                try {
+                    result = super.findClass(name);
+                } catch (ClassNotFoundException ignore) {
+                }
             }
 
             // second, look up in our dependencies
@@ -251,7 +277,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     public URL findResource(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
-        LOG.trace("{}.findResourceFor(<{}>, '{}')",getSimpleName(),
+        LOG.trace("{}.findResourceFor(<{}>, '{}')", getSimpleName(),
                 nameOf(requestor), name);
 
         // look up in own jar
@@ -318,7 +344,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     private String nameOf(DependencyResolver requestor) {
-        return requestor == null ? "<application>" : requestor.getSimpleName();
+        return requestor == null
+                ? "application"
+                : requestor.getSimpleName();
     }
 
     @Override
@@ -326,6 +354,23 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         super.close();
         if (this.dependencyClassLoader != null) {
             this.dependencyClassLoader.close();
+        }
+    }
+
+    /**
+     * URLClassLoader extension just to recognize the plugin it loads the
+     * classes for.
+     *
+     * @author Simon Taddiken
+     */
+    final class DependencyClassLoader extends URLClassLoader {
+
+        private DependencyClassLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
+        }
+
+        public final String getPluginName() {
+            return getSimpleName();
         }
     }
 }

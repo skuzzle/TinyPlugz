@@ -7,10 +7,12 @@ import de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService;
 
 public class Plugin1HostInterfaceImpl implements HostSampleService {
 
-    public Plugin1HostInterfaceImpl() {
+    public Plugin1HostInterfaceImpl() throws ClassNotFoundException {
         // check if we can access dependency
-        System.out.println(getClass().getClassLoader());
         Version.create(1, 2, 3);
+        // check if we can access class from plugin1
+        getClass().getClassLoader().loadClass(
+                "de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService");
     }
 
     @Override
