@@ -12,6 +12,9 @@
     <artifactId>test-runner</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
     <name>tiny-plugz-test-runner</name>
 
     <dependencies>
