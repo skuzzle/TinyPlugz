@@ -17,8 +17,8 @@
     <properties>
         <site.name>TinyPlugz</site.name>
         <github.name>TinyPlugz</github.name>
-        
-        <sonar.jacoco.itReportPath>${basedir}/integration-test/test-runner/target/jacoco-it.exec</sonar.jacoco.itReportPath>
+
+        <sonar.jacoco.itReportPath>${basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <skuzzle.runtime.version>0.9.2</skuzzle.runtime.version>
     </properties>
 
