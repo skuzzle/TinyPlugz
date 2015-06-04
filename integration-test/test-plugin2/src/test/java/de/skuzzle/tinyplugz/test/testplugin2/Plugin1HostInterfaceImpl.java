@@ -10,9 +10,9 @@ import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService;
 
-public class Plugin2HostInterfaceImpl implements HostSampleService {
+public class Plugin1HostInterfaceImpl implements HostSampleService {
 
-    public Plugin2HostInterfaceImpl() throws ClassNotFoundException, IOException {
+    public Plugin1HostInterfaceImpl() throws ClassNotFoundException, IOException {
         // check if we can access dependency
         Version.create(1, 2, 3);
         // check if we can access class from plugin1

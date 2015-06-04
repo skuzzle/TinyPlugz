@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import de.skuzzle.tinyplugz.HostSampleService;
-import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
@@ -34,7 +33,6 @@ public class TinyPlugzIT {
     @Before
     public void setup() throws TinyPlugzException {
         TinyPlugzConfigurator.setup()
-                .withProperty(Options.FORCE_DEFAULT)
                 .withPlugins(TinyPlugzIT::selectPlugins)
                 .deploy();
     }
@@ -52,7 +50,7 @@ public class TinyPlugzIT {
     private static Path plugin(String name) {
         final Path base = new File(".").getAbsoluteFile().toPath();
         return base.getParent().getParent().resolve(name)
-                .resolve("target/classes/");
+                .resolve("target/test-classes/");
     }
 
     @Rule
