@@ -30,6 +30,17 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
 
+    /**
+     * Some static manifest file names in case the underlying file system is
+     * case sensitive.
+     */
+    private static final String[] MANIFEST_NAMES = {
+            "MANIFEST.MF",
+            "MANIFEST.mf",
+            "manifest.mf",
+            "manifest.MF"
+    };
+
     /** To split classpath entries. */
     private static final Pattern WHITESPACES = Pattern.compile("\\s+");
 
@@ -147,7 +158,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     private URLClassLoader createDependencyClassLoader() {
-        final URL mfURL = findManfestUrl();
+        final URL mfURL = findManifestUrl();
         if (mfURL == null) {
             LOG.trace("Plugin '{}' has no manifest", getSimpleName());
             return null;
@@ -200,10 +211,16 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return null;
     }
 
-    private URL findManfestUrl() {
+    private URL findManifestUrl() {
         // crucial to use super method because we only want to search our own
         // jar
-        return super.findResource("META-INF/MANIFEST.mf");
+        URL url = null;
+        int i = 0;
+        do {
+            url = findResource("META-INF/" + MANIFEST_NAMES[i]);
+            ++i;
+        } while (url == null && i < MANIFEST_NAMES.length);
+        return url;
     }
 
     @Override
