@@ -10,8 +10,8 @@ import javax.servlet.ServletResponse;
 
 /**
  * Wraps another Servlet and performs every action ({@link #init(ServletConfig)}
- * and {@link #service(ServletRequest, ServletResponse)} in the scope of the
- * {@link TinyPlugz} Classloader as context Classloader.
+ * , {@link #service(ServletRequest, ServletResponse)} and {@link #destroy()})
+ * in the scope of the {@link TinyPlugz} Classloader as context Classloader.
  *
  * @author Simon Taddiken
  * @since 0.2.0
