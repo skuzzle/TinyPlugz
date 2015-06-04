@@ -5,6 +5,6 @@ package de.skuzzle.tinyplugz.testrunner;
  *
  * @author Simon Taddiken
  */
-class IgnoreMe {
+public class IgnoreMe {
 
 }
