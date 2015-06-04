@@ -203,7 +203,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     private URL findManfestUrl() {
         // crucial to use super method because we only want to search our own
         // jar
-        return super.findResource("META-INF/manifest.mf");
+        return super.findResource("META-INF/MANIFEST.mf");
     }
 
     @Override

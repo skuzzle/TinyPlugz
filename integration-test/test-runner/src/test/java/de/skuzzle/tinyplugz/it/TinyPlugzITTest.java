@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -84,9 +83,7 @@ public class TinyPlugzITTest {
     }
 
     @Test
-    @Ignore
     public void testTryLoadDependencyClass() throws Exception {
-        // TODO: make this test run on linux
         this.exception.expect(ClassNotFoundException.class);
         this.exception.expectMessage("de.skuzzle.semantic.Version");
         TinyPlugz.getInstance().getClassLoader().loadClass("de.skuzzle.semantic.Version");
