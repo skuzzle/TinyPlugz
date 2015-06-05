@@ -242,9 +242,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     private URL resolveRelative(String name) {
         try {
-            final URL url = new URL(this.self.getProtocol(), this.self.getHost(),
+            return new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
-            return url;
         } catch (MalformedURLException e) {
             LOG.error("Error constructing relative url with base path '{}' and name '{}'",
                     this.basePath, name, e);
