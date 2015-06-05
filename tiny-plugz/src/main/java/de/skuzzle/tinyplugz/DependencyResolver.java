@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * Used to connect class- and resource loading between different plugins.
  *
@@ -29,7 +32,9 @@ interface DependencyResolver extends Closeable {
      *            <code>null</code>.
      * @return The class or <code>null</code> if none was found.
      */
-    public Class<?> findClass(DependencyResolver requestor, String name);
+    @Nullable
+    public Class<?> findClass(@Nullable DependencyResolver requestor,
+            @NonNull String name);
 
     /**
      * Searches for a resource with given name.
@@ -40,7 +45,8 @@ interface DependencyResolver extends Closeable {
      * @param name The name of the resource to search for.
      * @return An URL to the resource or <code>null</code> if none was found.
      */
-    public URL findResource(DependencyResolver requestor, String name);
+    @Nullable
+    public URL findResource(@Nullable DependencyResolver requestor, @NonNull String name);
 
     /**
      * Searches for all resources with given name and collects them in the given
@@ -53,6 +59,8 @@ interface DependencyResolver extends Closeable {
      * @param target Target collection.
      * @throws IOException If an IO error occurs.
      */
-    public void findResources(DependencyResolver requestor, String name,
-            Collection<URL> target) throws IOException;
+    public void findResources(
+            @Nullable DependencyResolver requestor,
+            @NonNull String name,
+            @NonNull Collection<URL> target) throws IOException;
 }
