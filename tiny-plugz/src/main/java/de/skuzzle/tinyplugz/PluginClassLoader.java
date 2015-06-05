@@ -417,7 +417,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             super(urls, parent);
         }
 
-        public final String getPluginName() {
+        final String getPluginName() {
             return getSimpleName();
         }
     }

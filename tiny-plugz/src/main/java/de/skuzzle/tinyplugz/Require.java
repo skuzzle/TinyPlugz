@@ -89,7 +89,8 @@ public final class Require {
      * @return The object which was passed in.
      * @throws IllegalStateException If {@code result} is <code>null</code>.
      */
-    public static <T> T nonNullResult(T result, String call) {
+    @NonNull
+    public static <T> T nonNullResult(@NonNull T result, String call) {
         if (result == null) {
             // XXX: IllegalStateException might not be the best choice
             throw new IllegalStateException(String.format(

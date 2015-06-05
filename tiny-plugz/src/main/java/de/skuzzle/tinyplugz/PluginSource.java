@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 public interface PluginSource {
 
     /**
-     * No-op method PluginSource consumer method for specifying no plugins when
+     * No-op PluginSource consumer method for specifying no plugins when
      * configuring a TinyPlugz instance. This is required because specifying
      * plugins is the last step in the configurator's fluent builder API. So if
      * you do not want to load any plugins, you might configure your TinyPlugz
