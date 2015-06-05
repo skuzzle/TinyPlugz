@@ -17,7 +17,10 @@ public class Plugin1HostInterfaceImpl implements HostSampleService {
         Version.create(1, 2, 3);
         // check if we can access class from plugin1
         final ClassLoader cl = getClass().getClassLoader();
-        cl.loadClass("de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService");
+        final Class<?> cls = cl.loadClass(
+                "de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService");
+        Require.condition(!cls.getClassLoader().equals(cl),
+                "Class '%s' loaded with wrong classloader", cls.getName());
 
         // check if we can access own resource
         final URL plugin1 = cl.getResource("plugin1.txt");

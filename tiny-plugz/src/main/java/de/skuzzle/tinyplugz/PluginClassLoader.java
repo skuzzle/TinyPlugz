@@ -65,10 +65,13 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     /** Resolver to access classes and resources from other loaded plugins. */
     private final DependencyResolver dependencyResolver;
 
+    private final ThreadLocal<Integer> foreignEnterCount;
+
     private PluginClassLoader(URL pluginUrl, ClassLoader appClassLoader,
             DependencyResolver dependencyResolver) {
         super(new URL[] { pluginUrl }, appClassLoader);
 
+        this.foreignEnterCount = ThreadLocal.withInitial(() -> 0);
         this.dependencyResolver = dependencyResolver;
         this.self = pluginUrl;
         this.basePath = getBasePathOf(pluginUrl);
@@ -120,12 +123,37 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     protected final Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
 
-        final Class<?> c = super.loadClass(name, resolve);
-        final ClassLoader loader = c.getClassLoader() == null
-                ? this
-                : c.getClassLoader();
-        LOG.debug("{} loaded by {}", name, loader);
-        return c;
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                try {
+                    c = getParent().loadClass(name);
+                } catch (ClassNotFoundException ignore) {
+                    // do nothing but continue search
+                }
+            }
+
+            if (c == null) {
+                if (this.foreignEnterCount.get() > 0) {
+                    // load class request from foreign plugin
+                    c = super.findClass(name);
+                } else {
+                    // load class request from own plugin
+                    c = findClass(name);
+                }
+            }
+
+            // INVARIANT: c != null (as by thrown exceptions by both findClass
+            // methods)
+            final ClassLoader loader = c.getClassLoader() == null
+                    ? this
+                    : c.getClassLoader();
+            LOG.debug("{} loaded by {}", name, loader);
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
+        }
     }
 
     private String getBasePathOf(URL url) {
@@ -217,7 +245,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         URL url = null;
         int i = 0;
         do {
-            // crucial to use super method because we only want to search our own jar
+            // crucial to use super method because we only want to search our
+            // own jar
             url = super.findResource("META-INF/" + MANIFEST_NAMES[i]);
             ++i;
         } while (url == null && i < MANIFEST_NAMES.length);
@@ -261,8 +290,24 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             Class<?> result = findLoadedClass(name);
             if (result == null) {
                 try {
-                    result = super.findClass(name);
+                    if (equals(requestor)) {
+                        // request from own plugin
+                        result = super.findClass(name);
+                    } else {
+                        // when searching a class for a foreign plugin, it must
+                        // be returned by 'loadClass' in order for this
+                        // classloader to get registered as the 'defining
+                        // classloader' for that class.
+                        final int count = this.foreignEnterCount.get();
+                        try {
+                            this.foreignEnterCount.set(count + 1);
+                            result = loadClass(name);
+                        } finally {
+                            this.foreignEnterCount.set(count);
+                        }
+                    }
                 } catch (ClassNotFoundException ignore) {
+                    // ignore and continue search
                 }
             }
 
