@@ -15,6 +15,7 @@ import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
      * MANIFEST Class-Path entry. This field will be <code>null</code> if this
      * plugin has no dependencies.
      */
+    @Nullable
     private final URLClassLoader dependencyClassLoader;
 
     /** Resolver to access classes and resources from other loaded plugins. */
@@ -212,12 +214,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     private URL findManifestUrl() {
-        // crucial to use super method because we only want to search our own
-        // jar
         URL url = null;
         int i = 0;
         do {
-            url = findResource("META-INF/" + MANIFEST_NAMES[i]);
+            // crucial to use super method because we only want to search our own jar
+            url = super.findResource("META-INF/" + MANIFEST_NAMES[i]);
             ++i;
         } while (url == null && i < MANIFEST_NAMES.length);
         return url;
