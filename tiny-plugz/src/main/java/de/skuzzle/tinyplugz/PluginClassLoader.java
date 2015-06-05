@@ -216,9 +216,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         final URL[] urls = Arrays.stream(entries)
                 .map(this::resolveRelative)
                 .filter(url -> url != null)
-                .peek(url -> {
-                    LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url);
-                })
+                .peek(url ->
+                    LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url)
+                )
                 .toArray(size -> new URL[size]);
 
         if (urls.length > 0) {
