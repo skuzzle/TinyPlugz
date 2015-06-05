@@ -130,6 +130,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     c = getParent().loadClass(name);
                 } catch (ClassNotFoundException ignore) {
                     // do nothing but continue search
+                    LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
+                            getParent(), getSimpleName(), ignore);
                 }
             }
 
@@ -163,7 +165,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         if (!path.endsWith("/")) {
             // this is an URL to a file
             int i = path.lastIndexOf('/');
-            path = path.substring(0, i + 1); // +1 to include slash
+            // +1 to include slash
+            path = path.substring(0, i + 1);
         }
         return path;
     }
@@ -193,37 +196,46 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             LOG.trace("Plugin '{}' has no manifest", getSimpleName());
             return null;
         }
+        URLClassLoader result = null;
         try (InputStream in = mfURL.openStream()) {
             final Manifest mf = new Manifest(in);
             final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
             if (cp == null) {
                 LOG.trace("Plugin '{}' has no Class-Path attribute", getSimpleName());
-                return null;
+            } else {
+                final String[] entries = WHITESPACES.split(cp);
+                result = fromClassPath(entries);
             }
-            final String[] entries = WHITESPACES.split(cp);
-
-            final URL[] urls = Arrays.stream(entries)
-                    .map(this::resolveRelative)
-                    .filter(url -> url != null)
-                    .toArray(size -> new URL[size]);
-
-            if (urls.length > 0) {
-                return AccessController.doPrivileged(
-                        new PrivilegedAction<URLClassLoader>() {
-
-                            // Dependency classloader gets the same parent as
-                            // the plugin loader -> dependencies can not load
-                            // classes from plugins
-                            @Override
-                            public URLClassLoader run() {
-                                return new DependencyClassLoader(urls,
-                                        PluginClassLoader.this.getParent());
-                            }
-                        });
-            }
-
         } catch (IOException e) {
             LOG.error("Error reading manifest file for {}", this.self, e);
+        }
+        return result;
+    }
+
+    private URLClassLoader fromClassPath(String[] entries) {
+        final URL[] urls = Arrays.stream(entries)
+                .map(this::resolveRelative)
+                .filter(url -> url != null)
+                .peek(url -> {
+                    LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url);
+                })
+                .toArray(size -> new URL[size]);
+
+        if (urls.length > 0) {
+            return AccessController.doPrivileged(
+                    new PrivilegedAction<URLClassLoader>() {
+
+                        // Dependency classloader gets the same parent
+                        // as
+                        // the plugin loader -> dependencies can not
+                        // load
+                        // classes from plugins
+                        @Override
+                        public URLClassLoader run() {
+                            return new DependencyClassLoader(urls,
+                                    PluginClassLoader.this.getParent());
+                        }
+                    });
         }
         return null;
     }
@@ -232,7 +244,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         try {
             final URL url = new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
-            LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url);
             return url;
         } catch (MalformedURLException e) {
             LOG.error("Error constructing relative url with base path '{}' and name '{}'",
@@ -279,6 +290,21 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return ElementIterator.wrap(urls.iterator());
     }
 
+    private Class<?> loadClassForForeignPlugin(String name)
+            throws ClassNotFoundException {
+        // when searching a class for a foreign plugin, it must
+        // be returned by 'loadClass' in order for this
+        // classloader to get registered as the 'defining
+        // classloader' for that class.
+        final int count = this.foreignEnterCount.get();
+        try {
+            this.foreignEnterCount.set(count + 1);
+            return loadClass(name);
+        } finally {
+            this.foreignEnterCount.set(count);
+        }
+    }
+
     @Override
     public final Class<?> findClass(DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
@@ -294,20 +320,12 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                         // request from own plugin
                         result = super.findClass(name);
                     } else {
-                        // when searching a class for a foreign plugin, it must
-                        // be returned by 'loadClass' in order for this
-                        // classloader to get registered as the 'defining
-                        // classloader' for that class.
-                        final int count = this.foreignEnterCount.get();
-                        try {
-                            this.foreignEnterCount.set(count + 1);
-                            result = loadClass(name);
-                        } finally {
-                            this.foreignEnterCount.set(count);
-                        }
+                        result = loadClassForForeignPlugin(name);
                     }
                 } catch (ClassNotFoundException ignore) {
                     // ignore and continue search
+                    LOG.trace("Class '{}' not found in '{}' (request by '{}')", name,
+                            getSimpleName(), nameOf(requestor), ignore);
                 }
             }
 
@@ -318,6 +336,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     try {
                         result = this.dependencyClassLoader.loadClass(name);
                     } catch (ClassNotFoundException ignore) {
+                        // ignore and continue
+                        LOG.trace("Class '{}' not found as dependency of '{}'", name,
+                                getSimpleName(), ignore);
                     }
                 }
 
