@@ -2,6 +2,8 @@ package de.skuzzle.tinyplugz;
 
 import java.util.function.Function;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * Utility class for checking parameters and states.
  *
@@ -22,7 +24,8 @@ public final class Require {
      * @return The object.
      * @throws IllegalArgumentException If {@code obj} is null.
      */
-    public static <T> T nonNull(T obj, String paramName) {
+    @NonNull
+    public static <T> T nonNull(@NonNull T obj, String paramName) {
         if (obj == null) {
             throw new IllegalArgumentException(String.format(
                     "'%s' must not be null", paramName));
