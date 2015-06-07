@@ -150,7 +150,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
             try {
                 if (c == null) {
-                    if (this.foreignEnterCount.get() == this.localEnterCount.get()) {
+                    if (this.foreignEnterCount.get().equals(this.localEnterCount.get())) {
                         // load class request from foreign plugin
                         c = super.findClass(name);
                     } else {
