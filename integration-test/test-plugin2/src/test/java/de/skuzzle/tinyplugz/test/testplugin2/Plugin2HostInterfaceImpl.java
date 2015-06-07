@@ -8,11 +8,21 @@ import de.skuzzle.semantic.Version;
 import de.skuzzle.tinyplugz.HostSampleService;
 import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.test.testplugin1.ClassWithPlugin1Dependency;
 import de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService;
 
-public class Plugin1HostInterfaceImpl implements HostSampleService {
+public class Plugin2HostInterfaceImpl implements HostSampleService {
 
-    public Plugin1HostInterfaceImpl() throws ClassNotFoundException, IOException {
+    static {
+        final ClassLoader cl1 = Plugin1SampleService.class.getClassLoader();
+        final ClassLoader cl2 = Plugin2HostInterfaceImpl.class.getClassLoader();
+        final Class<?> cls = ClassWithPlugin1Dependency.class;
+        Require.condition(cl1 != cl2, "");
+
+        Version.parseVersion("1.2.3");
+    }
+
+    public Plugin2HostInterfaceImpl() throws ClassNotFoundException, IOException {
         // check if we can access dependency
         Version.create(1, 2, 3);
         // check if we can access class from plugin1

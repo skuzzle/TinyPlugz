@@ -75,8 +75,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         this.dependencyResolver = dependencyResolver;
         this.self = pluginUrl;
         this.basePath = getBasePathOf(pluginUrl);
-        this.simpleName = getName(pluginUrl);
-        this.dependencyClassLoader = createDependencyClassLoader();
+
+        final Manifest mf = getManifest();
+        this.simpleName = getName(mf, pluginUrl);
+        this.dependencyClassLoader = createDependencyClassLoader(mf);
     }
 
     static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
@@ -128,6 +130,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             if (c == null) {
                 try {
                     c = getParent().loadClass(name);
+                    if (c.getClassLoader() == null) {
+                        LOG.debug("'{}' loaded by <bootstrap classloader>", name);
+                    } else {
+                        LOG.debug("'{}' loaded by <{}>", name, c.getClassLoader());
+                    }
                 } catch (ClassNotFoundException ignore) {
                     // do nothing but continue search
                     LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
@@ -143,14 +150,13 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     // load class request from own plugin
                     c = findClass(name);
                 }
+
+                final ClassLoader winner = c.getClassLoader() == null
+                        ? this
+                        : c.getClassLoader();
+                LOG.debug("'{}' loaded by <{}>", name, winner);
             }
 
-            // INVARIANT: c != null (as by thrown exceptions by both findClass
-            // methods)
-            final ClassLoader loader = c.getClassLoader() == null
-                    ? this
-                    : c.getClassLoader();
-            LOG.debug("{} loaded by {}", name, loader);
             if (resolve) {
                 resolveClass(c);
             }
@@ -171,7 +177,13 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return path;
     }
 
-    private String getName(URL url) {
+    private String getName(Manifest mf, URL url) {
+        final String mfName = mf.getMainAttributes().getValue(Name.IMPLEMENTATION_TITLE);
+        if (mfName != null) {
+            return mfName;
+        }
+
+        // backup: extract from file name
         String path = url.getPath();
         int j = -1;
         if (path.endsWith("/")) {
@@ -190,40 +202,47 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return path;
     }
 
-    private URLClassLoader createDependencyClassLoader() {
+    private Manifest getManifest() {
         final URL mfURL = findManifestUrl();
-        if (mfURL == null) {
-            LOG.trace("Plugin '{}' has no manifest", getSimpleName());
-            return null;
-        }
-        URLClassLoader result = null;
-        try (InputStream in = mfURL.openStream()) {
-            final Manifest mf = new Manifest(in);
-            final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
-            if (cp == null) {
-                LOG.trace("Plugin '{}' has no Class-Path attribute", getSimpleName());
-            } else {
-                final String[] entries = WHITESPACES.split(cp);
-                result = fromClassPath(entries);
+        Manifest result = new Manifest();
+        if (mfURL != null) {
+            try (InputStream in = mfURL.openStream()) {
+                result = new Manifest(in);
+            } catch (IOException e) {
+                LOG.error("Error reading manifest file for {}", this.self, e);
             }
-        } catch (IOException e) {
-            LOG.error("Error reading manifest file for {}", this.self, e);
+        } else {
+            LOG.trace("Plugin '{}' has no manifest", getSimpleName());
         }
         return result;
     }
 
-    private URLClassLoader fromClassPath(String[] entries) {
+    private DependencyClassLoader createDependencyClassLoader(Manifest mf) {
+        final DependencyClassLoader result;
+        final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
+        if (cp == null) {
+            LOG.trace("Plugin '{}' has no Class-Path attribute", getSimpleName());
+            result = null;
+        } else {
+            final String[] entries = WHITESPACES.split(cp);
+            result = fromClassPath(entries);
+        }
+
+        return result;
+    }
+
+    private DependencyClassLoader fromClassPath(String[] entries) {
         final URL[] urls = Arrays.stream(entries)
                 .map(this::resolveRelative)
                 .filter(url -> url != null)
                 .peek(url ->
-                    LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url)
+                        LOG.debug("Add dependency of <{}>: '{}'", getSimpleName(), url)
                 )
                 .toArray(size -> new URL[size]);
 
         if (urls.length > 0) {
             return AccessController.doPrivileged(
-                    new PrivilegedAction<URLClassLoader>() {
+                    new PrivilegedAction<DependencyClassLoader>() {
 
                         // Dependency classloader gets the same parent
                         // as
@@ -231,7 +250,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                         // load
                         // classes from plugins
                         @Override
-                        public URLClassLoader run() {
+                        public DependencyClassLoader run() {
                             return new DependencyClassLoader(urls,
                                     PluginClassLoader.this.getParent());
                         }
@@ -440,5 +459,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         final String getPluginName() {
             return getSimpleName();
         }
+
+        @Override
+        public String toString() {
+            return "[DependencyClassLoader of " + getSimpleName() + "]";
+        }
+
     }
 }

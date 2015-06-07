@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 Created-By: Apache Maven
 Built-By: Simon
 Build-Jdk: 1.8.0
-Implementation-Title: plugin2
-Class-Path: semantic-version-0.6.0.jar
+Implementation-Title: plugin1
+Class-Path: jeve-0.2.0.jar

@@ -12,8 +12,6 @@ import java.util.Enumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.skuzzle.tinyplugz.PluginClassLoader.DependencyClassLoader;
-
 /**
  * This ClassLoader allows the application to access classes and resources from
  * any loaded plugin.
@@ -55,24 +53,6 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
                 return new DelegateClassLoader(appClassLoader, delegator);
             }
         });
-    }
-
-    @Override
-    protected final Class<?> loadClass(String name, boolean resolve)
-            throws ClassNotFoundException {
-
-        final Class<?> c = super.loadClass(name, resolve);
-        final ClassLoader loader = c.getClassLoader() == null
-                ? this
-                : c.getClassLoader();
-        if (loader instanceof DependencyClassLoader) {
-            LOG.debug("'{}' loaded by '{}' (dependency classloader of '{}')", name,
-                    loader,
-                    ((DependencyClassLoader) loader).getPluginName());
-        } else {
-            LOG.debug("'{}' loaded by '{}'", name, loader);
-        }
-        return c;
     }
 
     @Override
