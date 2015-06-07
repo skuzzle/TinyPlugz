@@ -21,6 +21,7 @@ import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 
 import de.skuzzle.tinyplugz.AbstractTinyPlugzTest;
+import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
 import de.skuzzle.tinyplugz.test.util.MockUtil;
@@ -61,7 +62,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         };
         MockUtil.mockService(Module.class, module);
         final ClassLoader parent = getClass().getClassLoader();
-        this.subject.initialize(Collections.emptySet(), parent, Collections.emptyMap());
+        this.subject.initialize(PluginSource.empty(), parent, Collections.emptyMap());
     }
 
     @Test
@@ -90,7 +91,7 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
         };
         MockUtil.mockService(Module.class, module);
         final ClassLoader mockCL = mock(ClassLoader.class);
-        this.subject.initialize(Collections.emptySet(), mockCL, Collections.emptyMap());
+        this.subject.initialize(PluginSource.empty(), mockCL, Collections.emptyMap());
 
         final Iterator<SampleService> provider = this.subject.getServices(SampleService.class);
         assertSame(impl, provider.next());
