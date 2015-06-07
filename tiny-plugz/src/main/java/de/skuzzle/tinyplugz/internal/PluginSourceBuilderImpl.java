@@ -78,7 +78,8 @@ public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
     }
 
     @Override
-    public final PluginSourceBuilder addAllPluginJars(Path folder, Predicate<Path> filter) {
+    public final PluginSourceBuilder addAllPluginJars(Path folder,
+            Predicate<Path> filter) {
         Require.nonNull(folder, "folder");
         Require.nonNull(filter, "filter");
         Require.condition(Files.isDirectory(folder),
