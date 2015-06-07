@@ -16,7 +16,7 @@ public class Plugin2HostInterfaceImpl implements HostSampleService {
     static {
         final ClassLoader cl1 = Plugin1SampleService.class.getClassLoader();
         final ClassLoader cl2 = Plugin2HostInterfaceImpl.class.getClassLoader();
-        final Class<?> cls = ClassWithPlugin1Dependency.class;
+        final Object obj = ClassWithPlugin1Dependency.provider;
         Require.condition(cl1 != cl2, "");
 
         Version.parseVersion("1.2.3");
