@@ -13,7 +13,7 @@ public class TinyPlugzConfiguratorTest {
         TinyPlugzConfigurator.setup()
                 .withProperty(Options.FORCE_DEFAULT)
                 .withProperty(Options.FORCE_IMPLEMENTATION, "foo.bar")
-                .withPlugins(PluginSource::noPlugins)
+                .withPlugins(PluginSourceBuilder::noPlugins)
                 .deploy();
     }
 }

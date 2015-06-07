@@ -3,14 +3,12 @@ package de.skuzzle.tinyplugz;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +130,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a single property to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
+         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)}
          * .
          *
          * @param name Name of the property.
@@ -153,7 +151,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Makes all {@link System#getProperties() system properties} available
          * in the map passed to
-         * {@link TinyPlugz#initialize(Collection, ClassLoader, Map)}.
+         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)}.
          *
          * @return A fluent builder object for further configuration.
          * @since 0.2.0
@@ -163,7 +161,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a multiple properties to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(java.util.Collection, ClassLoader, Map)}
+         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)}
          * .
          *
          * @param values Mappings to add.
@@ -172,13 +170,22 @@ public final class TinyPlugzConfigurator {
         DefineProperties withProperties(Map<? extends Object, ? extends Object> values);
 
         /**
-         * Provides the {@link PluginSource} via the given consumer for adding
+         * Provides the {@link PluginSourceBuilder} via the given consumer for adding
          * plugins which should be deployed.
          *
          * @param source Consumer for modifying a PluginSourcce.
          * @return A fluent builder object for further configuration.
          */
-        DeployTinyPlugz withPlugins(Consumer<PluginSource> source);
+        DeployTinyPlugz withPlugins(Consumer<PluginSourceBuilder> source);
+
+        /**
+         * Uses the given plugin source.
+         *
+         * @param source The plugins.
+         * @return A fluent builder object for further configuration.
+         * @since 0.2.0
+         */
+        DeployTinyPlugz withPlugins(PluginSource source);
     }
 
     /**
@@ -206,14 +213,13 @@ public final class TinyPlugzConfigurator {
         private static final Object NON_NULL_VALUE = new Object();
 
         private final Map<Object, Object> properties;
-        private final PluginSourceBuilderImpl builder;
         private final ClassLoader parentCl;
+        private PluginSource source;
 
         private Impl(ClassLoader parentCl) {
             Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
             this.parentCl = parentCl;
             this.properties = new HashMap<>();
-            this.builder = new PluginSourceBuilderImpl();
         }
 
         @Override
@@ -268,9 +274,18 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public DeployTinyPlugz withPlugins(Consumer<PluginSource> source) {
+        public DeployTinyPlugz withPlugins(Consumer<PluginSourceBuilder> source) {
             Require.nonNull(source, "source");
-            source.accept(this.builder);
+            final PluginSourceBuilder builder = new PluginSourceBuilderImpl();
+            source.accept(builder);
+            this.source = builder.createSource();
+            return this;
+        }
+
+        @Override
+        public DeployTinyPlugz withPlugins(PluginSource source) {
+            Require.nonNull(source, "source");
+            this.source = source;
             return this;
         }
 
@@ -286,9 +301,7 @@ public final class TinyPlugzConfigurator {
                 LOG.debug("Using '{}' TinyPlugz implementation",
                         impl.getClass().getName());
 
-                final Collection<URL> plugins = this.builder.getPluginUrls()
-                        .collect(Collectors.toList());
-                impl.initialize(plugins, this.parentCl,
+                impl.initialize(this.source, this.parentCl,
                         Collections.unmodifiableMap(this.properties));
                 TinyPlugz.deploy(impl);
                 return impl;

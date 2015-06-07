@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
 import de.skuzzle.tinyplugz.test.util.MockUtil;
@@ -32,7 +32,7 @@ public class TinyPlugzLookUpTest {
     static final class SampleTinyPlugzImpl extends TinyPlugz {
 
         @Override
-        protected void initialize(Collection<URL> urls, ClassLoader parentClassLoader,
+        protected void initialize(PluginSource source, ClassLoader parentClassLoader,
                 Map<Object, Object> properties) throws TinyPlugzException {}
 
         @Override

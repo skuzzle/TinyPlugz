@@ -36,6 +36,14 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
         this.delegator = delegator;
     }
 
+    /**
+     * Creates a new ClassLoader which provides access to all plugins given by
+     * the collection of URLs.
+     *
+     * @param urls The URLs, each pointing to a plugin to be loaded.
+     * @param appClassLoader The ClassLoader to use as parent.
+     * @return The created ClassLoader.
+     */
     public static DelegateClassLoader forPlugins(Collection<URL> urls,
             ClassLoader appClassLoader) {
         Require.nonNull(urls, "urls");

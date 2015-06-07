@@ -13,9 +13,15 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.util.Require;
 
-public final class PluginSourceBuilderImpl implements PluginSource {
+/**
+ * Default implementation for {@link PluginSourceBuilder}.
+ *
+ * @author Simon Taddiken
+ */
+public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
 
     // workaround for slow equals and hashCode method of URL class
     private static final class URLKey {
@@ -43,11 +49,7 @@ public final class PluginSourceBuilderImpl implements PluginSource {
         }
     }
 
-    private final Collection<URLKey> pluginUrls;
-
-    public PluginSourceBuilderImpl() {
-        this.pluginUrls = new HashSet<>();
-    }
+    private final Collection<URLKey> pluginUrls = new HashSet<>();
 
     /**
      * Gets a Stream of URLs for all added plugin locations.
@@ -59,7 +61,7 @@ public final class PluginSourceBuilderImpl implements PluginSource {
     }
 
     @Override
-    public final PluginSource addUnpackedPlugin(Path folder) {
+    public final PluginSourceBuilder addUnpackedPlugin(Path folder) {
         Require.nonNull(folder, "folder");
         Require.condition(Files.isDirectory(folder),
                 "path '%s' does not denote a directory", folder);
@@ -69,14 +71,14 @@ public final class PluginSourceBuilderImpl implements PluginSource {
     }
 
     @Override
-    public final PluginSource addPluginJar(Path jarFile) {
+    public final PluginSourceBuilder addPluginJar(Path jarFile) {
         Require.nonNull(jarFile, "jarFile");
         addPath(jarFile);
         return this;
     }
 
     @Override
-    public final PluginSource addAllPluginJars(Path folder, Predicate<Path> filter) {
+    public final PluginSourceBuilder addAllPluginJars(Path folder, Predicate<Path> filter) {
         Require.nonNull(folder, "folder");
         Require.nonNull(filter, "filter");
         Require.condition(Files.isDirectory(folder),
@@ -102,7 +104,7 @@ public final class PluginSourceBuilderImpl implements PluginSource {
     }
 
     @Override
-    public PluginSource addPlugin(URL url) {
+    public PluginSourceBuilder addPlugin(URL url) {
         Require.nonNull(url, "url");
         this.pluginUrls.add(new URLKey(url));
         return this;
@@ -116,5 +118,17 @@ public final class PluginSourceBuilderImpl implements PluginSource {
             throw new UnsupportedOperationException(String.format(
                     "could not create URL for path '%s'", path), e);
         }
+    }
+
+    @Override
+    public PluginSource createSource() {
+        return new PluginSource() {
+
+            @Override
+            public Stream<URL> getPluginURLs() {
+                return PluginSourceBuilderImpl.this.pluginUrls.stream()
+                        .map(key -> key.getURL());
+            }
+        };
     }
 }

@@ -16,7 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.inject.Injector;
 
-import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
@@ -47,7 +47,7 @@ public class TinyPlugzGuiceServletContextListenerTest {
             @Override
             protected DeployTinyPlugz configure(DefineProperties props,
                     ServletContext context) {
-                return props.withPlugins(PluginSource::noPlugins);
+                return props.withPlugins(PluginSourceBuilder::noPlugins);
             }
         };
     }

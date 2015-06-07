@@ -28,11 +28,11 @@ public abstract class AbstractTinyPlugzTest {
     }
 
     /**
-     * No-Op {@link PluginSource} consumer which does not add any plugins.
+     * No-Op {@link PluginSourceBuilder} consumer which does not add any plugins.
      *
      * @param source The plugin source.
      */
-    protected static void noPlugins(PluginSource source) {}
+    protected static void noPlugins(PluginSourceBuilder source) {}
 
     protected AbstractTinyPlugzTest() {
 
@@ -41,7 +41,7 @@ public abstract class AbstractTinyPlugzTest {
     @Before
     public void setUp() throws TinyPlugzException {
         final ClassLoader parent = getClass().getClassLoader();
-        getSubject().initialize(Collections.emptySet(), parent, Collections.emptyMap());
+        getSubject().initialize(PluginSource.empty(), parent, Collections.emptyMap());
     }
 
     protected abstract TinyPlugz getSubject();

@@ -2,10 +2,10 @@ package de.skuzzle.tinyplugz.internal;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
@@ -20,9 +20,9 @@ final class DefaultTinyPlugz extends TinyPlugz {
     }
 
     @Override
-    protected final void initialize(Collection<URL> urls,
+    protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties) {
-        this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
+        this.pluginClassLoader = createClassLoader(source, parentClassLoader);
     }
 
     @Override

@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,13 +141,13 @@ public abstract class TinyPlugz {
      * This method is called by the TinyPlugz runtime right after instantiation
      * of this instance.
      *
-     * @param urls The urls pointing to loadable plugins.
+     * @param source The plugins to load.
      * @param parentClassLoader The Classloader to use as parent for the plugin
      *            Classloader.
      * @param properties Additional configuration parameters.
      * @throws TinyPlugzException When initializing failed.
      */
-    protected abstract void initialize(Collection<URL> urls,
+    protected abstract void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties);
 
     /**
@@ -242,12 +243,14 @@ public abstract class TinyPlugz {
      * Creates a {@link ClassLoader} which accesses the given collection of
      * plugins.
      *
-     * @param plugins The plugins.
+     * @param source The plugins.
      * @param parent The parent ClassLoader.
      * @return The created ClassLoader.
      */
-    protected final ClassLoader createClassLoader(Collection<URL> plugins,
+    protected final ClassLoader createClassLoader(PluginSource source,
             ClassLoader parent) {
+        final Collection<URL> plugins = source.getPluginURLs()
+                .collect(Collectors.toList());
         return DelegateClassLoader.forPlugins(plugins, parent);
     }
 

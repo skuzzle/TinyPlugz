@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import de.skuzzle.tinyplugz.HostSampleService;
-import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzException;
@@ -42,7 +42,7 @@ public class TinyPlugzIT {
         TinyPlugz.getInstance().undeploy();
     }
 
-    private static void selectPlugins(PluginSource source) {
+    private static void selectPlugins(PluginSourceBuilder source) {
         source.addUnpackedPlugin(plugin("test-plugin1"));
         source.addUnpackedPlugin(plugin("test-plugin2"));
     }

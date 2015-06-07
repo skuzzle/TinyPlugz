@@ -2,7 +2,6 @@ package de.skuzzle.tinyplugz.guice;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,6 +24,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.util.ElementIterator;
@@ -33,7 +33,7 @@ import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * TinyPlugz implementation building upon google Guice and its Multibinding
- * extension. When {@link #initialize(Collection, ClassLoader, Map) initialize}
+ * extension. When {@link #initialize(PluginSource, ClassLoader, Map) initialize}
  * is called, this implementation asks the {@link ServiceLoader} for providers
  * implementing Guice's {@link Module} and then sets up an {@link Injector}
  * using these modules. Thereby modules from the host and from all available
@@ -78,7 +78,7 @@ import de.skuzzle.tinyplugz.util.Require;
  * configured parent injector (see {@link #PARENT_INJECTOR}).</li>
  * </ol>
  * <p>
- * The setup is done in {@link #initialize(Collection, ClassLoader, Map)} and
+ * The setup is done in {@link #initialize(PluginSource, ClassLoader, Map)} and
  * thus during deploy-time of TinyPlugz. Please note that you can not access
  * TinyPlugz using {@link TinyPlugz#getInstance()} within your modules. However
  * you can inject the TinyPlugz instance where ever needed (e.g. as a parameter
@@ -196,11 +196,11 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
-    protected final void initialize(Collection<URL> urls,
+    protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader,
             Map<Object, Object> properties) {
 
-        this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
+        this.pluginClassLoader = createClassLoader(source, parentClassLoader);
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
         final Iterable<Module> pluginModules = getPluginModules();

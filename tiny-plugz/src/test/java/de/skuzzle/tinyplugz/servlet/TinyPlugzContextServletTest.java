@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import de.skuzzle.tinyplugz.Options;
-import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.servlet.TinyPlugzContextServlet;
@@ -49,7 +49,7 @@ public class TinyPlugzContextServletTest {
     public void setUp() throws Exception {
         TinyPlugzConfigurator.setup()
             .withProperty(Options.FORCE_IMPLEMENTATION, this.tinyPlugz)
-            .withPlugins(PluginSource::noPlugins)
+            .withPlugins(PluginSourceBuilder::noPlugins)
             .deploy();
 
         when(this.tinyPlugz.getClassLoader()).thenReturn(this.classLoader);
