@@ -1,21 +1,22 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
-import de.skuzzle.tinyplugz.internal.DefaultServiceLoaderWrapper;
+import de.skuzzle.tinyplugz.AbstractTinyPlugzTest;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ TinyPlugz.class, TinyPlugzConfigurator.class,
         DefaultServiceLoaderWrapper.class })
 public class TinyPlugzTest extends AbstractTinyPlugzTest {
 
-    private final TinyPlugzImpl subject;
+    private final TinyPlugz subject;
 
     public TinyPlugzTest() {
-        this.subject = new TinyPlugzImpl();
+        this.subject = new DefaultTinyPlugz();
     }
 
     @Override

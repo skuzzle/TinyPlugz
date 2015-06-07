@@ -22,8 +22,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
-import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
-import de.skuzzle.tinyplugz.internal.TinyPlugzLookUp;
 import de.skuzzle.tinyplugz.test.util.MockUtil;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 
@@ -81,7 +79,7 @@ public class TinyPlugzLookUpTest {
     public void testDefaultStrategy() throws Exception {
         final TinyPlugz inst = TinyPlugzLookUp.DEFAULT_INSTANCE_STRATEGY
                 .getInstance(null, null);
-        assertTrue(inst instanceof TinyPlugzImpl);
+        assertTrue(inst instanceof DefaultTinyPlugz);
     }
 
     @Test
@@ -143,7 +141,7 @@ public class TinyPlugzLookUpTest {
 
         final TinyPlugz inst = TinyPlugzLookUp.SPI_STRATEGY
                 .getInstance(getClass().getClassLoader(), null);
-        assertTrue(inst instanceof TinyPlugzImpl);
+        assertTrue(inst instanceof DefaultTinyPlugz);
     }
 
     @Test(expected = TinyPlugzException.class)
