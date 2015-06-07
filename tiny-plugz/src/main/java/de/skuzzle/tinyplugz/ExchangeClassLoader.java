@@ -3,6 +3,8 @@ package de.skuzzle.tinyplugz;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.util.Require;
+
 /**
  * Used to define a scoped action during which the context Classloader is
  * exchanged for another one. After the action has been done, the previous

@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import de.skuzzle.tinyplugz.util.Require;
+
 /**
  * Wraps another Servlet and performs every action ({@link #init(ServletConfig)}
  * , {@link #service(ServletRequest, ServletResponse)} and {@link #destroy()})

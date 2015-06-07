@@ -21,6 +21,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
 import de.skuzzle.tinyplugz.test.util.MockUtil;
+import de.skuzzle.tinyplugz.util.ElementIterator;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ServiceLoader.class, MockUtil.class, TinyPlugzLookUp.class })

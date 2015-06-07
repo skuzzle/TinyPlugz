@@ -12,6 +12,9 @@ import java.util.Enumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.util.Require;
+
 /**
  * This ClassLoader allows the application to access classes and resources from
  * any loaded plugin.

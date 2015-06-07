@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.util;
 
 import java.util.Enumeration;
 import java.util.Iterator;

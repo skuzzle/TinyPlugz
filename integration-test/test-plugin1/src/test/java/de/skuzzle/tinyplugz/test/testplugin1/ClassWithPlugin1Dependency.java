@@ -2,8 +2,8 @@ package de.skuzzle.tinyplugz.test.testplugin1;
 
 import de.skuzzle.jeve.EventProvider;
 import de.skuzzle.jeve.stores.DefaultListenerStore;
-import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.util.Require;
 
 public class ClassWithPlugin1Dependency {
 

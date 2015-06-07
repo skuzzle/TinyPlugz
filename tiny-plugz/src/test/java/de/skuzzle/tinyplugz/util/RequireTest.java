@@ -1,10 +1,12 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.util;
 
 import static org.junit.Assert.assertSame;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import de.skuzzle.tinyplugz.util.Require;
 
 public class RequireTest {
 

@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -13,6 +13,8 @@ import java.util.NoSuchElementException;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import de.skuzzle.tinyplugz.util.Iterators;
 
 public class IteratorsTest {
 

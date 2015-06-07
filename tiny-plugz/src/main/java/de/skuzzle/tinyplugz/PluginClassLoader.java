@@ -19,6 +19,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.util.Require;
+
 /**
  * ClassLoader for loading classes from a single plugin, given as URL. This
  * ClassLoader will create a child ClassLoader for accessing dependencies of the

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
+import de.skuzzle.tinyplugz.util.Require;
+
 final class DelegateDependencyResolver implements DependencyResolver {
 
     private final Collection<DependencyResolver> children;

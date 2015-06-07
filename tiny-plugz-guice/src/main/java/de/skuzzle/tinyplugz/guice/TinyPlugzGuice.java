@@ -24,12 +24,12 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
-import de.skuzzle.tinyplugz.ElementIterator;
-import de.skuzzle.tinyplugz.Iterators;
 import de.skuzzle.tinyplugz.Options;
-import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
+import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.util.Iterators;
+import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * TinyPlugz implementation building upon google Guice and its Multibinding

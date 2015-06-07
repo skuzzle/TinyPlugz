@@ -6,6 +6,7 @@ import javax.servlet.ServletContextListener;
 
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
+import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * ServletContextListener for configuring TinyPlugz for a web application. Users

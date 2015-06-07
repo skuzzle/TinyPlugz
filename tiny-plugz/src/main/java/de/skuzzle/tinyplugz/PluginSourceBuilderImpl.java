@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import de.skuzzle.tinyplugz.util.Require;
+
 final class PluginSourceBuilderImpl implements PluginSource {
 
     // workaround for slow equals and hashCode method of URL class

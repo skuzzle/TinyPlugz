@@ -6,10 +6,10 @@ import java.util.Enumeration;
 
 import de.skuzzle.semantic.Version;
 import de.skuzzle.tinyplugz.HostSampleService;
-import de.skuzzle.tinyplugz.Require;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.test.testplugin1.ClassWithPlugin1Dependency;
 import de.skuzzle.tinyplugz.test.testplugin1.Plugin1SampleService;
+import de.skuzzle.tinyplugz.util.Require;
 
 public class Plugin2HostInterfaceImpl implements HostSampleService {
 
