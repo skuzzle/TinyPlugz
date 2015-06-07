@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.servlet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -19,6 +19,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
+import de.skuzzle.tinyplugz.servlet.TinyPlugzContextServlet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TinyPlugzContextServletTest {

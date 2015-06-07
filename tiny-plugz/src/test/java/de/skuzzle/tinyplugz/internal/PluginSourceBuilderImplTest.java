@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,7 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import de.skuzzle.tinyplugz.PluginSourceBuilderImpl;
+import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Files.class, PluginSourceBuilderImpl.class,

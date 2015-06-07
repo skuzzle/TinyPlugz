@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -7,7 +7,9 @@ import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
+import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzException;
 
 /**
  * Internal strategy interface for creating TinyPlugz instances according to
@@ -15,7 +17,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
  *
  * @author Simon Taddiken
  */
-abstract class TinyPlugzLookUp {
+public abstract class TinyPlugzLookUp {
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzLookUp.class);
 
@@ -29,9 +31,9 @@ abstract class TinyPlugzLookUp {
     public static final TinyPlugzLookUp DEFAULT_INSTANCE_STRATEGY =
             new TinyPlugzLookUp() {
                 @Override
-                TinyPlugz getInstance(ClassLoader classLoader,
+                public TinyPlugz getInstance(ClassLoader classLoader,
                         Map<Object, Object> props) {
-                    return new TinyPlugzImpl();
+                    return new DefaultTinyPlugz();
                 }
             };
 
@@ -53,7 +55,8 @@ abstract class TinyPlugzLookUp {
      * @return The created instance.
      * @throws TinyPlugzException If configuring the new instance fails.
      */
-    abstract TinyPlugz getInstance(ClassLoader classLoader, Map<Object, Object> props);
+    public abstract TinyPlugz getInstance(ClassLoader classLoader,
+            Map<Object, Object> props);
 
     private static final class SPITinyPlugzLookup extends TinyPlugzLookUp {
 

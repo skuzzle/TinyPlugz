@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
@@ -16,7 +15,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
+import de.skuzzle.tinyplugz.internal.TinyPlugzLookUp;
 import de.skuzzle.tinyplugz.util.Require;
 
 
@@ -318,71 +318,6 @@ public final class TinyPlugzConfigurator {
                 throw new TinyPlugzException("Can not use 'FORCE_IMPLEMENTATION' " +
                     "together with 'FORCE_DEFAULT'");
             }
-        }
-    }
-
-    /**
-     * Default TinyPlugz implementation which will be used if no other service
-     * provider is found. It relies solely on the defaultXXX methods of the
-     * TinyPlugz class.
-     *
-     * @author Simon Taddiken
-     */
-    static final class TinyPlugzImpl extends TinyPlugz {
-
-        private final ServiceLoaderWrapper serviceLoader;
-        private ClassLoader pluginClassLoader;
-
-        TinyPlugzImpl() {
-            this.serviceLoader = new DefaultServiceLoaderWrapper();
-        }
-
-        @Override
-        protected final void initialize(Collection<URL> urls,
-                ClassLoader parentClassLoader, Map<Object, Object> properties) {
-            this.pluginClassLoader = createClassLoader(urls, parentClassLoader);
-        }
-
-        @Override
-        protected final void dispose() {
-            defaultDispose();
-        }
-
-        @Override
-        public final ClassLoader getClassLoader() {
-            return this.pluginClassLoader;
-        }
-
-        @Override
-        public final void runMain(String className, String[] args) {
-            defaultRunMain(className, args);
-        }
-
-        @Override
-        public final Optional<URL> getResource(String name) {
-            return defaultGetResource(name);
-        }
-
-        @Override
-        public final ElementIterator<URL> getResources(String name) throws IOException {
-            return defaultGetResources(name);
-        }
-
-        @Override
-        public final <T> ElementIterator<T> getServices(Class<T> type) {
-            Require.nonNull(type, "type");
-            return ElementIterator.wrap(
-                    this.serviceLoader.loadService(type, this.pluginClassLoader));
-        }
-
-        @Override
-        public final <T> Optional<T> getFirstService(Class<T> type) {
-            return defaultGetFirstService(type);
-        }
-
-        @Override
-        public final <T> T getService(Class<T> type) {
-            return defaultGetService(type);
         }
     }
 }

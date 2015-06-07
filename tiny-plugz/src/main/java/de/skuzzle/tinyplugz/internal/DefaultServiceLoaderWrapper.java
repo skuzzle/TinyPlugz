@@ -1,7 +1,8 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
+
 
 final class DefaultServiceLoaderWrapper implements ServiceLoaderWrapper {
 

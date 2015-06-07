@@ -5,6 +5,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
+import de.skuzzle.tinyplugz.internal.DefaultServiceLoaderWrapper;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ TinyPlugz.class, TinyPlugzConfigurator.class,

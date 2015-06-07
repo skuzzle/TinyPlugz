@@ -9,8 +9,8 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
+import de.skuzzle.tinyplugz.servlet.TinyPlugzServletContextListener;
 import de.skuzzle.tinyplugz.util.Require;
-import de.skuzzle.tinyplugz.TinyPlugzServletContextListener;
 
 /**
  * ServletContextListener which uses TinyPlugz for configuring the application's

@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -19,7 +19,11 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzException;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.TinyPlugzImpl;
+import de.skuzzle.tinyplugz.internal.TinyPlugzLookUp;
 import de.skuzzle.tinyplugz.test.util.MockUtil;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 

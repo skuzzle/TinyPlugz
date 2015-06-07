@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,9 +12,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.util.Require;
 
-final class PluginSourceBuilderImpl implements PluginSource {
+public final class PluginSourceBuilderImpl implements PluginSource {
 
     // workaround for slow equals and hashCode method of URL class
     private static final class URLKey {
@@ -44,7 +45,7 @@ final class PluginSourceBuilderImpl implements PluginSource {
 
     private final Collection<URLKey> pluginUrls;
 
-    PluginSourceBuilderImpl() {
+    public PluginSourceBuilderImpl() {
         this.pluginUrls = new HashSet<>();
     }
 

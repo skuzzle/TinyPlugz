@@ -3,7 +3,7 @@ package de.skuzzle.tinyplugz.guice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import de.skuzzle.tinyplugz.ExchangeClassLoader;
+import de.skuzzle.tinyplugz.util.ExchangeClassLoader;
 
 final class TinyPlugzContextInterceptor implements MethodInterceptor {
 

@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.internal;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import de.skuzzle.tinyplugz.util.Require;
  *
  * @author Simon Taddiken
  */
-final class DelegateClassLoader extends ClassLoader implements Closeable {
+public final class DelegateClassLoader extends ClassLoader implements Closeable {
 
     static {
         registerAsParallelCapable();
@@ -36,7 +36,7 @@ final class DelegateClassLoader extends ClassLoader implements Closeable {
         this.delegator = delegator;
     }
 
-    static DelegateClassLoader forPlugins(Collection<URL> urls,
+    public static DelegateClassLoader forPlugins(Collection<URL> urls,
             ClassLoader appClassLoader) {
         Require.nonNull(urls, "urls");
         Require.nonNull(appClassLoader, "parent");

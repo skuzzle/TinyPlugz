@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.servlet;
 
 import java.io.IOException;
 
@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.util.ExchangeClassLoader;
 import de.skuzzle.tinyplugz.util.Require;
 
 /**

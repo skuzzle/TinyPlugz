@@ -17,6 +17,7 @@ import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 

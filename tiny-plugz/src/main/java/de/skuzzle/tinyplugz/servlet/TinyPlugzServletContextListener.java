@@ -1,9 +1,11 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.servlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 import de.skuzzle.tinyplugz.util.Require;

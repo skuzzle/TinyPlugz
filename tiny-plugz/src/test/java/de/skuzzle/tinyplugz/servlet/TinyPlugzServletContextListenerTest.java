@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.servlet;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.when;
@@ -17,8 +17,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
+import de.skuzzle.tinyplugz.servlet.TinyPlugzServletContextListener;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ TinyPlugzServletContextListener.class })
