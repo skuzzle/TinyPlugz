@@ -1,4 +1,4 @@
-package de.skuzzle.tinyplugz;
+package de.skuzzle.tinyplugz.util;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
@@ -13,10 +13,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginSource;
+import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.util.ExchangeClassLoader;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TinyPlugzFilterTest {
+public class ExchangeClassLoaderTest {
 
     @Mock
     private TinyPlugz tinyPlugz;
@@ -44,7 +48,7 @@ public class TinyPlugzFilterTest {
         final ClassLoader realClassLoader = Thread.currentThread().getContextClassLoader();
 
         try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
-            assertSame(TinyPlugzFilterTest.this.classLoaderMock,
+            assertSame(ExchangeClassLoaderTest.this.classLoaderMock,
                     Thread.currentThread().getContextClassLoader());
         }
 
