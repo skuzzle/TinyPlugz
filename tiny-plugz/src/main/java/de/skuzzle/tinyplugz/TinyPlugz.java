@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,8 +250,9 @@ public abstract class TinyPlugz {
      */
     protected final ClassLoader createClassLoader(PluginSource source,
             ClassLoader parent) {
-        final Collection<URL> plugins = source.getPluginURLs()
-                .collect(Collectors.toList());
+        final Stream<URL> urls = Require.nonNullResult(source.getPluginURLs(),
+                "pluginSource.getPluginURLs");
+        final Collection<URL> plugins = urls.collect(Collectors.toList());
         return DelegateClassLoader.forPlugins(plugins, parent);
     }
 

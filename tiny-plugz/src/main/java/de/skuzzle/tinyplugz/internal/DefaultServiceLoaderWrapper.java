@@ -1,14 +1,17 @@
 package de.skuzzle.tinyplugz.internal;
 
-import java.util.Iterator;
 import java.util.ServiceLoader;
+
+import de.skuzzle.tinyplugz.util.ElementIterator;
 
 
 final class DefaultServiceLoaderWrapper implements ServiceLoaderWrapper {
 
     @Override
-    public <T> Iterator<T> loadService(Class<T> providerClass, ClassLoader classLoader) {
-        return ServiceLoader.load(providerClass, classLoader).iterator();
+    public <T> ElementIterator<T> loadService(Class<T> providerClass,
+            ClassLoader classLoader) {
+        return ElementIterator.wrap(
+                ServiceLoader.load(providerClass, classLoader).iterator());
     }
 
 }

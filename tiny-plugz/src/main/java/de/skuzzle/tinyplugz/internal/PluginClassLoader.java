@@ -68,6 +68,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     /** Resolver to access classes and resources from other loaded plugins. */
     private final DependencyResolver dependencyResolver;
 
+    /** The contents of the manifest.mf of this plugin. */
+    private final Manifest manifest;
+
     private final ThreadLocal<Integer> foreignEnterCount;
     private final ThreadLocal<Integer> localEnterCount;
 
@@ -81,9 +84,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         this.self = pluginUrl;
         this.basePath = getBasePathOf(pluginUrl);
 
-        final Manifest mf = getManifest();
-        this.simpleName = getName(mf, pluginUrl);
-        this.dependencyClassLoader = createDependencyClassLoader(mf);
+        this.manifest = readManifest();
+        this.simpleName = getName(this.manifest, pluginUrl);
+        this.dependencyClassLoader = createDependencyClassLoader(this.manifest);
     }
 
     static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
@@ -101,6 +104,15 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             }
 
         });
+    }
+
+    /**
+     * Gets the contents of this plugin's manifest file.
+     *
+     * @return The manifest.
+     */
+    public Manifest getManifest() {
+        return this.manifest;
     }
 
     /**
@@ -215,7 +227,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         return path;
     }
 
-    private Manifest getManifest() {
+    private Manifest readManifest() {
         final URL mfURL = findManifestUrl();
         Manifest result = new Manifest();
         if (mfURL != null) {

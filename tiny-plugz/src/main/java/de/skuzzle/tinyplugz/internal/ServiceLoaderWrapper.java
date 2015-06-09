@@ -2,6 +2,8 @@ package de.skuzzle.tinyplugz.internal;
 
 import java.util.Iterator;
 
+import de.skuzzle.tinyplugz.util.ElementIterator;
+
 /**
  * Internal strategy interface for abstracting loading of services.
  *
@@ -18,5 +20,5 @@ interface ServiceLoaderWrapper {
      * @param classLoader The Classloader to use.
      * @return An iterator of implementors.
      */
-    <T> Iterator<T> loadService(Class<T> providerClass, ClassLoader classLoader);
+    <T> ElementIterator<T> loadService(Class<T> providerClass, ClassLoader classLoader);
 }

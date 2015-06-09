@@ -53,8 +53,7 @@ final class DefaultTinyPlugz extends TinyPlugz {
     @Override
     public final <T> ElementIterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
-        return ElementIterator.wrap(
-                this.serviceLoader.loadService(type, this.pluginClassLoader));
+        return this.serviceLoader.loadService(type, this.pluginClassLoader);
     }
 
     @Override
