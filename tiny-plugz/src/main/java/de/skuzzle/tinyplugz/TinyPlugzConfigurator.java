@@ -294,7 +294,7 @@ public final class TinyPlugzConfigurator {
         public TinyPlugz deploy() {
             validateProperties();
             synchronized (DEPLOY_LOCK) {
-                // additional synchronized check is required
+                // additional synchronized check is required here
                 Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
 
                 final TinyPlugz impl = getInstance();
