@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -304,7 +305,23 @@ public final class TinyPlugzConfigurator {
                 impl.initialize(this.source, this.parentCl,
                         Collections.unmodifiableMap(this.properties));
                 TinyPlugz.deploy(impl);
+                notifyListeners(impl);
                 return impl;
+            }
+        }
+
+        private void notifyListeners(TinyPlugz tinyPlugz) {
+            final Iterator<DeployListener> listeners = tinyPlugz.findDeployListeners(
+                    tinyPlugz.getClassLoader());
+            Require.nonNullResult(listeners, "TinyPlugz.findDeployListeners");
+            while (listeners.hasNext()) {
+                final DeployListener next = Require.nonNullResult(listeners.next(),
+                        "Iterator.next");
+                try {
+                    next.initialized(tinyPlugz, this.properties);
+                } catch (RuntimeException e) {
+                    LOG.error("DeployListener '{}' threw exception", next, e);
+                }
             }
         }
 

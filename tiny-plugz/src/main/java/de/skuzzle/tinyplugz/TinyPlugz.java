@@ -23,7 +23,6 @@ import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 
-
 /**
  * TinyPlugz provides simple runtime classpath extension capabilities by
  * providing a high level API around the java {@link ServiceLoader} and
@@ -150,6 +149,18 @@ public abstract class TinyPlugz {
      */
     protected abstract void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties);
+
+    /**
+     * Looks up {@link DeployListener} to be notified right after this instance
+     * has been deployed by the {@link TinyPlugzConfigurator} class. The listeners are
+     * retrieved querying Java's {@link ServiceLoader} for the service
+     * {@code DeployListener.class}.
+     *
+     * @param pluginClassLoader The ClassLoader for accessing services from plugins.
+     * @return An iterator of available DeployListeners.
+     */
+    protected abstract Iterator<DeployListener> findDeployListeners(
+            ClassLoader pluginClassLoader);
 
     /**
      * Called upon {@link #undeploy() undeploy} to release resources.

@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -17,12 +18,11 @@ import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
-import de.skuzzle.tinyplugz.util.ExchangeClassLoader;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExchangeClassLoaderTest {
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private TinyPlugz tinyPlugz;
     @Mock
     private ClassLoader classLoaderMock;

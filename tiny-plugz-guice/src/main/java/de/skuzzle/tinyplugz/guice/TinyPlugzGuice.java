@@ -23,6 +23,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
+import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
@@ -33,15 +34,16 @@ import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * TinyPlugz implementation building upon google Guice and its Multibinding
- * extension. When {@link #initialize(PluginSource, ClassLoader, Map) initialize}
- * is called, this implementation asks the {@link ServiceLoader} for providers
- * implementing Guice's {@link Module} and then sets up an {@link Injector}
- * using these modules. Thereby modules from the host and from all available
- * plugins are collected automatically. The {@link #getService(Class)},
- * {@link #getFirstService(Class)} and {@link #getServices(Class)} methods are
- * implemented using the created Injector. Thus the services returned by this
- * TinyPlugz implementation support the full range of Guice's dependency
- * injection features including scopes, constructor injection and so on.
+ * extension. When {@link #initialize(PluginSource, ClassLoader, Map)
+ * initialize} is called, this implementation asks the {@link ServiceLoader} for
+ * providers implementing Guice's {@link Module} and then sets up an
+ * {@link Injector} using these modules. Thereby modules from the host and from
+ * all available plugins are collected automatically. The
+ * {@link #getService(Class)}, {@link #getFirstService(Class)} and
+ * {@link #getServices(Class)} methods are implemented using the created
+ * Injector. Thus the services returned by this TinyPlugz implementation support
+ * the full range of Guice's dependency injection features including scopes,
+ * constructor injection and so on.
  *
  * <h2>Usage</h2>
  * <p>
@@ -109,9 +111,9 @@ import de.skuzzle.tinyplugz.util.Require;
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
  * </ol>
- * Additionally, a method interceptor is bound which allows methods annotated with
- * {@link TinyPlugzContext} to be executed with exchanging the thread's context
- * Classloader for the TinyPlugz Classloader.
+ * Additionally, a method interceptor is bound which allows methods annotated
+ * with {@link TinyPlugzContext} to be executed with exchanging the thread's
+ * context Classloader for the TinyPlugz Classloader.
  *
  * <h2>Automatically Create Services</h2>
  * <p>
@@ -137,9 +139,9 @@ import de.skuzzle.tinyplugz.util.Require;
  * }
  * </pre>
  *
- * The compiler will automatically create the file {@code
- * META-INF/services/com.google.inject.Module} and list the full qualified names
- * of all your modules annotated like the above.
+ * The compiler will automatically create the file
+ * {@code META-INF/services/com.google.inject.Module} and list the full
+ * qualified names of all your modules annotated like the above.
  *
  * @author Simon Taddiken
  */
@@ -208,6 +210,34 @@ public final class TinyPlugzGuice extends TinyPlugz {
         final Iterable<Module> modules = Iterators.composite(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation post-processes each listener before returning it to
+     * inject its fields using this instance's injector.
+     */
+    @Override
+    protected final Iterator<DeployListener> findDeployListeners(
+            ClassLoader pluginClassLoader) {
+        final ServiceLoader<DeployListener> loader = ServiceLoader.load(
+                DeployListener.class, pluginClassLoader);
+        final Iterator<DeployListener> listeners = loader.iterator();
+        return new Iterator<DeployListener>() {
+
+            @Override
+            public boolean hasNext() {
+                return listeners.hasNext();
+            }
+
+            @Override
+            public DeployListener next() {
+                final DeployListener listener = listeners.next();
+                TinyPlugzGuice.this.injector.injectMembers(listener);
+                return listener;
+            }
+        };
     }
 
     @Override

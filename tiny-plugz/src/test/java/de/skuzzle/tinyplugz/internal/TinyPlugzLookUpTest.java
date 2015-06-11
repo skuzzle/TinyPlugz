@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
@@ -34,6 +36,12 @@ public class TinyPlugzLookUpTest {
         @Override
         protected void initialize(PluginSource source, ClassLoader parentClassLoader,
                 Map<Object, Object> properties) throws TinyPlugzException {}
+
+        @Override
+        protected Iterator<DeployListener> findDeployListeners(
+                ClassLoader pluginClassLoader) {
+            return null;
+        }
 
         @Override
         public void runMain(String className, String[] args) throws TinyPlugzException {}
