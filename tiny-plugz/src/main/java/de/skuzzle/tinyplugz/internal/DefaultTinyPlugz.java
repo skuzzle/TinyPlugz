@@ -37,16 +37,20 @@ final class DefaultTinyPlugz extends TinyPlugz {
 
     @Override
     public final void runMain(String className, String[] args) {
+        Require.nonNull(className, "className");
+        Require.nonNull(args, "args");
         defaultRunMain(className, args);
     }
 
     @Override
     public final Optional<URL> getResource(String name) {
+        Require.nonNull(name, "name");
         return defaultGetResource(name);
     }
 
     @Override
     public final ElementIterator<URL> getResources(String name) throws IOException {
+        Require.nonNull(name, "name");
         return defaultGetResources(name);
     }
 
@@ -58,11 +62,13 @@ final class DefaultTinyPlugz extends TinyPlugz {
 
     @Override
     public final <T> Optional<T> getFirstService(Class<T> type) {
+        Require.nonNull(type, "type");
         return defaultGetFirstService(type);
     }
 
     @Override
     public final <T> T getService(Class<T> type) {
+        Require.nonNull(type, "type");
         return defaultGetService(type);
     }
 }

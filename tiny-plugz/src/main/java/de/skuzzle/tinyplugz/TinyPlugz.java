@@ -203,9 +203,6 @@ public abstract class TinyPlugz {
      *             method fails.
      */
     protected final void defaultRunMain(String className, String[] args) {
-        Require.nonNull(className, "className");
-        Require.nonNull(args, "args");
-
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
             final Class<?> cls = getClassLoader().loadClass(className);
@@ -273,7 +270,6 @@ public abstract class TinyPlugz {
      * @return An url to the resource.
      */
     protected final Optional<URL> defaultGetResource(String name) {
-        Require.nonNull(name, "name");
         return Optional.ofNullable(getClassLoader().getResource(name));
     }
 
@@ -298,7 +294,6 @@ public abstract class TinyPlugz {
      */
     protected final ElementIterator<URL> defaultGetResources(String name)
             throws IOException {
-        Require.nonNull(name, "name");
         final Enumeration<URL> e = getClassLoader().getResources(name);
         return ElementIterator.wrap(e);
     }
