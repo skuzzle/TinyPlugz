@@ -81,4 +81,11 @@ public class ExchangeClassLoaderTest {
             Thread.currentThread().setContextClassLoader(someClassLoader);
         }
     }
+
+    @Test
+    public void testDiscoverNoExchange() throws Exception {
+        try (ExchangeClassLoader exchange = ExchangeClassLoader.forTinyPlugz()) {
+            exchange.setFailOnChange(true);
+        }
+    }
 }
