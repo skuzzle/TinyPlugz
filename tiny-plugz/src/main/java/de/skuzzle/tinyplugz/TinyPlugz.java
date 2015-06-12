@@ -240,6 +240,13 @@ public abstract class TinyPlugz {
     }
 
     /**
+     * Gets a collection of information about all loaded plugins.
+     *
+     * @return A read-only collection of plugin information.
+     */
+    public abstract Collection<PluginInformation> getPluginInformation();
+
+    /**
      * Returns the ClassLoader which can access classes from loaded plugins.
      * This gives the caller low level access to the plugins. If possible, use
      * the abstractions of the {@link TinyPlugz} class instead.
@@ -256,7 +263,7 @@ public abstract class TinyPlugz {
      * @param parent The parent ClassLoader.
      * @return The created ClassLoader.
      */
-    protected final ClassLoader createClassLoader(PluginSource source,
+    protected final DelegateClassLoader createClassLoader(PluginSource source,
             ClassLoader parent) {
         final Stream<URL> urls = Require.nonNullResult(source.getPluginURLs(),
                 "pluginSource.getPluginURLs");

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
@@ -40,6 +42,11 @@ public class TinyPlugzLookUpTest {
         @Override
         protected Iterator<DeployListener> findDeployListeners(
                 ClassLoader pluginClassLoader) {
+            return null;
+        }
+
+        @Override
+        public Collection<PluginInformation> getPluginInformation() {
             return null;
         }
 

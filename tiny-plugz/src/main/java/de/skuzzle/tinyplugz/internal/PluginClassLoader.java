@@ -19,6 +19,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 
@@ -107,21 +108,28 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     /**
-     * Gets the contents of this plugin's manifest file.
+     * Gets information about the plugin loaded by the ClassLoader.
      *
-     * @return The manifest.
+     * @return THe plugin information.
      */
-    public Manifest getManifest() {
-        return this.manifest;
-    }
+    public final PluginInformation getPluginInformation() {
+        return new PluginInformation() {
 
-    /**
-     * Gets the URL pointing to the location from which this plugin was loaded.
-     *
-     * @return The plugin's location.
-     */
-    public final URL getPluginURL() {
-        return this.self;
+            @Override
+            public Manifest getManifest() {
+                return PluginClassLoader.this.manifest;
+            }
+
+            @Override
+            public URL getLocation() {
+                return PluginClassLoader.this.self;
+            }
+
+            @Override
+            public ClassLoader getClassLoader() {
+                return PluginClassLoader.this;
+            }
+        };
     }
 
     /**

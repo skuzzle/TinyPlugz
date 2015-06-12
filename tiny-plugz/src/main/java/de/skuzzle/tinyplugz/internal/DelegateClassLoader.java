@@ -7,11 +7,13 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 
@@ -30,10 +32,13 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
     private static final Logger LOG = LoggerFactory.getLogger(DelegateClassLoader.class);
 
     private final DependencyResolver delegator;
+    private final Collection<PluginInformation> information;
 
-    private DelegateClassLoader(ClassLoader parent, DependencyResolver delegator) {
+    DelegateClassLoader(ClassLoader parent, DependencyResolver delegator,
+            Collection<PluginInformation> information) {
         super(parent);
         this.delegator = delegator;
+        this.information = Collections.unmodifiableCollection(information);
     }
 
     /**
@@ -50,24 +55,37 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
         Require.nonNull(appClassLoader, "parent");
 
         final Collection<DependencyResolver> plugins = new ArrayList<>(urls.size());
+        final Collection<PluginInformation> information = new ArrayList<>(urls.size());
         final DependencyResolver delegator = new DelegateDependencyResolver(plugins);
         for (final URL pluginURL : urls) {
             // Plugin classloaders must be created with the application
             // classloader
             // as parent
-            plugins.add(PluginClassLoader.create(pluginURL, appClassLoader, delegator));
+            final PluginClassLoader pluginCl = PluginClassLoader.create(pluginURL,
+                    appClassLoader, delegator);
+            plugins.add(pluginCl);
+            information.add(pluginCl.getPluginInformation());
         }
         return AccessController.doPrivileged(new PrivilegedAction<DelegateClassLoader>() {
 
             @Override
             public DelegateClassLoader run() {
-                return new DelegateClassLoader(appClassLoader, delegator);
+                return new DelegateClassLoader(appClassLoader, delegator, information);
             }
         });
     }
 
+    /**
+     * Information about all loaded plugins.
+     *
+     * @return A read-only collection of plugin information.
+     */
+    public final Collection<PluginInformation> getInformation() {
+        return this.information;
+    }
+
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
+    protected final Class<?> findClass(String name) throws ClassNotFoundException {
         final Class<?> cls = this.delegator.findClass(null, name);
         if (cls == null) {
             throw new ClassNotFoundException(name);
@@ -95,7 +113,7 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
     }
 
     @Override
-    public String toString() {
-        return "DelegateClassLoader";
+    public final String toString() {
+        return "TinyPlugz DelegateClassLoader";
     }
 }

@@ -2,11 +2,13 @@ package de.skuzzle.tinyplugz.internal;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
 import de.skuzzle.tinyplugz.DeployListener;
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.util.ElementIterator;
@@ -15,7 +17,7 @@ import de.skuzzle.tinyplugz.util.Require;
 final class DefaultTinyPlugz extends TinyPlugz {
 
     private final ServiceLoaderWrapper serviceLoader;
-    private ClassLoader pluginClassLoader;
+    private DelegateClassLoader pluginClassLoader;
 
     DefaultTinyPlugz() {
         this.serviceLoader = new DefaultServiceLoaderWrapper();
@@ -25,6 +27,11 @@ final class DefaultTinyPlugz extends TinyPlugz {
     protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties) {
         this.pluginClassLoader = createClassLoader(source, parentClassLoader);
+    }
+
+    @Override
+    public final Collection<PluginInformation> getPluginInformation() {
+        return this.pluginClassLoader.getInformation();
     }
 
     @Override

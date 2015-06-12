@@ -2,6 +2,7 @@ package de.skuzzle.tinyplugz.guice;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,9 +26,11 @@ import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
+import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Iterators;
 import de.skuzzle.tinyplugz.util.Require;
@@ -183,7 +186,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzGuice.class);
 
     private Injector injector;
-    private ClassLoader pluginClassLoader;
+    private DelegateClassLoader pluginClassLoader;
 
     /**
      * Public no argument constructor for java's ServiceLoader. For proper
@@ -210,6 +213,11 @@ public final class TinyPlugzGuice extends TinyPlugz {
         final Iterable<Module> modules = Iterators.composite(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
+    }
+
+    @Override
+    public final Collection<PluginInformation> getPluginInformation() {
+        return this.pluginClassLoader.getInformation();
     }
 
     /**
