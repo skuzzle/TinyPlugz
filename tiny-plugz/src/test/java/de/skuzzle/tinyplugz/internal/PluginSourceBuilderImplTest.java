@@ -19,8 +19,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Files.class, PluginSourceBuilderImpl.class,
         PluginSourceBuilderImplTest.class })
@@ -55,7 +53,7 @@ public class PluginSourceBuilderImplTest {
         PowerMockito.mockStatic(Files.class);
         PowerMockito.when(Files.isDirectory(path)).thenReturn(true);
         assertNotNull(this.subject.addUnpackedPlugin(path));
-        assertEquals(1, this.subject.getPluginUrls().count());
+        assertEquals(1, this.subject.createSource().getPluginURLs().count());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -67,7 +65,7 @@ public class PluginSourceBuilderImplTest {
     public void testAddPluginJar() throws Exception {
         final Path path = mockPath();
         assertNotNull(this.subject.addPluginJar(path));
-        assertEquals(1, this.subject.getPluginUrls().count());
+        assertEquals(1, this.subject.createSource().getPluginURLs().count());
     }
 
     @Test(expected = IllegalArgumentException.class)
