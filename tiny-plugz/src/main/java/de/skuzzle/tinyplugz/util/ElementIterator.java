@@ -3,6 +3,8 @@ package de.skuzzle.tinyplugz.util;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * Interface which combines {@link Iterator} and {@link Enumeration}.
  *
@@ -19,7 +21,8 @@ public interface ElementIterator<T> extends Iterator<T>, Enumeration<T> {
      * @param iterator The iterator to wrap.
      * @return The wrapped iterator.
      */
-    public static <T> ElementIterator<T> wrap(Iterator<T> iterator) {
+    @NonNull
+    public static <T> ElementIterator<T> wrap(@NonNull Iterator<T> iterator) {
         Require.nonNull(iterator, "iterator");
         if (iterator instanceof ElementIterator<?>) {
             return (ElementIterator<T>) iterator;
@@ -45,6 +48,7 @@ public interface ElementIterator<T> extends Iterator<T>, Enumeration<T> {
      * @param enumeration The iterator to wrap.
      * @return The wrapped iterator.
      */
+    @NonNull
     public static <T> ElementIterator<T> wrap(Enumeration<T> enumeration) {
         Require.nonNull(enumeration, "enumeration");
         if (enumeration instanceof ElementIterator<?>) {

@@ -32,6 +32,16 @@ public interface PluginSourceBuilder {
     }
 
     /**
+     * Includes all plugins from the given source in the source which is to be
+     * built by this builder. The URLS from the source's stream will be eagerly
+     * processed by this method.
+     *
+     * @param source The source to include.
+     * @return This instance.
+     */
+    PluginSourceBuilder include(PluginSource source);
+
+    /**
      * Adds a plugin which is located by the given URL.
      *
      * @param url The URL of the plugin.

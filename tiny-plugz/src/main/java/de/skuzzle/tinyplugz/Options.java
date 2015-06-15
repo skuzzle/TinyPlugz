@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
+
 /**
  * Holds constants which can be passed to the {@link TinyPlugzConfigurator}
  * before deployment.
@@ -12,6 +14,21 @@ import java.util.Set;
  * @author Simon Taddiken
  */
 public final class Options {
+
+    /**
+     * Configuration property for specifying an additional folder to load
+     * plugins from. The path must be given as a String. If the value for this
+     * property is a relative path, it is interpreted relative to current
+     * execution directory.
+     * <p>
+     * TinyPlugz will include all jar files contained in the provided folder as
+     * plugins, adding them to the user specified plugins (given by either
+     * {@link DefineProperties#withPlugins(java.util.function.Consumer)} or
+     * {@link DefineProperties#withPlugins(PluginSource)}).
+     *
+     * @since 0.2.0
+     */
+    public static final String PLUGIN_FOLDER = "tinyplugz.pluginFolder";
 
     /**
      * Configuration property for explicitly specifying the {@link TinyPlugz}

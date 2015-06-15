@@ -1,5 +1,6 @@
 package de.skuzzle.tinyplugz.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public final class ExchangeClassLoader implements AutoCloseable {
      * @return The {@link ExchangeClassLoader} object to use in a try-resources
      *         block.
      */
-    public static ExchangeClassLoader with(ClassLoader classLoader) {
+    public static ExchangeClassLoader with(@NonNull ClassLoader classLoader) {
         Require.nonNull(classLoader, "classLoader");
         return new ExchangeClassLoader(classLoader);
     }

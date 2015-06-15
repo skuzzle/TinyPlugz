@@ -3,6 +3,8 @@ package de.skuzzle.tinyplugz;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,13 +13,13 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
 import de.skuzzle.tinyplugz.internal.TinyPlugzLookUp;
 import de.skuzzle.tinyplugz.util.Require;
-
 
 /**
  * Provides a fluent builder API for configuring an application wide single
@@ -28,6 +30,7 @@ import de.skuzzle.tinyplugz.util.Require;
 public final class TinyPlugzConfigurator {
 
     /** Default resource name of tiny plugz class path configuration */
+    @NonNull
     public static final String TINY_PLUGZ_CONFIG = "tiny-plugz.properties";
 
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
@@ -43,12 +46,11 @@ public final class TinyPlugzConfigurator {
      * Sets up a {@link TinyPlugz} instance which uses the current thread's
      * context Classloader as parent Classloader.
      * <p>
-     * This Classloader will be used for several purposes.
-     * First, it serves as parent Classloader for the plugin Classloader which
-     * is to be created to access classes and configurations from plugins.
-     * Second, the Classloader will be used to look up the TinyPlugz service
-     * provider either using the {@link ServiceLoader} or by looking up an
-     * explicit implementation class.
+     * This Classloader will be used for several purposes. First, it serves as
+     * parent Classloader for the plugin Classloader which is to be created to
+     * access classes and configurations from plugins. Second, the Classloader
+     * will be used to look up the TinyPlugz service provider either using the
+     * {@link ServiceLoader} or by looking up an explicit implementation class.
      * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
@@ -56,19 +58,20 @@ public final class TinyPlugzConfigurator {
      * @return Fluent builder object for further configuration.
      */
     public static DefineProperties setup() {
-        return new Impl(Thread.currentThread().getContextClassLoader());
+        final ClassLoader cl = Require.nonNull(
+                Thread.currentThread().getContextClassLoader());
+        return new Impl(cl);
     }
 
     /**
      * Sets up a {@link TinyPlugz} instance which uses the given Classloader as
      * parent Classloader.
      * <p>
-     * This Classloader will be used for several purposes.
-     * First, it serves as parent Classloader for the plugin Classloader which
-     * is to be created to access classes and configurations from plugins.
-     * Second, the Classloader will be used to look up the TinyPlugz service
-     * provider either using the {@link ServiceLoader} or by looking up an
-     * explicit implementation class.
+     * This Classloader will be used for several purposes. First, it serves as
+     * parent Classloader for the plugin Classloader which is to be created to
+     * access classes and configurations from plugins. Second, the Classloader
+     * will be used to look up the TinyPlugz service provider either using the
+     * {@link ServiceLoader} or by looking up an explicit implementation class.
      * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
@@ -77,20 +80,18 @@ public final class TinyPlugzConfigurator {
      * @return Fluent builder object for further configuration.
      */
     public static DefineProperties setupUsingParent(ClassLoader parentClassLoader) {
-        Require.nonNull(parentClassLoader, "parentClassLoader");
-        return new Impl(parentClassLoader);
+        return new Impl(Require.nonNull(parentClassLoader, "parentClassLoader"));
     }
 
     /**
      * Sets up a {@link TinyPlugz} instance which uses the Classloader which
      * loaded the {@link TinyPlugzConfigurator} class as parent Classloader.
      * <p>
-     * This Classloader will be used for several purposes.
-     * First, it serves as parent Classloader for the plugin Classloader which
-     * is to be created to access classes and configurations from plugins.
-     * Second, the Classloader will be used to look up the TinyPlugz service
-     * provider either using the {@link ServiceLoader} or by looking up an
-     * explicit implementation class.
+     * This Classloader will be used for several purposes. First, it serves as
+     * parent Classloader for the plugin Classloader which is to be created to
+     * access classes and configurations from plugins. Second, the Classloader
+     * will be used to look up the TinyPlugz service provider either using the
+     * {@link ServiceLoader} or by looking up an explicit implementation class.
      * <p>
      * This method will fail immediately if TinyPlugz already has been
      * configured.
@@ -98,7 +99,9 @@ public final class TinyPlugzConfigurator {
      * @return Fluent builder object for further configuration.
      */
     public static DefineProperties setupUsingApplicationClassLoader() {
-        return new Impl(TinyPlugzConfigurator.class.getClassLoader());
+        final ClassLoader cl = Require.nonNull(
+                TinyPlugzConfigurator.class.getClassLoader());
+        return new Impl(cl);
     }
 
     /**
@@ -107,7 +110,7 @@ public final class TinyPlugzConfigurator {
      *
      * @author Simon Taddiken
      */
-    public static interface DefineProperties {
+    public static interface DefineProperties extends DeployTinyPlugz {
 
         /**
          * Adds properties read from {@value #TINY_PLUGZ_CONFIG} file from the
@@ -131,8 +134,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a single property to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)}
-         * .
+         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)} .
          *
          * @param name Name of the property.
          * @param value Value of the property.
@@ -162,8 +164,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Specifies a multiple properties to insert into the map which will be
          * passed to
-         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)}
-         * .
+         * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)} .
          *
          * @param values Mappings to add.
          * @return A fluent builder object for further configuration.
@@ -171,8 +172,8 @@ public final class TinyPlugzConfigurator {
         DefineProperties withProperties(Map<? extends Object, ? extends Object> values);
 
         /**
-         * Provides the {@link PluginSourceBuilder} via the given consumer for adding
-         * plugins which should be deployed.
+         * Provides the {@link PluginSourceBuilder} via the given consumer for
+         * adding plugins which should be deployed.
          *
          * @param source Consumer for modifying a PluginSourcce.
          * @return A fluent builder object for further configuration.
@@ -187,6 +188,18 @@ public final class TinyPlugzConfigurator {
          * @since 0.2.0
          */
         DeployTinyPlugz withPlugins(PluginSource source);
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * When calling this method, only plugins from the folder specified
+         * using the option {@link Options#PLUGIN_FOLDER} will be loaded. If
+         * this option is not specified, TinyPlugz will be deployed without any
+         * plugins.
+         * @since 0.2.0
+         */
+        @Override
+        public @NonNull TinyPlugz deploy();
     }
 
     /**
@@ -211,13 +224,16 @@ public final class TinyPlugzConfigurator {
 
     private static final class Impl implements DefineProperties, DeployTinyPlugz {
 
+        @NonNull
         private static final Object NON_NULL_VALUE = new Object();
 
+        @NonNull
         private final Map<Object, Object> properties;
+        @NonNull
         private final ClassLoader parentCl;
         private PluginSource source;
 
-        private Impl(ClassLoader parentCl) {
+        private Impl(@NonNull ClassLoader parentCl) {
             Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
             this.parentCl = parentCl;
             this.properties = new HashMap<>();
@@ -232,8 +248,8 @@ public final class TinyPlugzConfigurator {
         public DefineProperties withClasspathProperties(String resourceName) {
             Require.nonNull(resourceName, "resourceName");
 
-            final URL url = this.parentCl.getResource(resourceName);
-            Require.state(url != null, "Resource <%s> not found", resourceName);
+            final URL url = Require.nonNullResult(this.parentCl.getResource(resourceName),
+                    "ClassLoader.getResource");
 
             final Properties props = new Properties();
 
@@ -263,7 +279,7 @@ public final class TinyPlugzConfigurator {
 
         @Override
         public DefineProperties withSystemProperties() {
-            return withProperties(System.getProperties());
+            return withProperties(Require.nonNull(System.getProperties()));
         }
 
         @Override
@@ -291,7 +307,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public TinyPlugz deploy() {
+        public @NonNull TinyPlugz deploy() {
             validateProperties();
             synchronized (DEPLOY_LOCK) {
                 // additional synchronized check is required here
@@ -302,12 +318,34 @@ public final class TinyPlugzConfigurator {
                 LOG.debug("Using '{}' TinyPlugz implementation",
                         impl.getClass().getName());
 
-                impl.initialize(this.source, this.parentCl,
+                final PluginSource pluginSource = buildSource();
+                impl.initialize(pluginSource, this.parentCl,
                         Collections.unmodifiableMap(this.properties));
                 TinyPlugz.deploy(impl);
                 notifyListeners(impl);
                 return impl;
             }
+        }
+
+        private PluginSource buildSource() {
+            final PluginSourceBuilder builder = new PluginSourceBuilderImpl();
+            if (this.properties.get(Options.PLUGIN_FOLDER) != null) {
+                final String p = this.properties.get(Options.PLUGIN_FOLDER).toString();
+                final Path path = Paths.get(p);
+
+                if (this.source == null) {
+                    builder.addAllPluginJars(path);
+                } else {
+                    builder.include(this.source).addAllPluginJars(path);
+                }
+            } else if (this.source == null) {
+                // plugins given neither by PlginSourceBuilder nor by property
+                LOG.warn("TinyPlugz has been configured without specifying any plugin " +
+                    "sources");
+            } else {
+                builder.include(this.source);
+            }
+            return builder.createSource();
         }
 
         private void notifyListeners(TinyPlugz tinyPlugz) {

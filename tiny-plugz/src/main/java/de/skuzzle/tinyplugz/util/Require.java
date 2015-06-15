@@ -3,6 +3,7 @@ package de.skuzzle.tinyplugz.util;
 import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Utility class for checking parameters and states.
@@ -18,17 +19,32 @@ public final class Require {
     /**
      * Asserts that the given object is non null.
      *
-     * @param <T> Type of the obejct to test.
+     * @param <T> Type of the object to test.
      * @param obj The object to test.
      * @param paramName The name of the parameter (used for exception message).
      * @return The object.
      * @throws IllegalArgumentException If {@code obj} is null.
      */
     @NonNull
-    public static <T> T nonNull(@NonNull T obj, String paramName) {
+    public static <T> T nonNull(@Nullable T obj, String paramName) {
         if (obj == null) {
             throw new IllegalArgumentException(String.format(
                     "'%s' must not be null", paramName));
+        }
+        return obj;
+    }
+
+    /**
+     * Asserts that the given object is non null.
+     *
+     * @param <T> Type of the object to test.
+     * @param obj The object to test.
+     * @return The object.
+     */
+    @NonNull
+    public static <T> T nonNull(@Nullable T obj) {
+        if (obj == null) {
+           throw new IllegalArgumentException("encountered illegal null value");
         }
         return obj;
     }
@@ -90,7 +106,7 @@ public final class Require {
      * @throws IllegalStateException If {@code result} is <code>null</code>.
      */
     @NonNull
-    public static <T> T nonNullResult(@NonNull T result, String call) {
+    public static <T> T nonNullResult(@Nullable T result, String call) {
         if (result == null) {
             // XXX: IllegalStateException might not be the best choice
             throw new IllegalStateException(String.format(

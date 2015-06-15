@@ -5,11 +5,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Utility class for dealing with Iterators.
  *
  * @author Simon Taddiken
  */
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE})
 public final class Iterators {
 
     private Iterators() {
@@ -23,6 +27,7 @@ public final class Iterators {
      * @return Iterator returning the single element.
      */
     public static <T> Iterator<T> singleIterator(T t) {
+        Require.nonNull(t, "t");
         return Collections.singleton(t).iterator();
     }
 

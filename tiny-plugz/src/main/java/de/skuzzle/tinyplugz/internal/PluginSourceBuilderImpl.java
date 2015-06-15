@@ -12,6 +12,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.util.Require;
@@ -43,7 +45,7 @@ public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             return obj == this || obj instanceof URLKey &&
                 this.key.equals(((URLKey) obj).key);
         }
@@ -51,17 +53,15 @@ public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
 
     private final Collection<URLKey> pluginUrls = new HashSet<>();
 
-    /**
-     * Gets a Stream of URLs for all added plugin locations.
-     *
-     * @return The configured plugins.
-     */
-    public final Stream<URL> getPluginUrls() {
-        return this.pluginUrls.stream().map(URLKey::getURL);
+    @Override
+    public PluginSourceBuilder include(@Nullable PluginSource source) {
+        final PluginSource pluginSource = Require.nonNull(source, "source");
+        pluginSource.getPluginURLs().forEach(this::addPlugin);
+        return this;
     }
 
     @Override
-    public final PluginSourceBuilder addUnpackedPlugin(Path folder) {
+    public final PluginSourceBuilder addUnpackedPlugin(@Nullable Path folder) {
         Require.nonNull(folder, "folder");
         Require.condition(Files.isDirectory(folder),
                 "path '%s' does not denote a directory", folder);
@@ -71,15 +71,15 @@ public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
     }
 
     @Override
-    public final PluginSourceBuilder addPluginJar(Path jarFile) {
+    public final PluginSourceBuilder addPluginJar(@Nullable Path jarFile) {
         Require.nonNull(jarFile, "jarFile");
         addPath(jarFile);
         return this;
     }
 
     @Override
-    public final PluginSourceBuilder addAllPluginJars(Path folder,
-            Predicate<Path> filter) {
+    public final PluginSourceBuilder addAllPluginJars(@Nullable Path folder,
+            @Nullable Predicate<Path> filter) {
         Require.nonNull(folder, "folder");
         Require.nonNull(filter, "filter");
         Require.condition(Files.isDirectory(folder),
@@ -105,7 +105,7 @@ public final class PluginSourceBuilderImpl implements PluginSourceBuilder {
     }
 
     @Override
-    public PluginSourceBuilder addPlugin(URL url) {
+    public PluginSourceBuilder addPlugin(@Nullable URL url) {
         Require.nonNull(url, "url");
         this.pluginUrls.add(new URLKey(url));
         return this;
