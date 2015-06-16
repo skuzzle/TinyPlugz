@@ -30,9 +30,6 @@
     <modules>
         <module>tiny-plugz</module>
         <module>tiny-plugz-guice</module>
-        <module>integration-test/test-plugin1</module>
-        <module>integration-test/test-plugin2</module>
-        <module>integration-test/test-runner</module>
     </modules>
 
     <dependencyManagement>
