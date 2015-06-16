@@ -276,9 +276,15 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 final Collection<PluginInformation> infos =
                         TinyPlugzGuice.this.pluginClassLoader.getInformation();
                 for (final PluginInformation info : infos) {
-                    final String name = info.getManifest().getMainAttributes().getValue(Name.IMPLEMENTATION_TITLE);
+                    final String name = info
+                            .getManifest()
+                            .getMainAttributes()
+                            .getValue(Name.IMPLEMENTATION_TITLE);
+
                     if (name != null) {
-                        bind(PluginInformation.class).annotatedWith(Names.named(name)).toInstance(info);
+                        bind(PluginInformation.class)
+                            .annotatedWith(Names.named(name))
+                            .toInstance(info);
                     }
                 }
             }
@@ -308,7 +314,21 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 .load(Module.class, this.pluginClassLoader)
                 .iterator();
 
-        return Iterators.iterableOf(moduleIt);
+        // Wrap modules for logging purposes
+        final Iterator<Module> wrapped = new Iterator<Module>() {
+
+            @Override
+            public boolean hasNext() {
+                return moduleIt.hasNext();
+            }
+
+            @Override
+            public Module next() {
+                final Module module = moduleIt.next();
+                LOG.debug("Installing module '{}'", next());
+                return module;
+            }};
+        return Iterators.iterableOf(wrapped);
     }
 
     @Override
