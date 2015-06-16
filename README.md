@@ -9,12 +9,14 @@ applications. It is built around the facilities provided by the java
 `ServiceLoader` and `URLClassLoader` classes.
 
 Features:
-* Access code from jar files dynamically during runtime of your application
+* Access code from jar files dynamically during runtime of your application.
+* Own ClassLoader implementation, allowing plugins to specify dependencies of their own.
 * Plugins provide features for other plugins or for the host application
   using java service provider interfaces (SPI).
 * Deploy time extensibility: The whole TinyPlugz implementation can be
   exchanged during deploy time of your application to provide additional
   features.
+* Web application integration.
 
 ## Maven Dependency
 TinyPlugz is available through maven central:
@@ -84,12 +86,51 @@ a plugin system with supporting dependency injection: while deploying, it pulls
 implementations of Guice modules from plugins using the `ServiceLoader` and
 then implements the TinyPlugz interface using a Guice Injector.
 
-## FAQ
 
-F: Why is the test-coverage so low?
+# Internals
 
-A: Because of the many static methods involved in the TinyPlugz implementation
-  (like `ServiceLoader.load`, `Files.isDirectory` or `Guice.createInjector`)
-  TinyPlugz uses _PowerMockito_ for testing. Sadly, PowerMockito does not play
-  very well together with the _jacoco_ code coverage plugin, which is the reason
-  that the reported coverage is much lower than the actual coverage.
+## Classloading
+
+There are several ClassLoaders involved with plugin loading which follow a strict 
+delegation model to separate dependencies of different plugins.
+
+* The `PluginClassLoader` extends java's own `URLClassLoader` and is responsible for 
+  loading classes from a single plugin.
+* The PluginClassLoader has a child URLClassLoader which is responsible for loading 
+  dependent classes that are specified in the plugin's manifest file.
+* The `DelegateClassLoader` connects all plugins with each other and thus allows plugins 
+  and the application to access classes from other plugins. This is the loader returned by
+  `TinyPlugz.getPluginClassLoader()`.
+  
+The parent ClassLoader of every ClassLoader mentioned above is the application's 
+ClassLoader that has been specified in the setup phase (`TinyPlugzConfigurator.setup...`).
+This delegation model has the following implications:
+
+1. Classes of plugins can access classes of other plugins.
+2. Classes of plugins can access classes of the application.
+3. Classes of plugins can access classes of their own dependencies.
+4. Classes of plugin dependencies can access classes of the application.
+5. Classes of plugin dependencies can access classes of other dependencies of 
+   the same plugin.
+6. Classes of the application can access classes of plugins using the TinyPlugz 
+   interface.
+   
+To seperate the concerns of single plugins, here is a list of relations that are not 
+possible:
+
+1. Classes of plugins can not access classes of other plugin's dependencies.
+2. Classes of the application can not access classes from any plugin's dependencies.
+3. Classes of a plugin's dependency can not access classes of that, or any other plugin.
+
+
+# Plugin HowTo
+A TinyPlugz plugin is no more than a single jar file containing custom code to extend your 
+application. In order for your application to be extandable, it should specify interfaces 
+that can be implemented as services by your plugins.
+
+## Plugin Manifest
+For full compatibility your plugins should specify a `META-INF/MANIFEST.mf` file, which at 
+least contains the `Implementation-Title` attribute to specify the plugin's name. 
+Additionally, if it specifies the `Class-Path` attribute, then the given entries are 
+treated as relative paths to the plugin's own location and classes from the listed 
+dependencies will be visible to the plugin during execution.
