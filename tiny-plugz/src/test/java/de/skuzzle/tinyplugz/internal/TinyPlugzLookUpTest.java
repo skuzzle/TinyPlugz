@@ -35,6 +35,8 @@ public class TinyPlugzLookUpTest {
 
     static final class SampleTinyPlugzImpl extends TinyPlugz {
 
+        public SampleTinyPlugzImpl() {}
+
         @Override
         protected void initialize(PluginSource source, ClassLoader parentClassLoader,
                 Map<Object, Object> properties) throws TinyPlugzException {}
