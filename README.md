@@ -24,7 +24,7 @@ TinyPlugz is available through maven central:
 <dependency>
     <groupId>de.skuzzle.tinyplugz</groupId>
     <artifactId>tiny-plugz</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -33,14 +33,14 @@ TinyPlugz guice extension:
 <dependency>
     <groupId>de.skuzzle.tinyplugz</groupId>
     <artifactId>tiny-plugz-guice</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 ## Documentation
 JavaDoc is available here:
-* [TinyPlugz](http://www.skuzzle.de/tiny-plugz/0.1.0/main/doc)
-* [TinyPlugzGuice](http://www.skuzzle.de/tiny-plugz/0.1.0/guice/doc)
+* [TinyPlugz](http://www.skuzzle.de/tiny-plugz/0.2.0/main/doc)
+* [TinyPlugzGuice](http://www.skuzzle.de/tiny-plugz/0.2.0/guice/doc)
 
 ## Usage
 Before TinyPlugz can be used, it needs to be configured using the
