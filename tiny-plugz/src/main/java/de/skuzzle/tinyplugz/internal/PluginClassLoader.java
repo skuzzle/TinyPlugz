@@ -357,7 +357,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     @Override
-    public final Class<?> findClass(DependencyResolver requestor, String name) {
+    public final Class<?> findClass(@Nullable DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
 
         LOG.debug("{}.findClassFor(<{}>, '{}')", getSimpleName(), nameOf(requestor),

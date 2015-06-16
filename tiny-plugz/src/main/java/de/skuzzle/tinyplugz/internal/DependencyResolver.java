@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -33,8 +32,7 @@ interface DependencyResolver extends Closeable {
      * @return The class or <code>null</code> if none was found.
      */
     @Nullable
-    public Class<?> findClass(@Nullable DependencyResolver requestor,
-            @NonNull String name);
+    public Class<?> findClass(DependencyResolver requestor, String name);
 
     /**
      * Searches for a resource with given name.
@@ -46,7 +44,7 @@ interface DependencyResolver extends Closeable {
      * @return An URL to the resource or <code>null</code> if none was found.
      */
     @Nullable
-    public URL findResource(@Nullable DependencyResolver requestor, @NonNull String name);
+    public URL findResource(DependencyResolver requestor, String name);
 
     /**
      * Searches for all resources with given name and collects them in the given
@@ -60,7 +58,7 @@ interface DependencyResolver extends Closeable {
      * @throws IOException If an IO error occurs.
      */
     public void findResources(
-            @Nullable DependencyResolver requestor,
-            @NonNull String name,
-            @NonNull Collection<URL> target) throws IOException;
+            DependencyResolver requestor,
+            String name,
+            Collection<URL> target) throws IOException;
 }

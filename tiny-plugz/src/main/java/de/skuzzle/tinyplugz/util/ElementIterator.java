@@ -22,7 +22,7 @@ public interface ElementIterator<T> extends Iterator<T>, Enumeration<T> {
      * @return The wrapped iterator.
      */
     @NonNull
-    public static <T> ElementIterator<T> wrap(@NonNull Iterator<T> iterator) {
+    public static <T> ElementIterator<T> wrap(Iterator<T> iterator) {
         Require.nonNull(iterator, "iterator");
         if (iterator instanceof ElementIterator<?>) {
             return (ElementIterator<T>) iterator;

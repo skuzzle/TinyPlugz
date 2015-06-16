@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.jar.Attributes.Name;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,17 +107,22 @@ import de.skuzzle.tinyplugz.util.Require;
  *
  * <h2>Default Bindings</h2>
  * <p>
- * When creating the Injector, two default bindings are added:
+ * When creating the Injector, several default bindings are added:
  * <ol>
  * <li>A binding of {@code TinyPlugz.class} to the current
  * {@link TinyPlugzGuice} instance. So you do not need to access it using
  * {@link #getInstance()}.</li>
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
- * </ol>
- * Additionally, a method interceptor is bound which allows methods annotated
+ * <li>For each loaded plugin, its {@link PluginInformation} instance is
+ * bound with the plugin's implementation title. That title is obtained from the
+ * plugin's manifest. If the manifest of a plugin specifies no title, it is left
+ * out.</li>
+ * <li>A method interceptor is bound which allows methods annotated
  * with {@link TinyPlugzContext} to be executed with exchanging the thread's
  * context Classloader for the TinyPlugz Classloader.
+ * </li>
+ * </ol>
  *
  * <h2>Automatically Create Services</h2>
  * <p>
@@ -266,6 +272,15 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 bind(TinyPlugz.class).toInstance(TinyPlugzGuice.this);
                 bind(ClassLoader.class).annotatedWith(Names.named(PLUGIN_CLASSLOADER))
                         .toInstance(TinyPlugzGuice.this.pluginClassLoader);
+
+                final Collection<PluginInformation> infos =
+                        TinyPlugzGuice.this.pluginClassLoader.getInformation();
+                for (final PluginInformation info : infos) {
+                    final String name = info.getManifest().getMainAttributes().getValue(Name.IMPLEMENTATION_TITLE);
+                    if (name != null) {
+                        bind(PluginInformation.class).annotatedWith(Names.named(name)).toInstance(info);
+                    }
+                }
             }
         };
         return Collections.singleton(internal);
@@ -345,12 +360,12 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
             result = bindings.iterator();
         } catch (ConfigurationException e) {
-            LOG.warn("Could not get set bindings for '{}'", type.getName(), e);
+            LOG.debug("Could not get set bindings for '{}'", type.getName(), e);
             try {
                 final T single = this.injector.getInstance(type);
                 result = Iterators.singleIterator(single);
             } catch (ConfigurationException e1) {
-                LOG.warn("Could not get instance for '{}'", type.getName(), e1);
+                LOG.debug("Could not get instance for '{}'", type.getName(), e1);
                 result = Collections.emptyIterator();
             }
         }

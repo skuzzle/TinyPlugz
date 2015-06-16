@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import de.skuzzle.tinyplugz.util.Require;
 
 final class DelegateDependencyResolver implements DependencyResolver {
@@ -15,7 +17,7 @@ final class DelegateDependencyResolver implements DependencyResolver {
     }
 
     @Override
-    public final Class<?> findClass(DependencyResolver requestor, String name) {
+    public final Class<?> findClass(@Nullable DependencyResolver requestor, String name) {
         Require.nonNull(name, "name");
 
         for (final DependencyResolver pluginCl : this.children) {

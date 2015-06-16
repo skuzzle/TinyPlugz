@@ -81,8 +81,11 @@ public final class Options {
     public static final Set<String> ALL_DEFAULT_OPTIONS;
     static {
         ALL_DEFAULT_OPTIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-                FORCE_IMPLEMENTATION, FORCE_DEFAULT, FAIL_ON_MULTIPLE_PROVIDERS
-                )));
+                FORCE_IMPLEMENTATION,
+                FORCE_DEFAULT,
+                FAIL_ON_MULTIPLE_PROVIDERS,
+                PLUGIN_FOLDER
+        )));
     }
 
     private Options() {
