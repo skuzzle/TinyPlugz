@@ -87,9 +87,9 @@ implementations of Guice modules from plugins using the `ServiceLoader` and
 then implements the TinyPlugz interface using a Guice Injector.
 
 
-# Internals
+## Internals
 
-## Classloading
+### Classloading
 
 There are several ClassLoaders involved with plugin loading which follow a strict 
 delegation model to separate dependencies of different plugins.
@@ -123,12 +123,12 @@ possible:
 3. Classes of a plugin's dependency can not access classes of that, or any other plugin.
 
 
-# Plugin HowTo
+## Plugin HowTo
 A TinyPlugz plugin is no more than a single jar file containing custom code to extend your 
 application. In order for your application to be extandable, it should specify interfaces 
 that can be implemented as services by your plugins.
 
-## Plugin Manifest
+### Plugin Manifest
 For full compatibility your plugins should specify a `META-INF/MANIFEST.mf` file, which at 
 least contains the `Implementation-Title` attribute to specify the plugin's name. 
 Additionally, if it specifies the `Class-Path` attribute, then the given entries are 
