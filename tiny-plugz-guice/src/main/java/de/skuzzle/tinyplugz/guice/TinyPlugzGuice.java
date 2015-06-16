@@ -325,7 +325,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
             @Override
             public Module next() {
                 final Module module = moduleIt.next();
-                LOG.debug("Installing module '{}'", next());
+                LOG.debug("Installing module '{}'", module);
                 return module;
             }};
         return Iterators.iterableOf(wrapped);
