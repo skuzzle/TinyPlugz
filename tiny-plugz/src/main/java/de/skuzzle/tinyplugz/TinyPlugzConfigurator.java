@@ -199,7 +199,7 @@ public final class TinyPlugzConfigurator {
          * @since 0.2.0
          */
         @Override
-        public @NonNull TinyPlugz deploy();
+        public TinyPlugz deploy();
     }
 
     /**
@@ -307,7 +307,7 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
-        public @NonNull TinyPlugz deploy() {
+        public TinyPlugz deploy() {
             validateProperties();
             synchronized (DEPLOY_LOCK) {
                 // additional synchronized check is required here
