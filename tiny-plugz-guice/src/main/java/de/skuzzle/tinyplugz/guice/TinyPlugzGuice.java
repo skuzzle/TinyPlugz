@@ -34,6 +34,7 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Iterators;
+import de.skuzzle.tinyplugz.util.ReflectionUtil;
 import de.skuzzle.tinyplugz.util.Require;
 
 /**
@@ -114,14 +115,13 @@ import de.skuzzle.tinyplugz.util.Require;
  * {@link #getInstance()}.</li>
  * <li>A binding of {@code ClassLoader.class} named {@value #PLUGIN_CLASSLOADER}
  * to the current plugin Classloader.</li>
- * <li>For each loaded plugin, its {@link PluginInformation} instance is
- * bound with the plugin's implementation title. That title is obtained from the
+ * <li>For each loaded plugin, its {@link PluginInformation} instance is bound
+ * with the plugin's implementation title. That title is obtained from the
  * plugin's manifest. If the manifest of a plugin specifies no title, it is left
  * out.</li>
- * <li>A method interceptor is bound which allows methods annotated
- * with {@link TinyPlugzContext} to be executed with exchanging the thread's
- * context Classloader for the TinyPlugz Classloader.
- * </li>
+ * <li>A method interceptor is bound which allows methods annotated with
+ * {@link TinyPlugzContext} to be executed with exchanging the thread's context
+ * Classloader for the TinyPlugz Classloader.</li>
  * </ol>
  *
  * <h2>Automatically Create Services</h2>
@@ -177,7 +177,19 @@ public final class TinyPlugzGuice extends TinyPlugz {
     /**
      * Property for specifying a custom {@link InjectorFactory} which will be
      * used to create the Injector. If this property is present, the property
-     * {@link #PARENT_INJECTOR} will be ignored.
+     * {@link #PARENT_INJECTOR} will be ignored. This property supports three
+     * different kind of values:
+     * <ul>
+     * <li>If the value is an instance of {@link InjectorFactory}, then just
+     * that instance will be used.</li>
+     * <li>If the value is an instance of {@link Class}, then the class's
+     * default constructor will be invoked to create an {@link InjectorFactory}
+     * instance.</li>
+     * <li>If the value is a String, that String will be interpreted as a full
+     * qualified name to class which implements {@link InjectorFactory}. The
+     * class will be loaded by the parent Classloader and constructed via its
+     * default constructor.</li>
+     * </ul>
      */
     public static final String INJECTOR_FACTORY = "tinyplugz.guice.injectorFactory";
 
@@ -283,8 +295,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
                     if (name != null) {
                         bind(PluginInformation.class)
-                            .annotatedWith(Names.named(name))
-                            .toInstance(info);
+                                .annotatedWith(Names.named(name))
+                                .toInstance(info);
                     }
                 }
             }
@@ -293,10 +305,18 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     private Injector createInjector(Map<Object, Object> props, Iterable<Module> modules) {
-        InjectorFactory factory = (InjectorFactory) props.get(INJECTOR_FACTORY);
-        if (factory == null) {
+        final Object value = props.get(INJECTOR_FACTORY);
+        final InjectorFactory factory;
+        if (value == null) {
             factory = new DefaultInjectorFactory();
+        } else {
+            // explicitly use application class loader because there is
+            // (probably?) no need to configure the factory from plugins
+            final ClassLoader applicationCl = this.pluginClassLoader.getParent();
+            factory = ReflectionUtil.createInstance(value, InjectorFactory.class,
+                    applicationCl);
         }
+
         final Injector guiceInjector = factory.createInjector(modules, props);
         Require.nonNullResult(guiceInjector, "InjectorFactory.createInjector");
         return guiceInjector;
@@ -327,7 +347,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
                 final Module module = moduleIt.next();
                 LOG.debug("Installing module '{}'", module);
                 return module;
-            }};
+            }
+        };
         return Iterators.iterableOf(wrapped);
     }
 
