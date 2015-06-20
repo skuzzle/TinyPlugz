@@ -15,6 +15,9 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
  */
 public final class Options {
 
+
+    public static final String SERVICE_LOADER_WRAPPER = "tinyplugz.serviceLoaderWrapper";
+
     /**
      * Configuration property for specifying an additional folder to load
      * plugins from. The path must be given as a String. If the value for this

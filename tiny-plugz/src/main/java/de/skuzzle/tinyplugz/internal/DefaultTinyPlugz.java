@@ -8,25 +8,31 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.skuzzle.tinyplugz.DeployListener;
+import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.util.ReflectionUtil;
 import de.skuzzle.tinyplugz.util.Require;
 
 final class DefaultTinyPlugz extends TinyPlugz {
 
-    private final ServiceLoaderWrapper serviceLoader;
+    private ServiceLoaderWrapper serviceLoader;
     private DelegateClassLoader pluginClassLoader;
-
-    DefaultTinyPlugz() {
-        this.serviceLoader = ServiceLoaderWrapper.getDefault();
-    }
 
     @Override
     protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties) {
         this.pluginClassLoader = createClassLoader(source, parentClassLoader);
+        if (properties.containsKey(Options.SERVICE_LOADER_WRAPPER)) {
+            this.serviceLoader = ReflectionUtil.createInstance(
+                    properties.get(Options.SERVICE_LOADER_WRAPPER),
+                    ServiceLoaderWrapper.class,
+                    parentClassLoader);
+        } else {
+            this.serviceLoader = ServiceLoaderWrapper.getDefault();
+        }
     }
 
     @Override
@@ -72,6 +78,7 @@ final class DefaultTinyPlugz extends TinyPlugz {
     @Override
     public final <T> ElementIterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
+        Require.state(this.serviceLoader != null,"not initialized");
         return this.serviceLoader.loadService(type, this.pluginClassLoader);
     }
 

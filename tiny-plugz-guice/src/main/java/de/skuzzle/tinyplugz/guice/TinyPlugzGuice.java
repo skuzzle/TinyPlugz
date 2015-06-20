@@ -27,6 +27,7 @@ import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
+import de.skuzzle.tinyplugz.internal.ServiceLoaderWrapper;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Iterators;
 import de.skuzzle.tinyplugz.util.ReflectionUtil;
@@ -210,6 +211,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     private Injector injector;
     private GetServicesStrategy getServiceStrategy;
     private DelegateClassLoader pluginClassLoader;
+    private ServiceLoaderWrapper serviceLoader;
 
     /**
      * Public no argument constructor for java's ServiceLoader. For proper
@@ -232,6 +234,15 @@ public final class TinyPlugzGuice extends TinyPlugz {
         LOG.debug("Service strategy: {}", this.getServiceStrategy);
 
         this.pluginClassLoader = createClassLoader(source, parentClassLoader);
+
+        if (properties.containsKey(Options.SERVICE_LOADER_WRAPPER)) {
+            this.serviceLoader = ReflectionUtil.createInstance(
+                    properties.get(Options.SERVICE_LOADER_WRAPPER),
+                    ServiceLoaderWrapper.class,
+                    parentClassLoader);
+        } else {
+            this.serviceLoader = ServiceLoaderWrapper.getDefault();
+        }
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
         final Iterable<Module> pluginModules = getPluginModules();
@@ -262,9 +273,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
     @Override
     protected final Iterator<DeployListener> findDeployListeners(
             ClassLoader pluginClassLoader) {
-        final ServiceLoader<DeployListener> loader = ServiceLoader.load(
+        final Iterator<DeployListener> listeners = this.serviceLoader.loadService(
                 DeployListener.class, pluginClassLoader);
-        final Iterator<DeployListener> listeners = loader.iterator();
+
         return new Iterator<DeployListener>() {
 
             @Override
@@ -345,9 +356,8 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
     private Iterable<Module> getPluginModules() {
         // using the plugin class loader allows to access Services from plugins
-        final Iterator<Module> moduleIt = ServiceLoader
-                .load(Module.class, this.pluginClassLoader)
-                .iterator();
+        final Iterator<Module> moduleIt = this.serviceLoader.loadService(
+                Module.class, this.pluginClassLoader);
 
         // Wrap modules for logging purposes
         final Iterator<Module> wrapped = new Iterator<Module>() {

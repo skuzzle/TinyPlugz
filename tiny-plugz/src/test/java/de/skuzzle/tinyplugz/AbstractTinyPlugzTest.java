@@ -4,24 +4,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import de.skuzzle.tinyplugz.test.util.MockUtil;
+import de.skuzzle.tinyplugz.internal.ServiceLoaderWrapper;
+import de.skuzzle.tinyplugz.util.ElementIterator;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ServiceLoader.class, MockUtil.class })
+@RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractTinyPlugzTest {
 
     public static interface SampleService {
@@ -35,14 +37,25 @@ public abstract class AbstractTinyPlugzTest {
      */
     protected static void noPlugins(PluginSourceBuilder source) {}
 
+    protected ServiceLoaderWrapper mockServiceLoader;
+
     protected AbstractTinyPlugzTest() {
 
     }
 
     @Before
     public void setUp() throws TinyPlugzException {
+        this.mockServiceLoader = mock(ServiceLoaderWrapper.class);
+        ServiceLoaderWrapper.setSource(this.mockServiceLoader);
+
         final ClassLoader parent = getClass().getClassLoader();
         getSubject().initialize(PluginSource.empty(), parent, getInitParams());
+    }
+
+
+    @After
+    public void tearDown() {
+        ServiceLoaderWrapper.restore();
     }
 
     protected Map<Object, Object> getInitParams() {
@@ -56,7 +69,10 @@ public abstract class AbstractTinyPlugzTest {
 
     @SafeVarargs
     protected final <T> void defaultMockService(Class<T> service, T... impls) {
-        MockUtil.mockService(service, impls);
+        final Iterator<T> it = Arrays.asList(impls).iterator();
+        final ElementIterator<T> elemIt = ElementIterator.wrap(it);
+        when(this.mockServiceLoader.loadService(Mockito.eq(service), Mockito.any()))
+                .thenReturn(elemIt);
     }
 
     @Test

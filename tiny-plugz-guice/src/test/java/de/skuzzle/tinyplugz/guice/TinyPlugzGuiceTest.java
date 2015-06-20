@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
-import java.util.Collections;
 import java.util.Iterator;
 
 import javax.inject.Inject;
@@ -12,8 +11,7 @@ import javax.inject.Named;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
@@ -24,10 +22,9 @@ import de.skuzzle.tinyplugz.AbstractTinyPlugzTest;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
-import de.skuzzle.tinyplugz.test.util.MockUtil;
+import de.skuzzle.tinyplugz.internal.ServiceLoaderWrapper;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ TinyPlugzGuice.class })
+@RunWith(MockitoJUnitRunner.class)
 public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
 
     private final TinyPlugzGuice subject;
@@ -45,6 +42,8 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
     @Override
     public void setUp() throws TinyPlugzException {
         // override default setup
+        this.mockServiceLoader = mock(ServiceLoaderWrapper.class);
+        ServiceLoaderWrapper.setSource(this.mockServiceLoader);
     }
 
     @SafeVarargs
@@ -60,9 +59,9 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
                 }
             }
         };
-        MockUtil.mockService(Module.class, module);
+        defaultMockService(Module.class, module);
         final ClassLoader parent = getClass().getClassLoader();
-        this.subject.initialize(PluginSource.empty(), parent, Collections.emptyMap());
+        this.subject.initialize(PluginSource.empty(), parent, getInitParams());
     }
 
     @Test
@@ -89,9 +88,9 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
                 bind(SampleService.class).toInstance(impl);
             }
         };
-        MockUtil.mockService(Module.class, module);
+        defaultMockService(Module.class, module);
         final ClassLoader mockCL = mock(ClassLoader.class);
-        this.subject.initialize(PluginSource.empty(), mockCL, Collections.emptyMap());
+        this.subject.initialize(PluginSource.empty(), mockCL, getInitParams());
 
         final Iterator<SampleService> provider = this.subject.getServices(SampleService.class);
         assertSame(impl, provider.next());
