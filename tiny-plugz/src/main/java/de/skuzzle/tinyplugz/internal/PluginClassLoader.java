@@ -63,7 +63,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
      * MANIFEST Class-Path entry. This field will be <code>null</code> if this
      * plugin has no dependencies.
      */
-    @Nullable
     private final URLClassLoader dependencyClassLoader;
 
     /** Resolver to access classes and resources from other loaded plugins. */
@@ -143,6 +142,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         Class<?> c = findLoadedClass(name);
         synchronized (getClassLoadingLock(name)) {
             try {
+                // count every nested call per thread to distinguish between
+                // direct calls to this method and calls coming from other
+                // plugins.
                 this.localEnterCount.set(localCount + 1);
 
                 if (c == null) {
@@ -269,11 +271,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             return AccessController.doPrivileged(
                     new PrivilegedAction<DependencyClassLoader>() {
 
-                        // Dependency classloader gets the same parent
-                        // as
-                        // the plugin loader -> dependencies can not
-                        // load
-                        // classes from plugins
+                        // Dependency classloader gets the same parent as the
+                        // plugin loader -> dependencies can not load classes
+                        // from plugins
                         @Override
                         public DependencyClassLoader run() {
                             return new DependencyClassLoader(urls,
@@ -372,9 +372,9 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                             getSimpleName(), nameOf(requestor), ignore);
                 }
             } else if (result.getClassLoader().equals(this.dependencyClassLoader)
-                && !equals(requestor)) {
+                    && !equals(requestor)) {
                 // the class has already been loaded but it is not visible for
-                // the requestor
+                // the requestor because it has been loaded by the dependency loader.
                 result = null;
             }
 
