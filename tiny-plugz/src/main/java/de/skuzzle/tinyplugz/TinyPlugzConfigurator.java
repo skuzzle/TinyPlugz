@@ -255,7 +255,7 @@ public final class TinyPlugzConfigurator {
 
             try (final InputStream in = url.openStream()) {
                 props.load(in);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalStateException(
                         String.format("Resource <%s> could not be read", resourceName),
                         e);
@@ -319,6 +319,8 @@ public final class TinyPlugzConfigurator {
                         impl.getClass().getName());
 
                 final PluginSource pluginSource = buildSource();
+                logProperties();
+
                 impl.initialize(pluginSource, this.parentCl,
                         Collections.unmodifiableMap(this.properties));
                 TinyPlugz.deploy(impl);
@@ -357,7 +359,7 @@ public final class TinyPlugzConfigurator {
                         "Iterator.next");
                 try {
                     next.initialized(tinyPlugz, this.properties);
-                } catch (RuntimeException e) {
+                } catch (final RuntimeException e) {
                     LOG.error("DeployListener '{}' threw exception", next, e);
                 }
             }
@@ -386,6 +388,22 @@ public final class TinyPlugzConfigurator {
                 throw new TinyPlugzException("Can not use 'FORCE_IMPLEMENTATION' " +
                     "together with 'FORCE_DEFAULT'");
             }
+        }
+
+        private void logProperties() {
+            if (!LOG.isDebugEnabled()) {
+                return;
+            }
+            final StringBuilder b = new StringBuilder();
+            b.append("TinyPlugz configuration options:\n");
+            this.properties.forEach((k,v) -> {
+                b.append("\t").append(k);
+                if (v != NON_NULL_VALUE) {
+                    b.append(":\t").append(v);
+                }
+                b.append("\n");
+            });
+            LOG.debug(b.toString());
         }
     }
 }
