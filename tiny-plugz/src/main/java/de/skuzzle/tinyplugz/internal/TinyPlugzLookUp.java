@@ -31,6 +31,7 @@ public enum TinyPlugzLookUp {
             final Iterator<TinyPlugz> providers = serviceLoader.loadService(
                     TinyPlugz.class, classLoader);
 
+            // If no services are registered, fall back to the default strategy
             final TinyPlugz impl = providers.hasNext()
                     ? providers.next()
                     : DEFAULT_INSTANCE_STRATEGY.getInstance(classLoader,

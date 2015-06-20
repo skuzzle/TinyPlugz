@@ -15,7 +15,23 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
  */
 public final class Options {
 
-
+    /**
+     * Configuration property for specifying the service loader implementation
+     * to use.
+     * <ul>
+     * <li>If the value is an instance of ServiceLoaderWrapper, then just that
+     * instance will be used.</li>
+     * <li>If the value is an instance of {@link Class}, then the class's
+     * default constructor will be invoked to create a ServiceLoaderWrapper
+     * instance.</li>
+     * <li>If the value is a String, that String will be interpreted as a full
+     * qualified name to class which extends ServiceLoaderWrapper. The class
+     * will be loaded by the parent Classloader and constructed via its default
+     * constructor.</li>
+     * </ul>
+     *
+     * @since 0.3.0
+     */
     public static final String SERVICE_LOADER_WRAPPER = "tinyplugz.serviceLoaderWrapper";
 
     /**
@@ -88,7 +104,7 @@ public final class Options {
                 FORCE_DEFAULT,
                 FAIL_ON_MULTIPLE_PROVIDERS,
                 PLUGIN_FOLDER
-        )));
+                )));
     }
 
     private Options() {

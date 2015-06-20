@@ -40,6 +40,11 @@ public abstract class ServiceLoaderWrapper {
      * {@link Class} object denoting a full qualified name of a class extending
      * ServiceLoaderWrapper, or it may already be an instance of
      * ServiceLoaderWrapper.
+     * <p>
+     * Exchanging the service loader implementation might not have an immediate
+     * effect as most TinyPlugz implementations will obtain the loader during
+     * their initialization. Therefore it should be exchanged before TinyPlugz
+     * is deployed.
      *
      * @param source The source to obtain a ServiceLoaderWrapper from.
      * @see ReflectionUtil#createInstance(Object, Class, ClassLoader)
