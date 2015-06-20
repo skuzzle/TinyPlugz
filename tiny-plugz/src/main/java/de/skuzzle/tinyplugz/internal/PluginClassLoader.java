@@ -72,6 +72,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     /** The contents of the manifest.mf of this plugin. */
     private final Manifest manifest;
 
+    private final PluginInformation information;
+
     private final ThreadLocal<Integer> foreignEnterCount;
     private final ThreadLocal<Integer> localEnterCount;
 
@@ -88,6 +90,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         this.manifest = readManifest();
         this.simpleName = getName(this.manifest, pluginUrl);
         this.dependencyClassLoader = createDependencyClassLoader(this.manifest);
+        this.information = new PluginInformationImpl();
     }
 
     static PluginClassLoader create(URL plugin, ClassLoader appClassLoader,
@@ -110,26 +113,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     /**
      * Gets information about the plugin loaded by the ClassLoader.
      *
-     * @return THe plugin information.
+     * @return The plugin information.
      */
     public final PluginInformation getPluginInformation() {
-        return new PluginInformation() {
-
-            @Override
-            public Manifest getManifest() {
-                return PluginClassLoader.this.manifest;
-            }
-
-            @Override
-            public URL getLocation() {
-                return PluginClassLoader.this.self;
-            }
-
-            @Override
-            public ClassLoader getClassLoader() {
-                return PluginClassLoader.this;
-            }
-        };
+        return this.information;
     }
 
     /**
@@ -164,7 +151,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     } else {
                         LOG.debug("'{}' loaded by <{}>", name, c.getClassLoader());
                     }
-                } catch (ClassNotFoundException ignore) {
+                } catch (final ClassNotFoundException ignore) {
                     // do nothing but continue search
                     LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
                             getParent(), getSimpleName(), ignore);
@@ -203,7 +190,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         // Otherwise it is a file for which we need to extract the parent folder
         if (!path.endsWith("/")) {
             // this is an URL to a file
-            int i = path.lastIndexOf('/');
+            final int i = path.lastIndexOf('/');
             // +1 to include slash
             path = path.substring(0, i + 1);
         }
@@ -230,7 +217,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         j = j == -1
                 ? path.length()
                 : j;
-        int i = path.lastIndexOf('/');
+        final int i = path.lastIndexOf('/');
         path = path.substring(i + 1, j);
         return path;
     }
@@ -241,7 +228,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         if (mfURL != null) {
             try (InputStream in = mfURL.openStream()) {
                 result = new Manifest(in);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOG.error("Error reading manifest file for {}", this.self, e);
             }
         } else {
@@ -296,7 +283,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         try {
             return new URL(this.self.getProtocol(), this.self.getHost(),
                     this.self.getPort(), this.basePath + name.trim());
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             LOG.error("Error constructing relative url with base path '{}' and name '{}'",
                     this.basePath, name, e);
         }
@@ -374,13 +361,13 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                     } else {
                         result = loadClassForForeignPlugin(name);
                     }
-                } catch (ClassNotFoundException ignore) {
+                } catch (final ClassNotFoundException ignore) {
                     // ignore and continue search
                     LOG.trace("Class '{}' not found in '{}' (request by '{}')", name,
                             getSimpleName(), nameOf(requestor), ignore);
                 }
             } else if (result.getClassLoader().equals(this.dependencyClassLoader)
-                    && !equals(requestor)) {
+                && !equals(requestor)) {
                 // the class has already been loaded but it is not visible for
                 // the requestor
                 result = null;
@@ -392,7 +379,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                 if (this.dependencyClassLoader != null) {
                     try {
                         result = this.dependencyClassLoader.loadClass(name);
-                    } catch (ClassNotFoundException ignore) {
+                    } catch (final ClassNotFoundException ignore) {
                         // ignore and continue
                         LOG.trace("Class '{}' not found as dependency of '{}'", name,
                                 getSimpleName(), ignore);
@@ -504,5 +491,40 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             return "[DependencyClassLoader of " + getSimpleName() + "]";
         }
 
+    }
+
+    private final class PluginInformationImpl implements PluginInformation {
+
+        @Override
+        public final URL getLocation() {
+            return PluginClassLoader.this.self;
+        }
+
+        @Override
+        public final ClassLoader getClassLoader() {
+            return PluginClassLoader.this;
+        }
+
+        @Override
+        public final Manifest getManifest() {
+            return PluginClassLoader.this.manifest;
+        }
+
+        @Override
+        public final String toString() {
+            return getSimpleName();
+        }
+
+        @Override
+        public final int hashCode() {
+            return PluginClassLoader.this.self.toString().hashCode();
+        }
+
+        @Override
+        public final boolean equals(Object obj) {
+            return obj == this || obj instanceof PluginInformation &&
+                (((PluginInformation) obj).getLocation().toString())
+                        .equals(getLocation().toString());
+        }
     }
 }
