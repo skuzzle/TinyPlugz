@@ -138,40 +138,40 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             throws ClassNotFoundException {
 
         LOG.debug("{}.loadClass('{}')", getSimpleName(), name);
+
         final int localCount = this.localEnterCount.get();
-        this.localEnterCount.set(localCount + 1);
-
+        Class<?> c = findLoadedClass(name);
         synchronized (getClassLoadingLock(name)) {
-            Class<?> c = findLoadedClass(name);
-            if (c == null) {
-                try {
-                    c = getParent().loadClass(name);
-                    if (c.getClassLoader() == null) {
-                        LOG.debug("'{}' loaded by <bootstrap classloader>", name);
-                    } else {
-                        LOG.debug("'{}' loaded by <{}>", name, c.getClassLoader());
-                    }
-                } catch (final ClassNotFoundException ignore) {
-                    // do nothing but continue search
-                    LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
-                            getParent(), getSimpleName(), ignore);
-                }
-            }
-
             try {
+                this.localEnterCount.set(localCount + 1);
+
+                if (c == null) {
+                    try {
+                        c = getParent().loadClass(name);
+                        if (c.getClassLoader() == null) {
+                            LOG.debug("'{}' loaded by <bootstrap classloader>", name);
+                        } else {
+                            LOG.debug("'{}' loaded by <{}>", name, c.getClassLoader());
+                        }
+                    } catch (final ClassNotFoundException ignore) {
+                        // do nothing but continue search
+                        LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
+                                getParent(), getSimpleName(), ignore);
+                    }
+                }
+
                 if (c == null) {
                     if (this.foreignEnterCount.get().equals(this.localEnterCount.get())) {
-                        // load class request from foreign plugin
+                        // load class request from foreign plugin. We only look
+                        // up the requested class in our own class path without
+                        // querying the other plugins
                         c = super.findClass(name);
                     } else {
-                        // load class request from own plugin
+                        // load class request from own plugin. We need to query
+                        // the other plugin ClassLoaders too in case this is not
+                        // a class from our own class path.
                         c = findClass(name);
                     }
-
-                    final ClassLoader winner = c.getClassLoader() == null
-                            ? this
-                            : c.getClassLoader();
-                    LOG.debug("'{}' loaded by <{}>", name, winner);
                 }
             } finally {
                 this.localEnterCount.set(localCount);
@@ -180,6 +180,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             if (resolve) {
                 resolveClass(c);
             }
+
+            final ClassLoader winner = c.getClassLoader() == null
+                    ? this
+                    : c.getClassLoader();
+            LOG.debug("'{}' loaded by <{}>", name, winner);
             return c;
         }
     }
