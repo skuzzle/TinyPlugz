@@ -129,7 +129,7 @@ public abstract class TinyPlugz {
         synchronized (TinyPlugzConfigurator.DEPLOY_LOCK) {
             Require.state(isDeployed(),
                     "Can not undeploy TinyPlugz: no instance deployed");
-            TinyPlugz plugz = instance;
+            final TinyPlugz plugz = instance;
             Require.state(plugz == this,
                     "Undeploy called on an instance which was not the deployed one");
             instance = null;
@@ -177,7 +177,7 @@ public abstract class TinyPlugz {
             final Closeable cl = (Closeable) getClassLoader();
             try {
                 cl.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOG.error("Error while closing plugin Classloader", e);
             }
         }
