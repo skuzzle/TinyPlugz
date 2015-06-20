@@ -398,7 +398,7 @@ public final class TinyPlugzConfigurator {
             b.append("TinyPlugz configuration options:\n");
             this.properties.forEach((k,v) -> {
                 b.append("\t").append(k);
-                if (v != NON_NULL_VALUE) {
+                if (!NON_NULL_VALUE.equals(v)) {
                     b.append(":\t").append(v);
                 }
                 b.append("\n");

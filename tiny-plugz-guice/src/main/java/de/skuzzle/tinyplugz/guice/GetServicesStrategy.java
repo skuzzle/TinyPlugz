@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -36,11 +39,13 @@ enum GetServicesStrategy {
                 final TypeLiteral<Collection<T>> t = setOf(type);
                 final Collection<T> c = injector.getInstance(Key.get(t));
                 if (c.isEmpty()) {
+                    LOG.trace("Empty multi binding found for '{}'", type);
                     return getSingleEager(injector, type);
                 } else {
                     return c.iterator();
                 }
             } catch (final ConfigurationException e) {
+                LOG.trace("No multi binding found for '{}'", type, e);
                 return getSingleEager(injector, type);
             }
         }
@@ -59,16 +64,20 @@ enum GetServicesStrategy {
                 final TypeLiteral<Collection<Provider<T>>> t = setOfProviderOf(type);
                 final Collection<Provider<T>> c = injector.getInstance(Key.get(t));
                 if (c.isEmpty()) {
+                    LOG.trace("Empty multi binding found for '{}'", type);
                     return getSingleLazy(injector, type);
                 } else {
                     return new ProviderIterator<>(c.iterator());
                 }
             } catch (final ConfigurationException e) {
+                LOG.trace("No multi binding found for '{}'", type, e);
                 return getSingleLazy(injector, type);
             }
         }
 
     };
+
+    private static final Logger LOG = LoggerFactory.getLogger(GetServicesStrategy.class);
 
     abstract <T> Iterator<T> getServices(Injector injector, Class<T> type);
 
@@ -76,7 +85,8 @@ enum GetServicesStrategy {
         try {
             final T single = injector.getInstance(type);
             return Iterators.singleIterator(single);
-        } catch (final ConfigurationException e1) {
+        } catch (final ConfigurationException e) {
+            LOG.trace("No binding found for '{}'", type, e);
             return Collections.emptyIterator();
         }
     }
@@ -86,7 +96,8 @@ enum GetServicesStrategy {
             final Provider<T> single = injector.getProvider(type);
             final Iterator<Provider<T>> providerIt = Iterators.singleIterator(single);
             return new ProviderIterator<>(providerIt);
-        } catch (final ConfigurationException e1) {
+        } catch (final ConfigurationException e) {
+            LOG.trace("No binding found for '{}'", type, e);
             return Collections.emptyIterator();
         }
     }
