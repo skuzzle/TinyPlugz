@@ -102,6 +102,6 @@ public enum TinyPlugzLookUp {
      * @return The created instance.
      * @throws TinyPlugzException If configuring the new instance fails.
      */
-    abstract TinyPlugz getInstance(ClassLoader classLoader,
+    public abstract TinyPlugz getInstance(ClassLoader classLoader,
             ServiceLoaderWrapper serviceLoader, Map<Object, Object> props);
 }

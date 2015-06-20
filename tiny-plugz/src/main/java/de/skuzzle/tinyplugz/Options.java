@@ -17,7 +17,11 @@ public final class Options {
 
     /**
      * Configuration property for specifying the service loader implementation
-     * to use.
+     * to use. The loader will be used to look up the TinyPlugz implementation.
+     * Different TinyPlugz implementations might use this loader for different
+     * purposes (like implementing {@link TinyPlugz#getServices(Class)} or
+     * {@link TinyPlugz#findDeployListeners(ClassLoader)}.
+     * <p>
      * <ul>
      * <li>If the value is an instance of ServiceLoaderWrapper, then just that
      * instance will be used.</li>

@@ -18,7 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
+import de.skuzzle.tinyplugz.internal.ServiceLoaderWrapper;
 import de.skuzzle.tinyplugz.internal.TinyPlugzLookUp;
+import de.skuzzle.tinyplugz.util.ReflectionUtil;
 import de.skuzzle.tinyplugz.util.Require;
 
 /**
@@ -374,9 +376,20 @@ public final class TinyPlugzConfigurator {
             } else {
                 lookup = TinyPlugzLookUp.SPI_STRATEGY;
             }
+
+            final ServiceLoaderWrapper serviceLoader;
+            if (this.properties.get(Options.SERVICE_LOADER_WRAPPER) != null) {
+                serviceLoader = ReflectionUtil.createInstance(
+                        this.properties.get(Options.SERVICE_LOADER_WRAPPER),
+                        ServiceLoaderWrapper.class,
+                        this.parentCl);
+            } else {
+                serviceLoader = ServiceLoaderWrapper.getDefault();
+            }
+
             LOG.debug("Using '{}' for instantiating TinyPlugz",
                     lookup.getClass().getName());
-            return lookup.getInstance(this.parentCl, this.properties);
+            return lookup.getInstance(this.parentCl, serviceLoader, this.properties);
         }
 
         private void validateProperties() {
