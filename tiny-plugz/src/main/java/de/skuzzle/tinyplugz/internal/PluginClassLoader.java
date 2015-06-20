@@ -458,7 +458,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final String toString() {
-        return "[PluginClassLoader: " + this.simpleName + "]";
+        return "PluginClassLoader: [" + this.simpleName + "]";
     }
 
     private String nameOf(DependencyResolver requestor) {

@@ -8,22 +8,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.jar.Attributes.Name;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import com.google.inject.util.Types;
 
 import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
@@ -194,6 +189,15 @@ public final class TinyPlugzGuice extends TinyPlugz {
     public static final String INJECTOR_FACTORY = "tinyplugz.guice.injectorFactory";
 
     /**
+     * If this property is supplied during setup, the iterator returned by
+     * {@link #getServices(Class)} will lazily create the services while the
+     * iterator is being consumed. Any non-null value will enable this property.
+     *
+     * @since 0.3.0
+     */
+    public static final String LAZY_SERVICES = "tinyplugz.guice.lazyServices";
+
+    /**
      * Name for injecting the plugin ClassLoader. Just annotate a
      * field/parameter with {@code @Named(TinyPlugzGuice.PLUGIN_CLASSLOADER)}.
      * The value is guaranteed to be {@value #PLUGIN_CLASSLOADER} and will not
@@ -204,6 +208,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     private static final Logger LOG = LoggerFactory.getLogger(TinyPlugzGuice.class);
 
     private Injector injector;
+    private GetServicesStrategy getServiceStrategy;
     private DelegateClassLoader pluginClassLoader;
 
     /**
@@ -223,6 +228,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
             ClassLoader parentClassLoader,
             Map<Object, Object> properties) {
 
+        this.getServiceStrategy = getGetServiceStrategy(properties);
+        LOG.debug("Service strategy: {}", this.getServiceStrategy);
+
         this.pluginClassLoader = createClassLoader(source, parentClassLoader);
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
@@ -231,6 +239,13 @@ public final class TinyPlugzGuice extends TinyPlugz {
         final Iterable<Module> modules = Iterators.composite(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
+    }
+
+    private GetServicesStrategy getGetServiceStrategy(Map<Object, Object> props) {
+        if (props.containsKey(LAZY_SERVICES)) {
+            return GetServicesStrategy.LAZY;
+        }
+        return GetServicesStrategy.EAGER;
     }
 
     @Override
@@ -393,29 +408,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
     public final <T> ElementIterator<T> getServices(Class<T> type) {
         Require.nonNull(type, "type");
 
-        Iterator<T> result = null;
-        try {
-            final TypeLiteral<Set<T>> lit = setOf(type);
-            final Key<Set<T>> key = Key.get(lit);
-            final Set<T> bindings = this.injector.getInstance(key);
-
-            result = bindings.iterator();
-        } catch (ConfigurationException e) {
-            LOG.debug("Could not get set bindings for '{}'", type.getName(), e);
-            try {
-                final T single = this.injector.getInstance(type);
-                result = Iterators.singleIterator(single);
-            } catch (ConfigurationException e1) {
-                LOG.debug("Could not get instance for '{}'", type.getName(), e1);
-                result = Collections.emptyIterator();
-            }
-        }
-        return ElementIterator.wrap(result);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> TypeLiteral<Set<T>> setOf(Class<T> type) {
-        return (TypeLiteral<Set<T>>) TypeLiteral.get(Types.setOf(type));
+        final Iterator<T> services = this.getServiceStrategy.getServices(
+                this.injector, type);
+        return ElementIterator.wrap(services);
     }
 
     /**

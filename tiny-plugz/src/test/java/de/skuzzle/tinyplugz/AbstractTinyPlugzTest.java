@@ -8,6 +8,7 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
@@ -41,7 +42,11 @@ public abstract class AbstractTinyPlugzTest {
     @Before
     public void setUp() throws TinyPlugzException {
         final ClassLoader parent = getClass().getClassLoader();
-        getSubject().initialize(PluginSource.empty(), parent, Collections.emptyMap());
+        getSubject().initialize(PluginSource.empty(), parent, getInitParams());
+    }
+
+    protected Map<Object, Object> getInitParams() {
+        return Collections.emptyMap();
     }
 
     protected abstract TinyPlugz getSubject();
