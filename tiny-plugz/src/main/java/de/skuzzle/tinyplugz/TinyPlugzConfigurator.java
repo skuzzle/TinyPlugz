@@ -404,7 +404,7 @@ public final class TinyPlugzConfigurator {
         }
 
         private void logProperties() {
-            if (!LOG.isDebugEnabled()) {
+            if (!LOG.isDebugEnabled() || this.properties.isEmpty()) {
                 return;
             }
             final StringBuilder b = new StringBuilder();
