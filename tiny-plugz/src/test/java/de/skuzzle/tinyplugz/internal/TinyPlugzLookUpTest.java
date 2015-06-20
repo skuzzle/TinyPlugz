@@ -3,22 +3,22 @@ package de.skuzzle.tinyplugz.internal;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import de.skuzzle.tinyplugz.DeployListener;
 import de.skuzzle.tinyplugz.Options;
@@ -26,11 +26,9 @@ import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSource;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzException;
-import de.skuzzle.tinyplugz.test.util.MockUtil;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ServiceLoader.class, MockUtil.class, TinyPlugzLookUp.class })
+@RunWith(MockitoJUnitRunner.class)
 public class TinyPlugzLookUpTest {
 
     static final class SampleTinyPlugzImpl extends TinyPlugz {
@@ -144,17 +142,21 @@ public class TinyPlugzLookUpTest {
     public void testSPIStrategy() throws Exception {
         final TinyPlugz mock1 = mock(TinyPlugz.class);
         final TinyPlugz mock2 = mock(TinyPlugz.class);
-        MockUtil.mockService(TinyPlugz.class, mock1, mock2);
+        final ServiceLoaderWrapper loader = mock(ServiceLoaderWrapper.class);
+        when(loader.loadService(TinyPlugz.class, getClass().getClassLoader()))
+                .thenReturn(ElementIterator.wrap(Arrays.asList(mock1, mock2).iterator()));
 
         final TinyPlugz inst = TinyPlugzLookUp.SPI_STRATEGY
-                .getInstance(getClass().getClassLoader(), Collections.emptyMap());
+                .getInstance(getClass().getClassLoader(), loader, Collections.emptyMap());
 
         assertSame(mock1, inst);
     }
 
     @Test
     public void testSPIStrategyDefaultFallBack() throws Exception {
-        MockUtil.mockService(TinyPlugz.class);
+        final ServiceLoaderWrapper loader = mock(ServiceLoaderWrapper.class);
+        when(loader.loadService(TinyPlugz.class, getClass().getClassLoader()))
+                .thenReturn(ElementIterator.wrap(Collections.emptyIterator()));
 
         final TinyPlugz inst = TinyPlugzLookUp.SPI_STRATEGY
                 .getInstance(getClass().getClassLoader(), null);
@@ -165,10 +167,13 @@ public class TinyPlugzLookUpTest {
     public void testSPIStrategyWithFail() throws Exception {
         final TinyPlugz mock1 = mock(TinyPlugz.class);
         final TinyPlugz mock2 = mock(TinyPlugz.class);
-        MockUtil.mockService(TinyPlugz.class, mock1, mock2);
+        final ServiceLoaderWrapper loader = mock(ServiceLoaderWrapper.class);
+        when(loader.loadService(TinyPlugz.class, getClass().getClassLoader()))
+                .thenReturn(ElementIterator.wrap(Arrays.asList(mock1, mock2).iterator()));
+
         final Map<Object, Object> props = new HashMap<>();
         props.put(Options.FAIL_ON_MULTIPLE_PROVIDERS, "true");
 
-        TinyPlugzLookUp.SPI_STRATEGY.getInstance(getClass().getClassLoader(), props);
+        TinyPlugzLookUp.SPI_STRATEGY.getInstance(getClass().getClassLoader(), loader, props);
     }
 }

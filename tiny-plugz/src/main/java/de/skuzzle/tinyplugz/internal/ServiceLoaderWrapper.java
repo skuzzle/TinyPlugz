@@ -12,6 +12,15 @@ import de.skuzzle.tinyplugz.util.ElementIterator;
 interface ServiceLoaderWrapper {
 
     /**
+     * Gets a new instance of the default implementation.
+     *
+     * @return A new ServiceLoaderWrapper.
+     */
+    public static ServiceLoaderWrapper getDefault() {
+        return new DefaultServiceLoaderWrapper();
+    }
+
+    /**
      * Returns an {@link Iterator} of all implementors of the given service
      * provider interface.
      *

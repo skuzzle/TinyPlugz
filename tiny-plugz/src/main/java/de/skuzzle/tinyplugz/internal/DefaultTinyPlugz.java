@@ -20,7 +20,7 @@ final class DefaultTinyPlugz extends TinyPlugz {
     private DelegateClassLoader pluginClassLoader;
 
     DefaultTinyPlugz() {
-        this.serviceLoader = new DefaultServiceLoaderWrapper();
+        this.serviceLoader = ServiceLoaderWrapper.getDefault();
     }
 
     @Override
