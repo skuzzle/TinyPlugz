@@ -31,7 +31,6 @@ interface DependencyResolver extends Closeable {
      *            <code>null</code>.
      * @return The class or <code>null</code> if none was found.
      */
-    @Nullable
     public Class<?> findClass(DependencyResolver requestor, String name);
 
     /**
