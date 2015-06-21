@@ -111,7 +111,8 @@ enum GetServicesStrategy {
     @SuppressWarnings("unchecked")
     protected <T> TypeLiteral<Collection<Provider<T>>> setOfProviderOf(Class<T> type) {
         final Type providerType = Types.providerOf(type);
-        final Type providerSet = Types.newParameterizedType(Collection.class, providerType);
+        final Type providerSet = Types.newParameterizedType(Collection.class,
+                providerType);
         return (TypeLiteral<Collection<Provider<T>>>) TypeLiteral.get(providerSet);
     }
 
