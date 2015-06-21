@@ -107,7 +107,8 @@ public final class Options {
                 FORCE_IMPLEMENTATION,
                 FORCE_DEFAULT,
                 FAIL_ON_MULTIPLE_PROVIDERS,
-                PLUGIN_FOLDER
+                PLUGIN_FOLDER,
+                SERVICE_LOADER_WRAPPER
                 )));
     }
 
