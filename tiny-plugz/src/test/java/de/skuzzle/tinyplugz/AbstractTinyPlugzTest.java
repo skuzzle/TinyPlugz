@@ -8,12 +8,11 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,20 +45,14 @@ public abstract class AbstractTinyPlugzTest {
     @Before
     public void setUp() throws TinyPlugzException {
         this.mockServiceLoader = mock(ServiceLoaderWrapper.class);
-        ServiceLoaderWrapper.setSource(this.mockServiceLoader);
-
         final ClassLoader parent = getClass().getClassLoader();
         getSubject().initialize(PluginSource.empty(), parent, getInitParams());
     }
 
-
-    @After
-    public void tearDown() {
-        ServiceLoaderWrapper.restore();
-    }
-
     protected Map<Object, Object> getInitParams() {
-        return Collections.emptyMap();
+        final Map<Object, Object> result = new HashMap<>();
+        result.put(Options.SERVICE_LOADER_WRAPPER, this.mockServiceLoader);
+        return result;
     }
 
     protected abstract TinyPlugz getSubject();

@@ -7,11 +7,11 @@ import de.skuzzle.tinyplugz.AbstractTinyPlugzTest;
 import de.skuzzle.tinyplugz.TinyPlugz;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TinyPlugzTest extends AbstractTinyPlugzTest {
+public class DefaultTinyPlugzTest extends AbstractTinyPlugzTest {
 
     private final TinyPlugz subject;
 
-    public TinyPlugzTest() {
+    public DefaultTinyPlugzTest() {
         this.subject = new DefaultTinyPlugz();
     }
 

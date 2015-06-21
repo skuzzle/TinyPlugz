@@ -43,7 +43,6 @@ public class TinyPlugzGuiceTest extends AbstractTinyPlugzTest {
     public void setUp() throws TinyPlugzException {
         // override default setup
         this.mockServiceLoader = mock(ServiceLoaderWrapper.class);
-        ServiceLoaderWrapper.setSource(this.mockServiceLoader);
     }
 
     @SafeVarargs

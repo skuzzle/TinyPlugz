@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class TinyPlugzGuiceLazyTest extends AbstractTinyPlugzTest {
 
     @Override
     protected Map<Object, Object> getInitParams() {
-        final Map<Object, Object> params = new HashMap<>();
+        final Map<Object, Object> params = super.getInitParams();
         params.put(TinyPlugzGuice.LAZY_SERVICES, new Object());
         return params;
     }
@@ -52,7 +51,6 @@ public class TinyPlugzGuiceLazyTest extends AbstractTinyPlugzTest {
     public void setUp() throws TinyPlugzException {
         // override default setup
         this.mockServiceLoader = mock(ServiceLoaderWrapper.class);
-        ServiceLoaderWrapper.setSource(this.mockServiceLoader);
     }
 
     @SafeVarargs
