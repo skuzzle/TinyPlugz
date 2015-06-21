@@ -3,6 +3,7 @@ package de.skuzzle.tinyplugz.internal;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.ReflectionUtil;
 import de.skuzzle.tinyplugz.util.Require;
@@ -48,7 +49,11 @@ public abstract class ServiceLoaderWrapper {
      *
      * @param source The source to obtain a ServiceLoaderWrapper from.
      * @see ReflectionUtil#createInstance(Object, Class, ClassLoader)
+     * @deprecated Use of this method is unnecessary. Use
+     *             {@link Options#SERVICE_LOADER_WRAPPER} instead for specifying
+     *             a service loader implementation.
      */
+    @Deprecated
     public static void setSource(Object source) {
         Require.nonNull(source, "source");
         final ClassLoader cl = ServiceLoaderWrapper.class.getClassLoader();
