@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,15 +51,17 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
      * @param appClassLoader The ClassLoader to use as parent.
      * @return The created ClassLoader.
      */
-    public static DelegateClassLoader forPlugins(Collection<URL> urls,
+    public static DelegateClassLoader forPlugins(Stream<URL> urls,
             ClassLoader appClassLoader) {
         Require.nonNull(urls, "urls");
         Require.nonNull(appClassLoader, "parent");
 
-        final Collection<DependencyResolver> plugins = new ArrayList<>(urls.size());
-        final Collection<PluginInformation> information = new ArrayList<>(urls.size());
+        final Collection<DependencyResolver> plugins = new ArrayList<>();
+        final Collection<PluginInformation> information = new ArrayList<>();
         final DependencyResolver delegator = new DelegateDependencyResolver(plugins);
-        for (final URL pluginURL : urls) {
+        final Iterator<URL> it = urls.iterator();
+        while (it.hasNext()) {
+            final URL pluginURL = it.next();
             // Plugin classloaders must be created with the application
             // classloader
             // as parent

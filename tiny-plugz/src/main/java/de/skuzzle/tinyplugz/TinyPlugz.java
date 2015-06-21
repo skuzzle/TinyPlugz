@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -267,8 +266,7 @@ public abstract class TinyPlugz {
             ClassLoader parent) {
         final Stream<URL> urls = Require.nonNullResult(source.getPluginURLs(),
                 "pluginSource.getPluginURLs");
-        final Collection<URL> plugins = urls.collect(Collectors.toList());
-        return DelegateClassLoader.forPlugins(plugins, parent);
+        return DelegateClassLoader.forPlugins(urls, parent);
     }
 
     /**
