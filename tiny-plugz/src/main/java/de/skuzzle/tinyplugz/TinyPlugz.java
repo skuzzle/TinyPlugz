@@ -230,7 +230,7 @@ public abstract class TinyPlugz {
             }
 
             // Crazy cast "(Object)args" because param is: "Object... args"
-            method.invoke(null, (Object) args);
+            Require.nonNull(method).invoke(null, (Object) args);
         } catch (InvocationTargetException | NoSuchMethodException | SecurityException
                 | IllegalAccessException | IllegalArgumentException
                 | ClassNotFoundException e) {
