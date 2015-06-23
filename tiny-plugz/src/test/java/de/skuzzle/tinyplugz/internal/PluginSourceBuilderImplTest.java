@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -84,12 +83,6 @@ public class PluginSourceBuilderImplTest {
         PowerMockito.mockStatic(Files.class);
         PowerMockito.when(Files.isDirectory(path)).thenReturn(false);
         this.subject.addAllPluginJars(mock(Path.class), null);
-    }
-
-    @Test
-    @Ignore
-    public void testAddPluginJars() throws Exception {
-        // TODO
     }
 
     private Path mockPath() throws MalformedURLException {
