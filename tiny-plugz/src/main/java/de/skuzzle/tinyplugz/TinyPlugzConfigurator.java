@@ -121,7 +121,7 @@ public final class TinyPlugzConfigurator {
          * @return A fluent builder object for further configuration.
          * @throws IllegalStateException If the file can not be found.
          */
-        public DefineProperties withClasspathProperties();
+        DefineProperties withClasspathProperties();
 
         /**
          * Adds properties read from the class path using the given resource
@@ -131,7 +131,7 @@ public final class TinyPlugzConfigurator {
          * @return A fluent builder object for further configuration.
          * @throws IllegalStateException If the file can not be found.
          */
-        public DefineProperties withClasspathProperties(String resourceName);
+        DefineProperties withClasspathProperties(String resourceName);
 
         /**
          * Specifies a single property to insert into the map which will be
@@ -198,10 +198,11 @@ public final class TinyPlugzConfigurator {
          * using the option {@link Options#PLUGIN_FOLDER} will be loaded. If
          * this option is not specified, TinyPlugz will be deployed without any
          * plugins.
+         *
          * @since 0.2.0
          */
         @Override
-        public TinyPlugz deploy();
+        TinyPlugz deploy();
     }
 
     /**
@@ -213,15 +214,27 @@ public final class TinyPlugzConfigurator {
     public interface DeployTinyPlugz {
 
         /**
-         * Finally deploys the {@link TinyPlugz} instance using the the
-         * configured values. The configured instance will be globally
-         * accessible using {@link TinyPlugz#getInstance()}.
+         * Creates a new TinyPlugz instance using the configured values. The
+         * instance will <b>not</b> be deployed as the unique global instance
+         * and can be used fully independent.
+         *
+         * @return The configured instance.
+         * @throws TinyPlugzException When initializing TinyPlugz with the
+         *             current configuration fails.
+         * @since 0.3.0
+         */
+        TinyPlugz createInstance();
+
+        /**
+         * Finally deploys the {@link TinyPlugz} instance using the configured
+         * values. The configured instance will be globally accessible using
+         * {@link TinyPlugz#getInstance()}.
          *
          * @return The configured instance.
          * @throws TinyPlugzException When initializing TinyPlugz with the
          *             current configuration fails.
          */
-        public TinyPlugz deploy();
+        TinyPlugz deploy();
     }
 
     private static final class Impl implements DefineProperties, DeployTinyPlugz {
@@ -236,7 +249,6 @@ public final class TinyPlugzConfigurator {
         private PluginSource source;
 
         private Impl(@NonNull ClassLoader parentCl) {
-            Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
             this.parentCl = parentCl;
             this.properties = new HashMap<>();
         }
@@ -309,22 +321,29 @@ public final class TinyPlugzConfigurator {
         }
 
         @Override
+        public TinyPlugz createInstance() {
+            validateProperties();
+            final TinyPlugz impl = getInstance();
+
+            LOG.debug("Using '{}' TinyPlugz implementation",
+                    impl.getClass().getName());
+
+            final PluginSource pluginSource = buildSource();
+            logProperties();
+
+            impl.initialize(pluginSource, this.parentCl,
+                    Collections.unmodifiableMap(this.properties));
+            return impl;
+        }
+
+        @Override
         public TinyPlugz deploy() {
             validateProperties();
             synchronized (DEPLOY_LOCK) {
                 // additional synchronized check is required here
                 Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
 
-                final TinyPlugz impl = getInstance();
-
-                LOG.debug("Using '{}' TinyPlugz implementation",
-                        impl.getClass().getName());
-
-                final PluginSource pluginSource = buildSource();
-                logProperties();
-
-                impl.initialize(pluginSource, this.parentCl,
-                        Collections.unmodifiableMap(this.properties));
+                final TinyPlugz impl = createInstance();
                 TinyPlugz.deploy(impl);
                 notifyListeners(impl);
                 return impl;
@@ -409,7 +428,7 @@ public final class TinyPlugzConfigurator {
             }
             final StringBuilder b = new StringBuilder();
             b.append("TinyPlugz configuration options:\n");
-            this.properties.forEach((k,v) -> {
+            this.properties.forEach((k, v) -> {
                 b.append("\t").append(k);
                 if (!NON_NULL_VALUE.equals(v)) {
                     b.append(":\t").append(v);
