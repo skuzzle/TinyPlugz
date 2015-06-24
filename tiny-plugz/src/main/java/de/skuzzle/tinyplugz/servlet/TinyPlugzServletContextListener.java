@@ -34,7 +34,8 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
      *
      * <pre>
      * &#064;Override
-     * protected final DeployTinyPlugz configure(DefineProperties props, ServletContext context) {
+     * protected final DeployTinyPlugz configure(DefineProperties props,
+     *         ServletContext context) {
      *     final String pathString = context.getRealPath("WEB-INF/plugins");
      *     final Path pluginDir = Paths.get(pathString);
      *
