@@ -295,7 +295,7 @@ public final class TinyPlugzConfigurator {
         @Override
         public DeployTinyPlugz withPlugins(Consumer<PluginSourceBuilder> source) {
             Require.nonNull(source, "source");
-            final PluginSourceBuilder builder = new PluginSourceBuilderImpl();
+            final PluginSourceBuilder builder = PluginSource.builder();
             source.accept(builder);
             this.source = builder.createSource();
             return this;

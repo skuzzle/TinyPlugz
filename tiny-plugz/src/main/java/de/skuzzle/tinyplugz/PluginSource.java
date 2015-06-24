@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.stream.Stream;
 
+import de.skuzzle.tinyplugz.internal.PluginSourceBuilderImpl;
+
 /**
  * Represents the source of plugins which should be loaded.
  *
@@ -11,6 +13,16 @@ import java.util.stream.Stream;
  * @since 0.2.0
  */
 public interface PluginSource {
+
+    /**
+     * Creates a builder object for building PluginSource objects.
+     *
+     * @return A new builder object.
+     * @since 0.3.0
+     */
+    public static PluginSourceBuilder builder() {
+        return new PluginSourceBuilderImpl();
+    }
 
     /**
      * Creates an empty PluginSource.
