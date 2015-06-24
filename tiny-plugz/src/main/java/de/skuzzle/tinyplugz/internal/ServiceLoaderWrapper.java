@@ -3,10 +3,7 @@ package de.skuzzle.tinyplugz.internal;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import de.skuzzle.tinyplugz.Options;
 import de.skuzzle.tinyplugz.util.ElementIterator;
-import de.skuzzle.tinyplugz.util.ReflectionUtil;
-import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * Internal strategy interface for abstracting loading of services.
@@ -16,7 +13,7 @@ import de.skuzzle.tinyplugz.util.Require;
  */
 public abstract class ServiceLoaderWrapper {
 
-    private static volatile ServiceLoaderWrapper defaultImpl =
+    private static final ServiceLoaderWrapper DEFAULT =
             new ServiceLoaderWrapperImpl();
 
     /**
@@ -25,40 +22,7 @@ public abstract class ServiceLoaderWrapper {
      * @return The default instance.
      */
     public static ServiceLoaderWrapper getDefault() {
-        return defaultImpl;
-    }
-
-    /**
-     * Restores the default implementation.
-     */
-    public static void restore() {
-        defaultImpl = new ServiceLoaderWrapperImpl();
-    }
-
-    /**
-     * Sets the source from which ServiceLoaderWrapper instances are created by
-     * {@link #getDefault()}. The given object may either be a String or
-     * {@link Class} object denoting a full qualified name of a class extending
-     * ServiceLoaderWrapper, or it may already be an instance of
-     * ServiceLoaderWrapper.
-     * <p>
-     * Exchanging the service loader implementation might not have an immediate
-     * effect as most TinyPlugz implementations will obtain the loader during
-     * their initialization. Therefore it should be exchanged before TinyPlugz
-     * is deployed.
-     *
-     * @param source The source to obtain a ServiceLoaderWrapper from.
-     * @see ReflectionUtil#createInstance(Object, Class, ClassLoader)
-     * @deprecated Use of this method is unnecessary. Use
-     *             {@link Options#SERVICE_LOADER_WRAPPER} instead for specifying
-     *             a service loader implementation.
-     */
-    @Deprecated
-    public static void setSource(Object source) {
-        Require.nonNull(source, "source");
-        final ClassLoader cl = ServiceLoaderWrapper.class.getClassLoader();
-        defaultImpl = ReflectionUtil.createInstance(source,
-                ServiceLoaderWrapper.class, cl);
+        return DEFAULT;
     }
 
     /**
