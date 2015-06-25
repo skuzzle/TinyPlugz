@@ -8,7 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for safely closing {@link Closeable} instances.
+ * Utility class for safely closing {@link Closeable} instances wihtout throwing
+ * an exception.
  *
  * @author Simon Taddiken
  * @since 0.3.0
