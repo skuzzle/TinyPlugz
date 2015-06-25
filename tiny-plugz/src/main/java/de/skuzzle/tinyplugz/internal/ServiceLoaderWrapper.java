@@ -6,7 +6,9 @@ import java.util.ServiceLoader;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 
 /**
- * Internal strategy interface for abstracting loading of services.
+ * Internal strategy interface for abstracting loading of services. The main
+ * purpose of this class is to avoid static method calls to the
+ * {@link ServiceLoader} class which allows for easier testing.
  *
  * @author Simon Taddiken
  * @since 0.3.0
