@@ -10,6 +10,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.skuzzle.tinyplugz.util.Closeables;
 import de.skuzzle.tinyplugz.util.Require;
 
 final class DelegateDependencyResolver implements DependencyResolver {
@@ -100,8 +101,9 @@ final class DelegateDependencyResolver implements DependencyResolver {
 
     @Override
     public final void close() throws IOException {
-        for (final DependencyResolver pluginCl : this.children) {
-            pluginCl.close();
+        final boolean success = Closeables.safeCloseAll(this.children);
+        if (!success) {
+            throw new IOException("Error while closing child resolver");
         }
     }
 

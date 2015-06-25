@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.skuzzle.tinyplugz.PluginInformation;
+import de.skuzzle.tinyplugz.util.Closeables;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 
@@ -73,7 +74,13 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     private final PluginInformation information;
 
+    /**
+     * Counts nested calls to {@link #loadClass(String, boolean)} coming from
+     * other plugins.
+     */
     private final ThreadLocal<Integer> foreignEnterCount;
+
+    /** Counts all nested calls to {@link #loadClass(String, boolean)}. */
     private final ThreadLocal<Integer> localEnterCount;
 
     private PluginClassLoader(URL pluginUrl, ClassLoader appClassLoader,
@@ -374,7 +381,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             } else if (result.getClassLoader().equals(this.dependencyClassLoader)
                     && !equals(requestor)) {
                 // the class has already been loaded but it is not visible for
-                // the requestor because it has been loaded by the dependency loader.
+                // the requestor because it has been loaded by the dependency
+                // loader.
                 result = null;
             }
 
@@ -458,7 +466,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final String toString() {
-        return "PluginClassLoader: [" + this.simpleName + "]";
+        return "PluginClassLoader[" + this.simpleName + "]";
     }
 
     private String nameOf(DependencyResolver requestor) {
@@ -469,9 +477,10 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final void close() throws IOException {
-        super.close();
-        if (this.dependencyClassLoader != null) {
-            this.dependencyClassLoader.close();
+        final boolean success = Closeables.safeCloseAll(super::close,
+                this.dependencyClassLoader);
+        if (!success) {
+            throw new IOException(String.format("Error while closing %s", this));
         }
     }
 
