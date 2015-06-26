@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
+import de.skuzzle.tinyplugz.util.Closeables;
 import de.skuzzle.tinyplugz.util.ElementIterator;
 import de.skuzzle.tinyplugz.util.Require;
 
@@ -174,11 +175,7 @@ public abstract class TinyPlugz {
     protected final void defaultDispose() {
         if (getClassLoader() instanceof Closeable) {
             final Closeable cl = (Closeable) getClassLoader();
-            try {
-                cl.close();
-            } catch (final IOException e) {
-                LOG.error("Error while closing plugin Classloader", e);
-            }
+            Closeables.safeClose(cl);
         }
     }
 
