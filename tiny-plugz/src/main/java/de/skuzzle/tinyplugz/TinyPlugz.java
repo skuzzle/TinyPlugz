@@ -15,9 +15,6 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.skuzzle.tinyplugz.internal.DelegateClassLoader;
 import de.skuzzle.tinyplugz.util.Closeables;
 import de.skuzzle.tinyplugz.util.ElementIterator;
@@ -89,8 +86,6 @@ import de.skuzzle.tinyplugz.util.Require;
  * @author Simon Taddiken
  */
 public abstract class TinyPlugz {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TinyPlugz.class);
 
     private static volatile TinyPlugz instance;
 
