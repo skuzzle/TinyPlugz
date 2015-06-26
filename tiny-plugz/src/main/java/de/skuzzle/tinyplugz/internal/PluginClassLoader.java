@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
@@ -35,6 +37,9 @@ import de.skuzzle.tinyplugz.util.Require;
 final class PluginClassLoader extends URLClassLoader implements DependencyResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
+
+    /** Holds a lock object per class name shared among all plugin ClassLoaders. */
+    private static final Map<String, Object> STATIC_LOCK_MAP = new HashMap<>();
 
     /**
      * Some static manifest file names in case the underlying file system is
@@ -140,14 +145,28 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     }
 
     @Override
+    protected final Object getClassLoadingLock(String className) {
+        // synchronizes class loading among all plugin classloaders.
+        synchronized (STATIC_LOCK_MAP) {
+            Object lock = STATIC_LOCK_MAP.get(className);
+            if (lock == null) {
+                lock = new Object();
+                STATIC_LOCK_MAP.put(className, lock);
+            }
+            return lock;
+        }
+    }
+
+    @Override
     protected final Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
 
         LOG.debug("{}.loadClass('{}')", getSimpleName(), name);
 
         final int localCount = this.localEnterCount.get();
-        Class<?> c = findLoadedClass(name);
+        Class<?> c;
         synchronized (getClassLoadingLock(name)) {
+            c = findLoadedClass(name);
             try {
                 // count every nested call per thread to distinguish between
                 // direct calls to this method and calls coming from other
@@ -362,51 +381,57 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         LOG.debug("{}.findClassFor(<{}>, '{}')", getSimpleName(), nameOf(requestor),
                 name);
 
+        Class<?> result;
         synchronized (getClassLoadingLock(name)) {
             // first, look up in own jar
-            Class<?> result = findLoadedClass(name);
-            if (result == null) {
-                try {
-                    if (equals(requestor)) {
-                        // request from own plugin
-                        result = super.findClass(name);
-                    } else {
-                        result = loadClassForForeignPlugin(name);
-                    }
-                } catch (final ClassNotFoundException ignore) {
-                    // ignore and continue search
-                    LOG.trace("Class '{}' not found in '{}' (request by '{}')", name,
-                            getSimpleName(), nameOf(requestor), ignore);
-                }
-            } else if (result.getClassLoader().equals(this.dependencyClassLoader)
-                    && !equals(requestor)) {
-                // the class has already been loaded but it is not visible for
-                // the requestor because it has been loaded by the dependency
-                // loader.
-                result = null;
-            }
-
-            // second, look up in our dependencies
-            if (result == null && equals(requestor)) {
-
-                if (this.dependencyClassLoader != null) {
-                    try {
-                        result = this.dependencyClassLoader.loadClass(name);
-                    } catch (final ClassNotFoundException ignore) {
-                        // ignore and continue
-                        LOG.trace("Class '{}' not found as dependency of '{}'", name,
-                                getSimpleName(), ignore);
-                    }
-                }
-
-                // third, look up in other plugins
-                if (result == null) {
-                    result = this.dependencyResolver.findClass(requestor, name);
-                }
-            }
-            return result;
-
+            result = findLoadedClass(name);
         }
+
+        if (result == null) {
+            try {
+                if (equals(requestor)) {
+                    // request from own plugin
+                    // INVARIANT: we have a lock on getClassLoadingLock()
+                    result = super.findClass(name);
+                } else {
+                    result = loadClassForForeignPlugin(name);
+                }
+            } catch (final ClassNotFoundException ignore) {
+                // ignore and continue search
+                LOG.trace("Class '{}' not found in '{}' (request by '{}')", name,
+                        getSimpleName(), nameOf(requestor), ignore);
+            }
+        } else if (result.getClassLoader().equals(this.dependencyClassLoader)
+            && !equals(requestor)) {
+            // the class has already been loaded but it is not visible for
+            // the requestor because it has been loaded by the dependency
+            // loader.
+            result = null;
+        }
+
+        // second, look up in our dependencies
+        if (result == null && equals(requestor)) {
+            // INVARIANT: we have a lock on getClassLoadingLock()
+
+            if (this.dependencyClassLoader != null) {
+                try {
+                    result = this.dependencyClassLoader.loadClass(name);
+                } catch (final ClassNotFoundException ignore) {
+                    // ignore and continue
+                    LOG.trace("Class '{}' not found as dependency of '{}'", name,
+                            getSimpleName(), ignore);
+                }
+            }
+
+            // third, look up in other plugins
+            if (result == null) {
+                // It is only allowed that one plugin at a time searches for
+                // classes within other plugins. Otherwise we would allow
+                // deadlock conditions
+                result = this.dependencyResolver.findClass(requestor, name);
+            }
+        }
+        return result;
     }
 
     @Override
