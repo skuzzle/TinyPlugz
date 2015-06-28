@@ -522,7 +522,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
         @Override
         public String toString() {
-            return "[DependencyClassLoader of " + getSimpleName() + "]";
+            return "DependencyClassLoader[" + getSimpleName() + "]";
         }
 
     }
