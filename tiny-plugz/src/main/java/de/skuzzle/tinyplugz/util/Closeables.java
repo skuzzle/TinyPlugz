@@ -2,6 +2,7 @@ package de.skuzzle.tinyplugz.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -23,6 +24,47 @@ public final class Closeables {
     }
 
     /**
+     * Closes the given Closeables and collects all occurring exceptions as
+     * suppressed exception to the exception that occurred first.
+     *
+     * @param closeables The Closeables to close.
+     * @throws IOException If any of them throws an IOException.
+     */
+    public static void close(Closeable... closeables) throws IOException {
+        close(Arrays.asList(closeables));
+    }
+
+    /**
+     * Closes the given Closeables and collects all occurring exceptions as
+     * suppressed exception to the exception that occurred first.
+     *
+     * @param closeables The Closeables to close.
+     * @throws IOException If any of them throws an IOException.
+     */
+    public static void close(Iterable<? extends Closeable> closeables)
+            throws IOException {
+        IOException first = null;
+        for (final Closeable c : closeables) {
+            if (c == null) {
+                LOG.debug("trying to call .close() on null reference");
+                continue;
+            }
+            try {
+                c.close();
+            } catch (final IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
+        }
+    }
+
+    /**
      * Closes the given {@link Closeable} and logs any error that occurs.
      *
      * @param c The {@link Closeable}. Might be <code>null</code>.
@@ -33,7 +75,7 @@ public final class Closeables {
     public static boolean safeClose(Closeable c) {
         if (c == null) {
             LOG.debug("trying to call .close() on null reference");
-            return false;
+            return true;
         }
         try {
             c.close();

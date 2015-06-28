@@ -101,10 +101,7 @@ final class DelegateDependencyResolver implements DependencyResolver {
 
     @Override
     public final void close() throws IOException {
-        final boolean success = Closeables.safeCloseAll(this.children);
-        if (!success) {
-            throw new IOException("Error while closing child resolver");
-        }
+        Closeables.close(this.children);
     }
 
     @Override

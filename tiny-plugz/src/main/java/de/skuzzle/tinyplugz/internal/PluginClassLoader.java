@@ -497,11 +497,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
 
     @Override
     public final void close() throws IOException {
-        final boolean success = Closeables.safeCloseAll(super::close,
-                this.dependencyClassLoader);
-        if (!success) {
-            throw new IOException(String.format("Error while closing %s", this));
-        }
+        Closeables.close(super::close, this.dependencyClassLoader);
     }
 
     /**

@@ -1,8 +1,11 @@
 package de.skuzzle.tinyplugz.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.io.Closeable;
@@ -26,7 +29,27 @@ public class CloseablesTest {
 
     @Before
     public void setUp() throws Exception {
-        doThrow(IOException.class).when(this.failing).close();
+        doThrow(new IOException()).when(this.failing).close();
+    }
+
+    @Test
+    public void testClose() throws Exception {
+        final Closeable failing2 = mock(Closeable.class);
+        doThrow(IOException.class).when(failing2).close();
+        try {
+            Closeables.close(this.failing, this.successful, failing2);
+            fail();
+        } catch (final IOException e) {
+            verify(this.failing).close();
+            verify(this.successful).close();
+            verify(failing2).close();
+            assertEquals(1, e.getSuppressed().length);
+        }
+    }
+
+    @Test
+    public void testSafeCloseNull() throws Exception {
+        assertTrue(Closeables.safeClose(null));
     }
 
     @Test
@@ -39,11 +62,6 @@ public class CloseablesTest {
     public void testSafeCloseFailing() throws Exception {
         assertFalse(Closeables.safeClose(this.failing));
         verify(this.failing).close();
-    }
-
-    @Test
-    public void testSafeCloseNull() throws Exception {
-        Closeables.safeClose(null);
     }
 
     @Test
