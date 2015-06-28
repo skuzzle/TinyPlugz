@@ -161,7 +161,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     protected final Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
 
-        LOG.debug("{}.loadClass('{}')", getSimpleName(), name);
+        LOG.trace("{}.loadClass('{}')", getSimpleName(), name);
 
         final int localCount = this.localEnterCount.get();
         Class<?> c;
@@ -176,11 +176,6 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                 if (c == null) {
                     try {
                         c = getParent().loadClass(name);
-                        if (c.getClassLoader() == null) {
-                            LOG.debug("'{}' loaded by <bootstrap classloader>", name);
-                        } else {
-                            LOG.debug("'{}' loaded by <{}>", name, c.getClassLoader());
-                        }
                     } catch (final ClassNotFoundException ignore) {
                         // do nothing but continue search
                         LOG.trace("Class '{}' not found using parent '{}' of '{}'", name,
@@ -212,7 +207,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
             final ClassLoader winner = c.getClassLoader() == null
                     ? this
                     : c.getClassLoader();
-            LOG.debug("'{}' loaded by <{}>", name, winner);
+            LOG.trace("'{}' loaded by <{}>", name, winner);
             return c;
         }
     }
@@ -265,7 +260,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
                 LOG.error("Error reading manifest file for {}", this.self, e);
             }
         } else {
-            LOG.trace("Plugin '{}' has no manifest", getSimpleName());
+            LOG.debug("Plugin '{}' has no manifest", getSimpleName());
         }
         return result;
     }
@@ -274,7 +269,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         final DependencyClassLoader result;
         final String cp = mf.getMainAttributes().getValue(Name.CLASS_PATH);
         if (cp == null) {
-            LOG.trace("Plugin '{}' has no Class-Path attribute", getSimpleName());
+            LOG.debug("Plugin '{}' has no Class-Path attribute", getSimpleName());
             result = null;
         } else {
             final String[] entries = WHITESPACES.split(cp);
