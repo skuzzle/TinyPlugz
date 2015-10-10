@@ -8,11 +8,13 @@ import java.util.Collection;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * Used to connect class- and resource loading between different plugins.
+ * Used to connect class- and resource loading between different plugins. This
+ * interface is only used internally and not meant to be implemented or used by
+ * clients.
  *
  * @author Simon Taddiken
  */
-interface DependencyResolver extends Closeable {
+public interface DependencyResolver extends Closeable {
 
     /**
      * Returns a simple displayable name for this resolver.
