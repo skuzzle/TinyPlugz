@@ -63,3 +63,4 @@ public interface DependencyResolver extends Closeable {
             String name,
             Collection<URL> target) throws IOException;
 }
+
