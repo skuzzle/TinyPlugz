@@ -53,9 +53,6 @@ public final class TinyPlugzConfigurator {
      * access classes and configurations from plugins. Second, the Classloader
      * will be used to look up the TinyPlugz service provider either using the
      * {@link ServiceLoader} or by looking up an explicit implementation class.
-     * <p>
-     * This method will fail immediately if TinyPlugz already has been
-     * configured.
      *
      * @return Fluent builder object for further configuration.
      */
@@ -74,9 +71,6 @@ public final class TinyPlugzConfigurator {
      * access classes and configurations from plugins. Second, the Classloader
      * will be used to look up the TinyPlugz service provider either using the
      * {@link ServiceLoader} or by looking up an explicit implementation class.
-     * <p>
-     * This method will fail immediately if TinyPlugz already has been
-     * configured.
      *
      * @param parentClassLoader The parent Classloader to use.
      * @return Fluent builder object for further configuration.
@@ -94,9 +88,6 @@ public final class TinyPlugzConfigurator {
      * access classes and configurations from plugins. Second, the Classloader
      * will be used to look up the TinyPlugz service provider either using the
      * {@link ServiceLoader} or by looking up an explicit implementation class.
-     * <p>
-     * This method will fail immediately if TinyPlugz already has been
-     * configured.
      *
      * @return Fluent builder object for further configuration.
      */
@@ -216,7 +207,7 @@ public final class TinyPlugzConfigurator {
         /**
          * Creates a new TinyPlugz instance using the configured values. The
          * instance will <b>not</b> be deployed as the unique global instance
-         * and can be used fully independent.
+         * and can be used independently.
          *
          * @return The configured instance.
          * @throws TinyPlugzException When initializing TinyPlugz with the
