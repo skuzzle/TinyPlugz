@@ -8,10 +8,11 @@
         <relativePath>../skuzzle-parent</relativePath>
     </parent>
 
+
     <groupId>de.skuzzle.tinyplugz</groupId>
     <artifactId>tiny-plugz-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.3.0</version>
+    <version>0.4.0-SNAPSHOT</version>
 
     <name>tiny-plugz</name>
     <properties>
