@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Stage;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -197,6 +198,14 @@ public final class TinyPlugzGuice extends TinyPlugz {
      * @since 0.3.0
      */
     public static final String LAZY_SERVICES = "tinyplugz.guice.lazyServices";
+
+    /**
+     * The name of the injector {@link Stage} to use. Only applicable when using
+     * the default {@link InjectorFactory} implementation.
+     *
+     * @since 0.4.0
+     */
+    public static final String INJECTOR_STAGE = "tinyplugz.guice.injectorStage";
 
     /**
      * Name for injecting the plugin ClassLoader. Just annotate a

@@ -17,6 +17,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Stage;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Guice.class })
@@ -42,8 +43,19 @@ public class DefaultInjectorFactoryTest {
     public void testWithoutParent() throws Exception {
         final Injector injector = mock(Injector.class);
         PowerMockito.mockStatic(Guice.class);
-        PowerMockito.when(Guice.createInjector(Collections.emptyList())).thenReturn(injector);
+        PowerMockito.when(Guice.createInjector(Stage.PRODUCTION, Collections.emptyList())).thenReturn(injector);
         final Injector result = this.subject.createInjector(Collections.emptyList(), Collections.emptyMap());
+        assertSame(injector, result);
+    }
+
+    @Test
+    public void testWithoutParentAndStage() throws Exception {
+        final Injector injector = mock(Injector.class);
+        final Map<Object, Object> props = new HashMap<>();
+        props.put(TinyPlugzGuice.INJECTOR_STAGE, "DEVELOPMENT");
+        PowerMockito.mockStatic(Guice.class);
+        PowerMockito.when(Guice.createInjector(Stage.DEVELOPMENT, Collections.emptyList())).thenReturn(injector);
+        final Injector result = this.subject.createInjector(Collections.emptyList(), props);
         assertSame(injector, result);
     }
 }
