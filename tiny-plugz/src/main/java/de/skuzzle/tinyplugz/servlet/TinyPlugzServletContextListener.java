@@ -13,8 +13,8 @@ import de.skuzzle.tinyplugz.util.Require;
 /**
  * ServletContextListener for configuring TinyPlugz for a web application. Users
  * need to extend this class to provide the actual configuration for TinyPlugz
- * by implementing {@link #configure(DefineProperties, ServletContext)}. You then need to
- * register the listener in your web.xml:
+ * by implementing {@link #configure(DefineProperties, ServletContext)}. You
+ * then need to register the listener in your web.xml:
  *
  * <pre>
  * &lt;listener&gt;
@@ -25,18 +25,20 @@ import de.skuzzle.tinyplugz.util.Require;
  * TinyPlugz will then be deployed when this listener receives the
  * contextInitialized event and will be undeployed when the listener receives
  * the contextDestroyed event.
+ *
  * @author Simon Taddiken
  */
 public abstract class TinyPlugzServletContextListener implements ServletContextListener {
 
     /**
-     * Provides settings for deploying TinyPlugz. Sample implementation of this method:
+     * Provides settings for deploying TinyPlugz. Sample implementation of this
+     * method:
      *
      * <pre>
      * &#064;Override
      * protected final DeployTinyPlugz configure(DefineProperties props,
      *         ServletContext context) {
-     *     final String pathString = context.getRealPath("WEB-INF/plugins");
+     *     final String pathString = context.getRealPath(&quot;WEB-INF/plugins&quot;);
      *     final Path pluginDir = Paths.get(pathString);
      *
      *     return props.withProperty(Options.FAIL_ON_MULTIPLE_PROVIDERS)
@@ -69,6 +71,8 @@ public abstract class TinyPlugzServletContextListener implements ServletContextL
 
     @Override
     public final void contextDestroyed(ServletContextEvent sce) {
-        TinyPlugz.getInstance().undeploy();
+        if (TinyPlugz.isDeployed()) {
+            TinyPlugz.getInstance().undeploy();
+        }
     }
 }
