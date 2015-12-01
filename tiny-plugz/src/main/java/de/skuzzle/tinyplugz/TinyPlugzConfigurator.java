@@ -155,7 +155,7 @@ public final class TinyPlugzConfigurator {
         DefineProperties withSystemProperties();
 
         /**
-         * Specifies a multiple properties to insert into the map which will be
+         * Specifies multiple properties to insert into the map which will be
          * passed to
          * {@link TinyPlugz#initialize(PluginSource, ClassLoader, Map)} .
          *
@@ -330,8 +330,8 @@ public final class TinyPlugzConfigurator {
         @Override
         public TinyPlugz deploy() {
             validateProperties();
+            // this additional synchronized check is required here
             synchronized (DEPLOY_LOCK) {
-                // additional synchronized check is required here
                 Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
 
                 final TinyPlugz impl = createInstance();
