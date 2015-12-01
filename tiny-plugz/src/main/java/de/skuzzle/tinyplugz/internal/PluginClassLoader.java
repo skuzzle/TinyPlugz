@@ -148,12 +148,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     protected final Object getClassLoadingLock(String className) {
         // synchronizes class loading among all plugin classloaders.
         synchronized (STATIC_LOCK_MAP) {
-            Object lock = STATIC_LOCK_MAP.get(className);
-            if (lock == null) {
-                lock = new Object();
-                STATIC_LOCK_MAP.put(className, lock);
-            }
-            return lock;
+            return STATIC_LOCK_MAP.computeIfAbsent(className, k -> new Object());
         }
     }
 
