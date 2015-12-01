@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
 import de.skuzzle.tinyplugz.TinyPlugz;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 import de.skuzzle.tinyplugz.servlet.TinyPlugzServletContextListener;
@@ -31,18 +32,8 @@ import de.skuzzle.tinyplugz.util.Require;
 public abstract class TinyPlugzGuiceServletContextListener extends
         GuiceServletContextListener {
 
+    static final String SERVLET_CONTEXT_KEY = ServletContext.class.getName();
     private Injector injector;
-    private final TinyPlugzServletContextListener delegate =
-            new TinyPlugzServletContextListener() {
-
-                @Override
-                protected final DeployTinyPlugz configure(DefineProperties props,
-                        ServletContext context) {
-
-                    return TinyPlugzGuiceServletContextListener.this.configure
-                            (props, context);
-                }
-            };
 
     /**
      * Configures TinyPlugz. See {@link TinyPlugzServletContextListener}.
@@ -98,7 +89,15 @@ public abstract class TinyPlugzGuiceServletContextListener extends
     @Override
     public final void contextInitialized(ServletContextEvent servletContextEvent) {
         // this deploys TinyPlugz
-        this.delegate.contextInitialized(servletContextEvent);
+        final ServletContext ctx = servletContextEvent.getServletContext();
+        final ClassLoader webAppCl = getClass().getClassLoader();
+        final DefineProperties props = TinyPlugzConfigurator.setupUsingParent(webAppCl)
+                .withProperty(SERVLET_CONTEXT_KEY, ctx);
+
+        final DeployTinyPlugz config = Require.nonNullResult(
+                configure(props, ctx),
+                "TinyPlugzServletContextListener.configure");
+        config.deploy();
 
         this.injector = TinyPlugz.getInstance().getService(Injector.class);
         super.contextInitialized(servletContextEvent);
@@ -109,7 +108,9 @@ public abstract class TinyPlugzGuiceServletContextListener extends
     @Override
     public final void contextDestroyed(ServletContextEvent servletContextEvent) {
         // undeploy tiny plugz
-        this.delegate.contextDestroyed(servletContextEvent);
+        if (TinyPlugz.isDeployed()) {
+            TinyPlugz.getInstance().undeploy();
+        }
 
         // undeploy guice
         super.contextDestroyed(servletContextEvent);
