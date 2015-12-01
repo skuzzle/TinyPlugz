@@ -63,8 +63,8 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
         while (it.hasNext()) {
             final URL pluginURL = it.next();
             // Plugin classloaders must be created with the application
-            // classloader
-            // as parent
+            // classloader as parent. This is mandatory for establishing a sound
+            // locking strategy during class lookup.
             final PluginClassLoader pluginCl = PluginClassLoader.create(pluginURL,
                     appClassLoader, delegator);
             plugins.add(pluginCl);
