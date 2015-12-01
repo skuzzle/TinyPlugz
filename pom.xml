@@ -19,7 +19,7 @@
         <github.name>TinyPlugz</github.name>
 
         <sonar.jacoco.itReportPath>${basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <skuzzle.runtime.version>0.9.3</skuzzle.runtime.version>
+        <skuzzle.runtime.version>0.9.4</skuzzle.runtime.version>
     </properties>
 
     <scm>
@@ -43,6 +43,12 @@
                 <version>${skuzzle.runtime.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>de.skuzzle</groupId>
+                <artifactId>jeve</artifactId>
+                <version>2.0.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
