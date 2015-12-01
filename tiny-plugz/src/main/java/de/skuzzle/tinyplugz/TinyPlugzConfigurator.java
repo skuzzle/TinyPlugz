@@ -98,6 +98,22 @@ public final class TinyPlugzConfigurator {
     }
 
     /**
+     * Extensions might cast the fluent API object returned by this builder
+     * class to this interface in order to specify a {@link DeployHook}.
+     *
+     * @author Simon Taddiken
+     * @since 0.4.0
+     */
+    public static interface DefineDeployHook {
+        /**
+         * Specifies the {@link DeployHook}.
+         *
+         * @param hook The hook to use.
+         */
+        void setDeployHook(DeployHook hook);
+    }
+
+    /**
      * Part of the fluent configurator API. Used to define configuration
      * properties and the plugins to be used.
      *
@@ -228,20 +244,25 @@ public final class TinyPlugzConfigurator {
         TinyPlugz deploy();
     }
 
-    private static final class Impl implements DefineProperties, DeployTinyPlugz {
+    private static final class Impl implements DefineProperties, DeployTinyPlugz,
+            DefineDeployHook {
 
-        @NonNull
         private static final Object NON_NULL_VALUE = new Object();
 
-        @NonNull
         private final Map<Object, Object> properties;
-        @NonNull
         private final ClassLoader parentCl;
         private PluginSource source;
+        private DeployHook hook;
 
         private Impl(@NonNull ClassLoader parentCl) {
             this.parentCl = parentCl;
             this.properties = new HashMap<>();
+            this.hook = new NoopDeployHook();
+        }
+
+        @Override
+        public void setDeployHook(DeployHook hook) {
+            this.hook = Require.nonNull(hook, "hook");
         }
 
         @Override
@@ -334,8 +355,11 @@ public final class TinyPlugzConfigurator {
             synchronized (DEPLOY_LOCK) {
                 Require.state(!TinyPlugz.isDeployed(), "TinyPlugz already deployed");
 
+                this.hook.beforeCreateInstance(this.properties);
                 final TinyPlugz impl = createInstance();
+                this.hook.beforeDeployment(impl, this.properties);
                 TinyPlugz.deploy(impl);
+                this.hook.beforeNotifyListener(impl, this.properties);
                 notifyListeners(impl);
                 return impl;
             }
@@ -428,5 +452,19 @@ public final class TinyPlugzConfigurator {
             });
             LOG.debug(b.toString());
         }
+    }
+
+    private static final class NoopDeployHook implements DeployHook {
+
+        @Override
+        public void beforeCreateInstance(Map<Object, Object> properties) {}
+
+        @Override
+        public void beforeDeployment(TinyPlugz instance, Map<Object, Object> properties) {}
+
+        @Override
+        public void beforeNotifyListener(TinyPlugz instance,
+                Map<Object, Object> properties) {}
+
     }
 }

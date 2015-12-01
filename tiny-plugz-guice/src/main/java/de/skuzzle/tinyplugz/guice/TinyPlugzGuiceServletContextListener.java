@@ -1,13 +1,17 @@
 package de.skuzzle.tinyplugz.guice;
 
+import java.util.Map;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 
+import de.skuzzle.tinyplugz.DeployHook;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineDeployHook;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineProperties;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DeployTinyPlugz;
 import de.skuzzle.tinyplugz.servlet.TinyPlugzServletContextListener;
@@ -17,8 +21,8 @@ import de.skuzzle.tinyplugz.util.Require;
  * ServletContextListener which uses TinyPlugz for configuring the application's
  * guice {@link Injector}. When receiving the contextInitialized event, this
  * listener will deploy TinyPlugz using the configuration given by
- * {@link #configure(DefineProperties, ServletContext)}. It will then obtain the injector
- * from TinyPlugz and configure the {@link GuiceServletContextListener}
+ * {@link #configure(DefineProperties, ServletContext)}. It will then obtain the
+ * injector from TinyPlugz and configure the {@link GuiceServletContextListener}
  * appropriately.
  * <p>
  * {@link #tinyPlugzDeployed(TinyPlugz, Injector, ServletContextEvent)} will be
@@ -91,16 +95,18 @@ public abstract class TinyPlugzGuiceServletContextListener extends
         // this deploys TinyPlugz
         final ServletContext ctx = servletContextEvent.getServletContext();
         final ClassLoader webAppCl = getClass().getClassLoader();
-        final DefineProperties props = TinyPlugzConfigurator.setupUsingParent(webAppCl)
-                .withProperty(SERVLET_CONTEXT_KEY, ctx);
+        final DefineProperties props = TinyPlugzConfigurator.setupUsingParent(webAppCl);
+
+        // Cast is safe as by TinyPlugz specification. The hook serves for
+        // proper initialization of guice and guice servlet extension before
+        // notifying the DeployListeners
+        final DefineDeployHook defineHook = (DefineDeployHook) props;
+        defineHook.setDeployHook(new GuiceDeployHook(servletContextEvent));
 
         final DeployTinyPlugz config = Require.nonNullResult(
                 configure(props, ctx),
                 "TinyPlugzServletContextListener.configure");
         config.deploy();
-
-        this.injector = TinyPlugz.getInstance().getService(Injector.class);
-        super.contextInitialized(servletContextEvent);
 
         tinyPlugzDeployed(TinyPlugz.getInstance(), this.injector, servletContextEvent);
     }
@@ -117,5 +123,33 @@ public abstract class TinyPlugzGuiceServletContextListener extends
 
         tinyPlugzUndeployed(this.injector, servletContextEvent);
         this.injector = null;
+    }
+
+    private class GuiceDeployHook implements DeployHook {
+        private final ServletContextEvent servletContextEvent;
+
+        private GuiceDeployHook(ServletContextEvent servletContextEvent) {
+            this.servletContextEvent = servletContextEvent;
+        }
+
+        @Override
+        public void beforeDeployment(TinyPlugz instance, Map<Object, Object> properties) {
+            TinyPlugzGuiceServletContextListener.this.injector =
+                    instance.getService(Injector.class);
+        }
+
+        @Override
+        public void beforeNotifyListener(TinyPlugz instance,
+                Map<Object, Object> properties) {
+
+            TinyPlugzGuiceServletContextListener.super.contextInitialized(
+                    this.servletContextEvent);
+        }
+
+        @Override
+        public void beforeCreateInstance(Map<Object, Object> properties) {
+
+        }
+
     }
 }
