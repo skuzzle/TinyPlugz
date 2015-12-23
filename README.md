@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/skuzzle/TinyPlugz.svg)](https://travis-ci.org/skuzzle/TinyPlugz)
+Central](https://maven-badges.herokuapp.com/maven-central/de.skuzzle.tinyplugz/tiny-plugz/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.skuzzle.tinyplugz/tiny-plugz)
+[![Coverage Status](https://coveralls.io/repos/skuzzle/TinyPlugz/badge.svg?branch=master&service=github)](https://coveralls.io/github/skuzzle/TinyPlugz?branch=master)
 [SonarQube](https://www.serverd.de/sonar/dashboard/index/1106)
 
 TinyPlugz
