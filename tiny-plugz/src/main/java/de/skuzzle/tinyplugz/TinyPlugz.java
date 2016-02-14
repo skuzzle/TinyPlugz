@@ -38,7 +38,8 @@ import de.skuzzle.tinyplugz.util.Require;
  *         .loadServices(MyService.class);
  * </pre>
  *
- * <h2>Usage scenarios</h2> <h3>As child Classloader</h3>
+ * <h2>Usage scenarios</h2>
+ * <h3>As child Classloader</h3>
  * <p>
  * This is the preferred usage scenario. TinyPlugz will be configured to use the
  * application's Classloader as parent Classloader. The immediate implication is
@@ -147,11 +148,12 @@ public abstract class TinyPlugz {
 
     /**
      * Looks up {@link DeployListener} to be notified right after this instance
-     * has been deployed by the {@link TinyPlugzConfigurator} class. The listeners are
-     * retrieved querying Java's {@link ServiceLoader} for the service
-     * {@code DeployListener.class}.
+     * has been deployed by the {@link TinyPlugzConfigurator} class. The
+     * listeners are retrieved querying Java's {@link ServiceLoader} for the
+     * service {@code DeployListener.class}.
      *
-     * @param pluginClassLoader The ClassLoader for accessing services from plugins.
+     * @param pluginClassLoader The ClassLoader for accessing services from
+     *            plugins.
      * @return An iterator of available DeployListeners.
      */
     protected abstract Iterator<DeployListener> findDeployListeners(
@@ -231,11 +233,22 @@ public abstract class TinyPlugz {
     }
 
     /**
-     * Gets a collection of information about all loaded plugins.
+     * Gets a collection of information about all loaded plugins. The order in
+     * which information objects are returned is undefined.
      *
      * @return A read-only collection of plugin information.
      */
     public abstract Collection<PluginInformation> getPluginInformation();
+
+    /**
+     * Gets the information for the plugin with given name if such a plugin is
+     * loaded. Otherwise returns an empty {@link Optional}.
+     *
+     * @param pluginName Name of the plugin.
+     * @return The information about that plugin.
+     * @since 0.4.0
+     */
+    public abstract Optional<PluginInformation> getPluginInformation(String pluginName);
 
     /**
      * Returns the ClassLoader which can access classes from loaded plugins.

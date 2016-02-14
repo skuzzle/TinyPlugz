@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
@@ -39,7 +39,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     private static final Logger LOG = LoggerFactory.getLogger(PluginClassLoader.class);
 
     /** Holds a lock object per class name shared among all plugin ClassLoaders. */
-    private static final Map<String, Object> STATIC_LOCK_MAP = new HashMap<>();
+    private static final Map<String, Object> STATIC_LOCK_MAP = new ConcurrentHashMap<>();
 
     /**
      * Some static manifest file names in case the underlying file system is
@@ -147,9 +147,7 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     @Override
     protected final Object getClassLoadingLock(String className) {
         // synchronizes class loading among all plugin classloaders.
-        synchronized (STATIC_LOCK_MAP) {
-            return STATIC_LOCK_MAP.computeIfAbsent(className, k -> new Object());
-        }
+        return STATIC_LOCK_MAP.computeIfAbsent(className, k -> new Object());
     }
 
     @Override
@@ -521,6 +519,11 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
     private final class PluginInformationImpl implements PluginInformation {
 
         @Override
+        public String getName() {
+            return PluginClassLoader.this.simpleName;
+        }
+
+        @Override
         public final URL getLocation() {
             return PluginClassLoader.this.self;
         }
@@ -548,8 +551,8 @@ final class PluginClassLoader extends URLClassLoader implements DependencyResolv
         @Override
         public final boolean equals(Object obj) {
             return obj == this || obj instanceof PluginInformation &&
-                (((PluginInformation) obj).getLocation().toString())
-                        .equals(getLocation().toString());
+                (((PluginInformation) obj).getName())
+                        .equals(getName().toString());
         }
     }
 }

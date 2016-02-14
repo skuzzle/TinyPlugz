@@ -51,6 +51,11 @@ public class TinyPlugzLookUpTest {
         }
 
         @Override
+        public Optional<PluginInformation> getPluginInformation(String pluginName) {
+            return null;
+        }
+
+        @Override
         public void runMain(String className, String[] args) throws TinyPlugzException {}
 
         @Override

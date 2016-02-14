@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import de.skuzzle.tinyplugz.HostSampleService;
+import de.skuzzle.tinyplugz.PluginInformation;
 import de.skuzzle.tinyplugz.PluginSourceBuilder;
 import de.skuzzle.tinyplugz.TinyPlugz;
 import de.skuzzle.tinyplugz.TinyPlugzConfigurator;
@@ -55,6 +56,19 @@ public class TinyPlugzIT {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
+
+    @Test
+    public void testGetPluginInformation() throws Exception {
+        final PluginInformation info1 = TinyPlugz.getInstance()
+                .getPluginInformation("plugin1")
+                .get();
+        final PluginInformation info2 = TinyPlugz.getInstance()
+                .getPluginInformation("plugin2")
+                .get();
+
+        assertEquals("plugin1", info1.getName());
+        assertEquals("plugin2", info2.getName());
+    }
 
     @Test
     public void testGetServiceFailMultiple() throws Exception {

@@ -114,8 +114,8 @@ import de.skuzzle.tinyplugz.util.Require;
  * to the current plugin Classloader.</li>
  * <li>For each loaded plugin, its {@link PluginInformation} instance is bound
  * with the plugin's implementation title. That title is obtained from the
- * plugin's manifest. If the manifest of a plugin specifies no title, it is left
- * out.</li>
+ * plugin's manifest. If the manifest of a plugin specifies no title, the name of its
+ * jar file is used as key.</li>
  * <li>A method interceptor is bound which allows methods annotated with
  * {@link TinyPlugzContext} to be executed with exchanging the thread's context
  * Classloader for the TinyPlugz Classloader.</li>
@@ -271,6 +271,11 @@ public final class TinyPlugzGuice extends TinyPlugz {
     @Override
     public final Collection<PluginInformation> getPluginInformation() {
         return this.pluginClassLoader.getInformation();
+    }
+
+    @Override
+    public final Optional<PluginInformation> getPluginInformation(String pluginName) {
+        return this.pluginClassLoader.getInformation(pluginName);
     }
 
     /**

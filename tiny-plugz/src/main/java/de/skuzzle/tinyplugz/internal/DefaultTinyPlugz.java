@@ -41,6 +41,11 @@ final class DefaultTinyPlugz extends TinyPlugz {
     }
 
     @Override
+    public final Optional<PluginInformation> getPluginInformation(String pluginName) {
+        return this.pluginClassLoader.getInformation(pluginName);
+    }
+
+    @Override
     protected final Iterator<DeployListener> findDeployListeners(
             ClassLoader pluginClassLoader) {
         return this.serviceLoader.loadService(DeployListener.class, pluginClassLoader);

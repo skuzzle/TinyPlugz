@@ -10,6 +10,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -34,13 +38,18 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
     private static final Logger LOG = LoggerFactory.getLogger(DelegateClassLoader.class);
 
     private final DependencyResolver delegator;
-    private final Collection<PluginInformation> information;
+    private final Map<String, PluginInformation> information;
 
     DelegateClassLoader(ClassLoader parent, DependencyResolver delegator,
             Collection<PluginInformation> information) {
         super(parent);
         this.delegator = delegator;
-        this.information = Collections.unmodifiableCollection(information);
+        this.information = information.stream().collect(Collectors.toMap(
+                PluginInformation::getName,
+                Function.identity(),
+                (i1, i2) -> {
+                    throw new IllegalArgumentException("Duplicated plugin name: " + i1);
+                }));
     }
 
     /**
@@ -85,7 +94,18 @@ public final class DelegateClassLoader extends ClassLoader implements Closeable 
      * @return A read-only collection of plugin information.
      */
     public final Collection<PluginInformation> getInformation() {
-        return this.information;
+        return Collections.unmodifiableCollection(this.information.values());
+    }
+
+    /**
+     * Information about loaded plugin with given name.
+     *
+     * @param pluginName The plugin name.
+     * @return Information about that plugin.
+     */
+    public final Optional<PluginInformation> getInformation(String pluginName) {
+        Require.nonNull(pluginName, "pluginName");
+        return Optional.ofNullable(this.information.get(pluginName));
     }
 
     @Override

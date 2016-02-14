@@ -2,10 +2,24 @@ package de.skuzzle.tinyplugz;
 
 import java.util.Map;
 
+import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineDeployHook;
+
 /**
  * This hook is meant to be implemented by extensions to have the possibility to
  * modify the deployment process on a finer grained base than would be possible
  * with a {@link DeployListener}.
+ * <p>
+ * To employ an instance, cast the result of the fluent configurator API to
+ * {@link DefineDeployHook} like in the following example:
+ *
+ * <pre>
+ * DefineProperties props = TinyPlugzConfigurator.setup()
+ *         .withProperty(...);
+ * ((DefineDeployHook) props).setDeployHook(yourDeployHook);
+ *
+ * // go on with configuration
+ * props.deploy();
+ * </pre>
  *
  * @author Simon Taddiken
  * @since 0.4.0
