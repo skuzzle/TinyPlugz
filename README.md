@@ -26,7 +26,7 @@ TinyPlugz is available through maven central:
 <dependency>
     <groupId>de.skuzzle.tinyplugz</groupId>
     <artifactId>tiny-plugz</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ TinyPlugz guice extension:
 <dependency>
     <groupId>de.skuzzle.tinyplugz</groupId>
     <artifactId>tiny-plugz-guice</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -127,7 +127,7 @@ possible:
 
 ## Plugin HowTo
 A TinyPlugz plugin is no more than a single jar file containing custom code to extend your 
-application. In order for your application to be extandable, it should specify interfaces 
+application. In order for your application to be extendable, it should specify interfaces 
 that can be implemented as services by your plugins.
 
 ### Plugin Manifest
