@@ -28,7 +28,7 @@ public interface DeployHook {
 
     /**
      * Called before instantiating the TinyPlugz instance from the given
-     * properties. Properties might be modified.
+     * properties. Properties can be modified here.
      *
      * @param properties The user supplied properties.
      */

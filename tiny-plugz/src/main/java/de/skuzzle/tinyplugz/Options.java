@@ -55,7 +55,8 @@ public final class Options {
 
     /**
      * Configuration property for explicitly specifying the {@link TinyPlugz}
-     * implementation to use. It supports three different kind of value types:
+     * implementation to use. If it is omitted the implementation will be looked up
+     * automatically. This property supports three different kind of value types:
      * <ul>
      * <li>If the value is an instance of TinyPlugz, then just that instance
      * will be deployed.</li>

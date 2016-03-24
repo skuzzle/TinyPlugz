@@ -10,6 +10,7 @@ import java.util.Map;
  *
  * @author Simon Taddiken
  * @since 0.2.0
+ * @see TinyPlugz#findDeployListeners(ClassLoader)
  */
 public interface DeployListener {
 

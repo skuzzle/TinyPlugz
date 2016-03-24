@@ -3,8 +3,8 @@ package de.skuzzle.tinyplugz.internal;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ final class DelegateDependencyResolver implements DependencyResolver {
 
     DelegateDependencyResolver(Collection<DependencyResolver> children) {
         this.children = Require.nonNull(children, "children");
-        this.packageIndex = new HashMap<>();
+        this.packageIndex = new ConcurrentHashMap<>();
     }
 
     private String getPackageName(String name) {
@@ -41,10 +41,7 @@ final class DelegateDependencyResolver implements DependencyResolver {
 
         // first, try package index
         final String packageName = getPackageName(name);
-        final DependencyResolver indexResolver;
-        synchronized (this.packageIndex) {
-            indexResolver = this.packageIndex.get(packageName);
-        }
+        final DependencyResolver indexResolver = this.packageIndex.get(packageName);
         if (indexResolver != null && !indexResolver.equals(requestor)) {
             final Class<?> indexCls = indexResolver.findClass(requestor, name);
             if (indexCls != null) {
@@ -59,11 +56,9 @@ final class DelegateDependencyResolver implements DependencyResolver {
             }
             final Class<?> cls = pluginCl.findClass(requestor, name);
             if (cls != null) {
-                synchronized (this.packageIndex) {
-                    LOG.trace("Update package index mapping: {} -> {}",
-                            packageName, pluginCl);
-                    this.packageIndex.put(packageName, pluginCl);
-                }
+                LOG.trace("Update package index mapping: {} -> {}",
+                        packageName, pluginCl);
+                this.packageIndex.put(packageName, pluginCl);
                 return cls;
             }
         }

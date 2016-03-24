@@ -14,7 +14,7 @@ public interface PluginInformation {
 
     /**
      * Gets the plugin's name. The name is either defined by the
-     * {@link Name#IMPLEMENTATION_TITLE} attribute of the plugin's jar file or
+     * {@link Name#IMPLEMENTATION_TITLE} attribute of the plugin's MANIFEST.MF file or
      * by the jar file's name.
      *
      * @return The plugin name.

@@ -394,7 +394,8 @@ public final class TinyPlugzConfigurator {
                 final DeployListener next = Require.nonNullResult(listeners.next(),
                         "Iterator.next");
                 try {
-                    next.initialized(tinyPlugz, this.properties);
+                    next.initialized(tinyPlugz,
+                            Collections.unmodifiableMap(this.properties));
                 } catch (final RuntimeException e) {
                     LOG.error("DeployListener '{}' threw exception", next, e);
                 }
