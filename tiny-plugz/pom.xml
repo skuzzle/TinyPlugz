@@ -12,9 +12,6 @@
 	<packaging>jar</packaging>
 
 	<name>tiny-plugz</name>
-	<description>
-        TinyPlugz is a high level API around java's ServiceLoader and URLClassLoader.
-    </description>
 
 	<properties>
 		<sonar.jacoco.itReportPath>${basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
