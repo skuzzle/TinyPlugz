@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import de.skuzzle.tinyplugz.util.ElementIterator;
+import de.skuzzle.tinyplugz.util.Require;
 
 /**
  * Internal strategy interface for abstracting loading of services. The main
@@ -15,8 +16,15 @@ import de.skuzzle.tinyplugz.util.ElementIterator;
  */
 public abstract class ServiceLoaderWrapper {
 
-    private static final ServiceLoaderWrapper DEFAULT =
-            new ServiceLoaderWrapperImpl();
+    /**
+     * Lazy singleton pattern holder class.
+     *
+     * @author Simon Taddiken
+     */
+    private static class DefaultServiceLoaderWrapperHolder {
+        private static final ServiceLoaderWrapper INSTANCE =
+                new ServiceLoaderWrapperImpl();
+    }
 
     /**
      * Gets the default ServiceLoaderWrapper instance.
@@ -24,7 +32,7 @@ public abstract class ServiceLoaderWrapper {
      * @return The default instance.
      */
     public static ServiceLoaderWrapper getDefault() {
-        return DEFAULT;
+        return DefaultServiceLoaderWrapperHolder.INSTANCE;
     }
 
     /**
@@ -40,6 +48,11 @@ public abstract class ServiceLoaderWrapper {
             ClassLoader classLoader);
 
     private static final class ServiceLoaderWrapperImpl extends ServiceLoaderWrapper {
+
+        private ServiceLoaderWrapperImpl() {
+            Require.condition(DefaultServiceLoaderWrapperHolder.INSTANCE == null,
+                    "Already instantiated");
+        }
 
         @Override
         public <T> ElementIterator<T> loadService(Class<T> providerClass,

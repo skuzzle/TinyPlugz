@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import de.skuzzle.tinyplugz.util.Closeables;
 import de.skuzzle.tinyplugz.util.Require;
 
-final class DelegateDependencyResolver implements DependencyResolver {
+class DelegateDependencyResolver implements DependencyResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(
             DelegateDependencyResolver.class);

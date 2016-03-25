@@ -21,6 +21,9 @@ import de.skuzzle.tinyplugz.TinyPlugzConfigurator.DefineDeployHook;
  * props.deploy();
  * </pre>
  *
+ * <b>Design note:</b> The casting approach has been chosen in order not to publish the
+ * 'setDeployHook' method to normal users who only want to setup TinyPlugz.
+ *
  * @author Simon Taddiken
  * @since 0.4.0
  */
