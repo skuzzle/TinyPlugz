@@ -40,6 +40,11 @@ public class TinyPlugzLookUpTest {
                 Map<Object, Object> properties) throws TinyPlugzException {}
 
         @Override
+        public Map<Object, Object> getProperties() {
+            return null;
+        }
+
+        @Override
         protected Iterator<DeployListener> findDeployListeners(
                 ClassLoader pluginClassLoader) {
             return null;
@@ -54,9 +59,6 @@ public class TinyPlugzLookUpTest {
         public Optional<PluginInformation> getPluginInformation(String pluginName) {
             return null;
         }
-
-        @Override
-        public void runMain(String className, String[] args) throws TinyPlugzException {}
 
         @Override
         public ClassLoader getClassLoader() {

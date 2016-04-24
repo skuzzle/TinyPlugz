@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 /**
  * Utility class for dealing with Iterators.
@@ -25,6 +26,49 @@ public final class Iterators {
     public static <T> Iterator<T> singleIterator(T t) {
         Require.nonNull(t, "t");
         return Collections.singleton(t).iterator();
+    }
+
+    /**
+     * Creates an iterator that returns a filtered view of the input iterator.
+     *
+     * @param it The source iterator.
+     * @param filter The predicate to match elements that should occur in the result.
+     * @return The filtered iterator.
+     */
+    public static <T> Iterator<T> filter(Iterator<T> it, Predicate<T> filter) {
+        return new Iterator<T>() {
+
+            private T cached = null;
+
+            @Override
+            public boolean hasNext() {
+                if (this.cached != null) {
+                    return true;
+                }
+
+                boolean test = false;
+                while (it.hasNext() && !test) {
+                    this.cached = it.next();
+                    test = filter.test(this.cached);
+                }
+                return test;
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                final T result = this.cached;
+                this.cached = null;
+                return result;
+            }
+
+            @Override
+            public void remove() {
+                it.remove();
+            }
+        };
     }
 
     /**
@@ -52,7 +96,7 @@ public final class Iterators {
      *         in given order.
      */
     @SafeVarargs
-    public static <T> ElementIterator<T> composite(Iterator<T>... iterators) {
+    public static <T> ElementIterator<T> compositeIterator(Iterator<T>... iterators) {
         Require.nonNull(iterators, "iterators");
         final Iterator<T> result;
         if (iterators.length == 0) {
@@ -78,7 +122,7 @@ public final class Iterators {
      */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public static <T> Iterable<T> composite(Iterable<T>...iterables) {
+    public static <T> Iterable<T> compositeIterable(Iterable<T>...iterables) {
         Require.nonNull(iterables, "iterables");
         final Iterator<T> it;
         if (iterables.length == 0) {

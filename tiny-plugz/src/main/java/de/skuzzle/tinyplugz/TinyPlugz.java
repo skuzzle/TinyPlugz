@@ -2,9 +2,6 @@ package de.skuzzle.tinyplugz;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -38,45 +35,20 @@ import de.skuzzle.tinyplugz.util.Require;
  *         .loadServices(MyService.class);
  * </pre>
  *
- * <h2>Usage scenarios</h2>
- * <h3>As child Classloader</h3>
+ * <h2>Usage scenario</h2>
  * <p>
- * This is the preferred usage scenario. TinyPlugz will be configured to use the
- * application's Classloader as parent Classloader. The immediate implication is
- * that the host application does not see classes loaded from plugins but
- * plugins see classes of the host application. The only way for the host
- * application to access features of loaded plugins is to use the java service
- * extension feature through the TinyPlugz API.
+ * TinyPlugz will be configured to use the application's Classloader as parent
+ * Classloader. The immediate implication is that the host application does not
+ * see classes loaded from plugins but plugins see classes of the host
+ * application. The only way for the host application to access features of
+ * loaded plugins is to use the java service extension feature through the
+ * TinyPlugz API.
  * <p>
- * This method is preferred because it provides a single point of accessing
- * plugin functionality. However, low level access is still possible by using
- * the {@link #getClassLoader() plugin Classloader} directly.
- * <h3>As parent Classloader (container mode)</h3>
- * <p>
- * In this scenario your whole application will be loaded by TinyPlugz, making
- * TinyPlugz the parent Classloader of your application. This is achieved by
- * TinyPlugz calling the main method of your application. This implies that your
- * application can natively access classes from loaded plugins and all loaded
- * plugins can access classes of your application's static class path. For this
- * scenario, your application needs two {@code main} methods: One which
- * initializes TinyPlugz and a "real" one which is then called by TinyPlugz in
- * the context of the correct Classloader:
+ * This method provides a single point of accessing plugin functionality.
+ * However, low level access is still possible by using the
+ * {@link #getClassLoader() plugin Classloader} directly.
  *
- * <pre>
- * // This is the entry point main method of your application
- * public static void main(String[] args) {
- *     TinyPlugzConfigurator.setup()
- *             .withProperty(&quot;key&quot;, value)
- *             .withPlugins(source -&gt; source.addAll(pluginFolder))
- *             .deploy()
- *             .runMain(&quot;com.your.domain.ClassWithRealMainMethod&quot;, args);
- * }
- * </pre>
- *
- * Please note that this method also replaces the context Classloader of the
- * main thread with TinyPlugz's plugin Classloader.
- *
- * <h2>Deploytime Extensibility</h2>
+ * <h2>Deploy time Extensibility</h2>
  * <p>
  * The {@link TinyPlugz} instance returned by {@link #getInstance()} is
  * automatically determined by using java's {@link ServiceLoader} class. It will
@@ -135,7 +107,10 @@ public abstract class TinyPlugz {
 
     /**
      * This method is called by the TinyPlugz runtime right after instantiation
-     * of this instance.
+     * of this instance. The first thing implementations of this method should
+     * do is to store a reference to the passed properties in order to make it
+     * available through {@link #getProperties()} during the initialization
+     * process.
      *
      * @param source The plugins to load.
      * @param parentClassLoader The Classloader to use as parent for the plugin
@@ -145,6 +120,16 @@ public abstract class TinyPlugz {
      */
     protected abstract void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties);
+
+    /**
+     * Gets a read-only view of the properties that have been passed to deploy.
+     * The map must be available during initializing, so plugin service can read
+     * them for own initialization pruposes.
+     *
+     * @return The deployment properties.
+     * @since 0.4.0
+     */
+    public abstract Map<Object, Object> getProperties();
 
     /**
      * Looks up {@link DeployListener} to be notified right after this instance
@@ -173,62 +158,6 @@ public abstract class TinyPlugz {
         if (getClassLoader() instanceof Closeable) {
             final Closeable cl = (Closeable) getClassLoader();
             Closeables.safeClose(cl);
-        }
-    }
-
-    /**
-     * Executes a main method in the context of the plugin ClassLoader. This
-     * method uses the plugin ClassLoader to load the class with given
-     * {@code className} and then searches for a
-     * {@code public static void main(String[] args)} method to execute.
-     * Additionally, the plugin ClassLoader is set as context ClassLoader for
-     * the current thread.
-     *
-     * <p>
-     * Using this method it is possible to use TinyPlugz as an execution
-     * container for the whole application, because all subsequently loaded
-     * classes will be loaded by a Classloader which has the plugin Classloader
-     * as parent.
-     * </p>
-     *
-     * @param className Name of the class which contains the main method.
-     * @param args Arguments to pass to the main method.
-     * @throws TinyPlugzException If loading the class or calling it's main
-     *             method fails.
-     */
-    public abstract void runMain(String className, String[] args);
-
-    /**
-     * Default implementation for {@link #runMain(String, String[])}.
-     *
-     * @param className Name of the class which contains the main method.
-     * @param args Arguments to pass to the main method.
-     * @throws TinyPlugzException If loading the class or calling it's main
-     *             method fails.
-     */
-    protected final void defaultRunMain(String className, String[] args) {
-        try {
-            Thread.currentThread().setContextClassLoader(getClassLoader());
-            final Class<?> cls = getClassLoader().loadClass(className);
-            final Method method = cls.getMethod("main",
-                    new Class<?>[] { String[].class });
-
-            final boolean methodValid = method != null &&
-                Modifier.isPublic(method.getModifiers()) &&
-                Modifier.isStatic(method.getModifiers()) &&
-                method.getReturnType() == void.class;
-
-            if (!methodValid) {
-                throw new TinyPlugzException(String.format(
-                        "The main() method in class '%s' not found.", cls.getName()));
-            }
-
-            // Crazy cast "(Object)args" because param is: "Object... args"
-            Require.nonNull(method).invoke(null, (Object) args);
-        } catch (InvocationTargetException | NoSuchMethodException | SecurityException
-                | IllegalAccessException | IllegalArgumentException
-                | ClassNotFoundException e) {
-            throw new TinyPlugzException(e);
         }
     }
 

@@ -13,9 +13,19 @@ public class ClassWithPlugin1Dependency {
     static {
         final ClassLoader cl = TinyPlugz.getInstance().getClassLoader();
         try {
-            final Class<?> cls = cl.loadClass("de.skuzzle.jeve.EventProvider");
+            cl.loadClass("de.skuzzle.jeve.EventProvider");
             Require.state(false, "Class should not have been found");
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
+        }
+        final ClassLoader self = ClassWithPlugin1Dependency.class.getClassLoader();
+        try {
+            final Class<?> cls = self.loadClass("de.skuzzle.jeve.EventProvider");
+            Require.condition(cls.getClassLoader() != self,
+                    "Class should have been loaded by the dependency classloader");
+            Require.condition(cls.getClassLoader().getParent() == self.getParent(),
+                    "Parent of dependency classloader should be the app classloader");
+        } catch (final ClassNotFoundException e) {
+            Require.state(false, "Class should have been found");
         }
     }
 }

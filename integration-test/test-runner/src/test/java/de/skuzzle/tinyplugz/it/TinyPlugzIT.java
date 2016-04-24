@@ -118,4 +118,10 @@ public class TinyPlugzIT {
         assertTrue(plugin1.isPresent());
         assertTrue(plugin2.isPresent());
     }
+
+    @Test
+    public void testClassLoaderHierarchy() throws Exception {
+        TinyPlugz.getInstance().getClassLoader().loadClass(
+                "de.skuzzle.tinyplugz.test.testplugin1.ClassWithPlugin1Dependency");
+    }
 }

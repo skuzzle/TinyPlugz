@@ -3,6 +3,7 @@ package de.skuzzle.tinyplugz.internal;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -20,10 +21,13 @@ final class DefaultTinyPlugz extends TinyPlugz {
 
     private ServiceLoaderWrapper serviceLoader;
     private DelegateClassLoader pluginClassLoader;
+    private Map<Object, Object> properties;
 
     @Override
     protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader, Map<Object, Object> properties) {
+        this.properties = Collections.unmodifiableMap(properties);
+
         this.pluginClassLoader = createClassLoader(source, parentClassLoader);
         if (properties.containsKey(Options.SERVICE_LOADER_WRAPPER)) {
             this.serviceLoader = ReflectionUtil.createInstance(
@@ -33,6 +37,12 @@ final class DefaultTinyPlugz extends TinyPlugz {
         } else {
             this.serviceLoader = ServiceLoaderWrapper.getDefault();
         }
+    }
+
+    @Override
+    public final Map<Object, Object> getProperties() {
+        Require.state(this.properties != null, "Instance not initialized");
+        return this.properties;
     }
 
     @Override
@@ -59,13 +69,6 @@ final class DefaultTinyPlugz extends TinyPlugz {
     @Override
     public final ClassLoader getClassLoader() {
         return this.pluginClassLoader;
-    }
-
-    @Override
-    public final void runMain(String className, String[] args) {
-        Require.nonNull(className, "className");
-        Require.nonNull(args, "args");
-        defaultRunMain(className, args);
     }
 
     @Override

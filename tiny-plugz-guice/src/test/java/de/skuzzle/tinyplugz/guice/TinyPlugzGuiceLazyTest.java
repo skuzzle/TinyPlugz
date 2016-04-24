@@ -84,13 +84,6 @@ public class TinyPlugzGuiceLazyTest extends AbstractTinyPlugzTest {
     }
 
     @Test
-    @Override
-    public void testRunMain() throws Exception {
-        mockService(Module.class);
-        super.testRunMain();
-    }
-
-    @Test
     public void loadServiceNoMultiBindings() throws Exception {
         final SampleService impl = mock(SampleService.class);
         final Module module = new AbstractModule() {

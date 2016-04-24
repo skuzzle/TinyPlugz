@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.Predicate;
 import java.util.jar.Attributes.Name;
 
 import org.slf4j.Logger;
@@ -165,6 +166,17 @@ public final class TinyPlugzGuice extends TinyPlugz {
     public static final String ADDITIONAL_MODULES = "tinyplugz.guice.additionalModules";
 
     /**
+     * Initialization property to specify modules that should NOT be installed
+     * automatically. This can be used to ignore certain modules during integration
+     * testing of your application. You may specify a {@link Collection} of {@link Class}
+     * instances representing the modules that should not be pulled in from the
+     * ServiceLoader. This will also affect the modules specified in
+     * {@link #ADDITIONAL_MODULES}.
+     * @since 0.4.0
+     */
+    public static final String IGNORED_MODULES = "tinyplugz.guice.ignoredModules";
+
+    /**
      * Property for specifying a parent {@link Injector}. If specified, the
      * Injector created upon initializing will be a child Injector of the given
      * Injector. Otherwise, a new stand-alone Injector will be created.
@@ -221,6 +233,7 @@ public final class TinyPlugzGuice extends TinyPlugz {
     private GetServicesStrategy getServiceStrategy;
     private DelegateClassLoader pluginClassLoader;
     private ServiceLoaderWrapper serviceLoader;
+    private Map<Object, Object> properties;
 
     /**
      * Public no argument constructor for java's ServiceLoader. For proper
@@ -235,9 +248,17 @@ public final class TinyPlugzGuice extends TinyPlugz {
     }
 
     @Override
+    public Map<Object, Object> getProperties() {
+        Require.state(this.properties != null, "Instance not initialized");
+        return this.properties;
+    }
+
+    @Override
     protected final void initialize(PluginSource source,
             ClassLoader parentClassLoader,
             Map<Object, Object> properties) {
+
+        this.properties = Collections.unmodifiableMap(properties);
 
         this.getServiceStrategy = getGetServiceStrategy(properties);
         LOG.debug("Service strategy: {}", this.getServiceStrategy);
@@ -254,9 +275,9 @@ public final class TinyPlugzGuice extends TinyPlugz {
         }
 
         final Iterable<Module> appModules = getAdditionalModules(properties);
-        final Iterable<Module> pluginModules = getPluginModules();
+        final Iterable<Module> pluginModules = getPluginModules(properties);
         final Iterable<Module> internal = getInternalModule();
-        final Iterable<Module> modules = Iterators.composite(internal, appModules,
+        final Iterable<Module> modules = Iterators.compositeIterable(internal, appModules,
                 pluginModules);
         this.injector = createInjector(properties, modules);
     }
@@ -364,38 +385,53 @@ public final class TinyPlugzGuice extends TinyPlugz {
 
     @SuppressWarnings("unchecked")
     private Iterable<Module> getAdditionalModules(Map<Object, Object> props) {
-        return (Iterable<Module>) props.getOrDefault(ADDITIONAL_MODULES,
+        final Iterable<Module> add = (Iterable<Module>)
+                props.getOrDefault(ADDITIONAL_MODULES,
                 Collections.emptyList());
+
+        final Predicate<Module> notIgnored = module -> !isIgnored(module, props);
+        final Iterator<Module> filtered = Iterators.filter(add.iterator(), notIgnored);
+        return Iterators.iterableOf(filtered);
     }
 
-    private Iterable<Module> getPluginModules() {
+    @SuppressWarnings("unchecked")
+    private boolean isIgnored(Module module, Map<Object, Object> props) {
+        final Collection<Class<?>> ignored =
+                (Collection<Class<?>>) props.get(IGNORED_MODULES);
+        if (ignored == null) {
+            return false;
+        }
+        final boolean isIgnored = ignored.contains(module.getClass());
+        if (isIgnored) {
+            LOG.warn("Ignoring module '{}' because its class is listed as ignored",
+                    module);
+        }
+        return isIgnored;
+    }
+
+    private Iterable<Module> getPluginModules(Map<Object, Object> props) {
         // using the plugin class loader allows to access Services from plugins
         final Iterator<Module> moduleIt = this.serviceLoader.loadService(
                 Module.class, this.pluginClassLoader);
+        final Predicate<Module> notIgnored = module -> !isIgnored(module, props);
+        final Iterator<Module> filteredModules = Iterators.filter(moduleIt, notIgnored);
 
         // Wrap modules for logging purposes
         final Iterator<Module> wrapped = new Iterator<Module>() {
 
             @Override
             public boolean hasNext() {
-                return moduleIt.hasNext();
+                return filteredModules.hasNext();
             }
 
             @Override
             public Module next() {
-                final Module module = moduleIt.next();
+                final Module module = filteredModules.next();
                 LOG.debug("Installing module '{}'", module);
                 return module;
             }
         };
         return Iterators.iterableOf(wrapped);
-    }
-
-    @Override
-    public final void runMain(String className, String[] args) {
-        Require.nonNull(className, "className");
-        Require.nonNull(args, "args");
-        defaultRunMain(className, args);
     }
 
     @Override

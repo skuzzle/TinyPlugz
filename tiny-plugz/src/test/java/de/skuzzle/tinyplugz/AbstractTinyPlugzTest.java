@@ -147,11 +147,4 @@ public abstract class AbstractTinyPlugzTest {
         final SampleService service = getSubject().getService(SampleService.class);
         assertSame(impl1, service);
     }
-
-    @Test
-    public void testRunMain() throws Exception {
-        final String name = "de.skuzzle.tinyplugz.Main";
-        getSubject().runMain(name, new String[0]);
-        assertTrue(Main.called);
-    }
 }

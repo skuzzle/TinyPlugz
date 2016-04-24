@@ -14,7 +14,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *
  * @author Simon Taddiken
  */
-interface DependencyResolver extends Closeable {
+public interface DependencyResolver extends Closeable {
 
     /**
      * Returns a simple displayable name for this resolver.

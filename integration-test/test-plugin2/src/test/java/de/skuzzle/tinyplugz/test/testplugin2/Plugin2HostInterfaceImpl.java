@@ -38,7 +38,7 @@ public class Plugin2HostInterfaceImpl implements HostSampleService {
         final Enumeration<URL> both = cl.getResources("both.txt");
 
         Require.nonNull(plugin1, "plugin1");
-        Require.nonNull(plugin2, "plugin1");
+        Require.nonNull(plugin2, "plugin2");
         both.nextElement();
         both.nextElement();
         Require.condition(!both.hasMoreElements(), "");
@@ -50,5 +50,4 @@ public class Plugin2HostInterfaceImpl implements HostSampleService {
                 .getService(Plugin1SampleService.class);
         return "Plugin2 " + plugin1Service.workit(s);
     }
-
 }
